@@ -43,8 +43,8 @@ export interface AudioPack {
 
 export async function cargarAudioPack(packId: string): Promise<AudioPack> {
   const [fondo, voces] = await Promise.all([
-    cargarBuffer(`/packs/${packId}/fondo.m4a`),
-    cargarBuffer(`/packs/${packId}/voces.m4a`),
+    cargarBuffer(`/packs/${packId}/fondo.mp3`),
+    cargarBuffer(`/packs/${packId}/voces.mp3`),
   ]);
   return { fondo, voces };
 }

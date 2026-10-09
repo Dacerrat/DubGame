@@ -4,15 +4,15 @@
   "titulo": "El narrador",
   "obra": "Escena de prueba DubGame",
   "tipo": "prueba",
-  "autor": "anónimo",
+  "autor": "DubGame",
   "idiomaOriginal": "es",
-  "duracion": 34.744,
+  "duracion": 34.808,
   "estado": "listo",
-  "creado": "2026-10-09T02:26:11",
+  "creado": "2026-10-09T02:33:16",
   "fuente": {
     "url": null,
     "inicio": 0.0,
-    "fin": 34.744
+    "fin": 34.808
   },
   "personajes": [
     {
@@ -25,54 +25,54 @@
     {
       "personaje": "narrador",
       "inicio": 1.384,
-      "fin": 7.324,
+      "fin": 7.452,
       "texto": "Hace mucho tiempo, en un pueblo perdido entre montañas, vivía un caballero sin espada.",
-      "textoOriginal": "Hace mucho tiempo en un pueblo perdido entre montañas vivía un cavallero sin espada.",
-      "confianza": 0.993,
+      "textoOriginal": "Hace mucho tiempo en un pueblo perdido entre montañas vivía un caballero sin espada.",
+      "confianza": 1.0,
       "id": "l01"
     },
     {
       "personaje": "narrador",
-      "inicio": 7.752,
-      "fin": 12.124,
+      "inicio": 7.88,
+      "fin": 12.316,
       "texto": "Cada mañana se levantaba antes que el sol y salía a buscar aventuras.",
-      "textoOriginal": "Toda mañana se levantaba antes que el sol le salía a buscar aventuras.",
-      "confianza": 0.966,
+      "textoOriginal": "Toda mañana se levantaban antes que el sol y salía a buscar a venturas.",
+      "confianza": 0.971,
       "id": "l02"
     },
     {
       "personaje": "narrador",
-      "inicio": 12.808,
-      "fin": 17.436,
+      "inicio": 12.712,
+      "fin": 17.308,
       "texto": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
-      "textoOriginal": "pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada",
-      "confianza": 0.999,
+      "textoOriginal": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
+      "confianza": 0.998,
       "id": "l03"
     },
     {
       "personaje": "narrador",
-      "inicio": 17.672,
-      "fin": 22.684,
+      "inicio": 17.544,
+      "fin": 22.716,
       "texto": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
-      "textoOriginal": "Un día una sombra enorme cubrió el cielo y todos corrieron mezcándose.",
-      "confianza": 0.949,
+      "textoOriginal": "Un día, una sombra enorme cubrió el cielo y todos corrieron descondirse.",
+      "confianza": 0.979,
       "id": "l04"
     },
     {
       "personaje": "narrador",
       "inicio": 23.528,
-      "fin": 27.9,
+      "fin": 28.092,
       "texto": "El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
-      "textoOriginal": "Caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
-      "confianza": 0.982,
+      "textoOriginal": "ayer levanto la vista respirando y dijo que no tenia miedo",
+      "confianza": 0.927,
       "id": "l05"
     },
     {
       "personaje": "narrador",
-      "inicio": 28.072,
-      "fin": 33.244,
+      "inicio": 28.264,
+      "fin": 33.308,
       "texto": "Era solo una nube con forma de dragón. Y así terminó su mayor aventura.",
-      "textoOriginal": "Era solo una nube conforme de dragón y así terminó su mayor aventura.",
+      "textoOriginal": "Era solo una nuev conforma de dragón y así terminó su mayor aventura.",
       "confianza": 0.987,
       "id": "l06"
     }

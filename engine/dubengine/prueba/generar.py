@@ -209,7 +209,7 @@ def main() -> int:
                 Path(a.fuentes).mkdir(parents=True, exist_ok=True)
                 (Path(a.fuentes) / video.name).write_bytes(video.read_bytes())
                 audio.guardar_json(Path(a.fuentes) / f"{esc['id']}.verdad.json", info)
-            op = Opciones(video=str(video), salida=a.salida, modelo=a.modelo, forzar=True)
+            op = Opciones(video=str(video), salida=a.salida, modelo=a.modelo, forzar=True, autor="DubGame")
             if a.sin_receta:
                 op.id = esc["id"] + "-auto"
                 op.titulo = esc["titulo"] + " (auto)"

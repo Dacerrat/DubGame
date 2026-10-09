@@ -5,7 +5,7 @@ import type { Pack, PackResumen, Receta, RecetaResumen } from '../shared/tipos';
 import { validarPack } from '../shared/reglas';
 import { DIR_PACKS, DIR_RECETAS, idSeguro } from './rutas';
 
-const ARCHIVOS_PACK = ['pack.json', 'video.mp4', 'fondo.m4a', 'voces.m4a', 'portada.jpg'];
+const ARCHIVOS_PACK = ['pack.json', 'video.mp4', 'fondo.mp3', 'voces.mp3', 'portada.jpg'];
 
 export function rutaPack(id: string): string {
   if (!idSeguro(id)) throw new Error('id de pack no válido');
@@ -54,7 +54,7 @@ export function listarPacks(): PackResumen[] {
     if (!idSeguro(id)) continue;
     const dir = path.join(DIR_PACKS, id);
     const p = leerPack(id);
-    if (p && fs.existsSync(path.join(dir, 'fondo.m4a'))) out.push(resumir(p, dir));
+    if (p && fs.existsSync(path.join(dir, 'fondo.mp3'))) out.push(resumir(p, dir));
   }
   return out.sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
 }
@@ -106,9 +106,9 @@ export function importarPack(datos: Buffer, sobrescribir = false): string {
     if (path.dirname(e.entryName) !== base || !ARCHIVOS_PACK.includes(nombre)) continue;
     fs.writeFileSync(path.join(tmp, nombre), e.getData());
   }
-  if (!fs.existsSync(path.join(tmp, 'fondo.m4a'))) {
+  if (!fs.existsSync(path.join(tmp, 'fondo.mp3'))) {
     fs.rmSync(tmp, { recursive: true, force: true });
-    throw new Error('Al pack le falta fondo.m4a');
+    throw new Error('Al pack le falta fondo.mp3');
   }
   fs.rmSync(dir, { recursive: true, force: true });
   fs.renameSync(tmp, dir);

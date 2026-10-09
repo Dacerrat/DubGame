@@ -192,8 +192,8 @@ def procesar(op: Opciones) -> Path:
         try:
             audio.escribir_wav(tmp / "voces.wav", voces[:, a0:a1], sep.SR)
             audio.escribir_wav(tmp / "fondo.wav", fondo[:, a0:a1], sep.SR)
-            audio.a_m4a(tmp / "voces.wav", tmp_pack / "voces.m4a")
-            audio.a_m4a(tmp / "fondo.wav", tmp_pack / "fondo.m4a")
+            audio.a_mp3(tmp / "voces.wav", tmp_pack / "voces.mp3")
+            audio.a_mp3(tmp / "fondo.wav", tmp_pack / "fondo.mp3")
             v_ini = ini + desplazamiento
             if audio.tiene_video(origen):
                 audio.ejecutar(["-ss", f"{v_ini:.3f}", "-i", str(origen), "-t", f"{dur_final:.3f}", "-an",

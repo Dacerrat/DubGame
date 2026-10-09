@@ -45,7 +45,7 @@ class Alineada:
 def normalizar(t: str) -> str:
     t = unicodedata.normalize("NFD", t.lower())
     t = "".join(c for c in t if unicodedata.category(c) != "Mn")
-    t = re.sub(r"[^a-z0-9ñ ]+", " ", t)
+    t = re.sub(r"[^a-z0-9 ]+", " ", t)
     return re.sub(r"\s+", " ", t).strip()
 
 
@@ -91,13 +91,12 @@ def _dp(guion: list[LineaGuion], det: list[Detectada], mismo_idioma: bool,
         else:
             s = plausibilidad_duracion(texto_g, dur)
         if mapa is not None:
-            personajes = {x.personaje for x in g}
-            aciertos = sum(1 for x in d if mapa.get(x.hablante) in personajes)
-            coherencia = aciertos / len(d)
+            pares = [(x, y) for x in g for y in d]
+            coherencia = sum(1 for x, y in pares if mapa.get(y.hablante) == x.personaje) / len(pares)
             peso = 0.3 if mismo_idioma else 0.55
             s = (1 - peso) * s + peso * coherencia
         # Penalización suave por fusionar/partir
-        s -= 0.06 * (a - 1 + b - 1)
+        s -= 0.12 * (a - 1 + b - 1)
         return s
 
     base = 0.35 if mismo_idioma else 0.25

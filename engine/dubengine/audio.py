@@ -60,8 +60,9 @@ def escribir_wav(ruta: str | Path, datos: np.ndarray, sr: int) -> None:
         w.writeframes(pcm.tobytes())
 
 
-def a_m4a(origen: str | Path, destino: str | Path, kbps: int = 128) -> None:
-    ejecutar(["-i", str(origen), "-vn", "-c:a", "aac", "-b:a", f"{kbps}k", "-movflags", "+faststart", str(destino)])
+def a_mp3(origen: str | Path, destino: str | Path, kbps: int = 160) -> None:
+    """MP3: lo decodifican todos los navegadores (AAC no está en Chromium libre)."""
+    ejecutar(["-i", str(origen), "-vn", "-c:a", "libmp3lame", "-b:a", f"{kbps}k", str(destino)])
 
 
 def duracion(ruta: str | Path) -> float:

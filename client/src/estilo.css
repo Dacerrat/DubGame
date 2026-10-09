@@ -282,7 +282,7 @@ select option { background: #11131c; }
 .fila { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .fila.fin { justify-content: flex-end; }
 .fila.centro { justify-content: center; }
-.pila { display: flex; flex-direction: column; gap: 12px; }
+.pila { display: flex; flex-direction: column; gap: 18px; }
 .tenue { color: var(--tenue); }
 .error { color: var(--rojo); }
 .aviso { color: var(--ambar); }
