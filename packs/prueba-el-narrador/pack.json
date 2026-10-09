@@ -6,14 +6,14 @@
   "tipo": "prueba",
   "autor": "DubGame",
   "idiomaOriginal": "es",
-  "duracion": 34.808,
+  "duracion": 34.67,
   "estado": "listo",
   "avisos": [],
-  "creado": "2026-10-09T11:57:39",
+  "creado": "2026-10-09T13:32:57",
   "fuente": {
     "url": null,
     "inicio": 0.0,
-    "fin": 34.808
+    "fin": 34.67
   },
   "personajes": [
     {
@@ -26,25 +26,25 @@
     {
       "personaje": "narrador",
       "inicio": 1.4,
-      "fin": 7.58,
+      "fin": 7.602,
       "texto": "Hace mucho tiempo, en un pueblo perdido entre montañas, vivía un caballero sin espada.",
-      "textoOriginal": "Hace mucho tiempo en un pueblo perdido entre montañas vivía un caballero sin espada.",
+      "textoOriginal": "Hace mucho tiempo, en un pueblo perdido entre montañas, vivía un caballero sin espada.",
       "confianza": 1.0,
       "id": "l01"
     },
     {
       "personaje": "narrador",
       "inicio": 7.992,
-      "fin": 12.476,
+      "fin": 12.466,
       "texto": "Cada mañana se levantaba antes que el sol y salía a buscar aventuras.",
-      "textoOriginal": "Cada mañana se levantaba antes que el sol ni salía a buscar aventuras.",
-      "confianza": 0.984,
+      "textoOriginal": "Cada mañana se levantaba antes que el sol y salía a buscar aventuras.",
+      "confianza": 1.0,
       "id": "l02"
     },
     {
       "personaje": "narrador",
-      "inicio": 12.824,
-      "fin": 17.532,
+      "inicio": 12.792,
+      "fin": 17.426,
       "texto": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
       "textoOriginal": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
       "confianza": 1.0,
@@ -52,17 +52,17 @@
     },
     {
       "personaje": "narrador",
-      "inicio": 17.752,
-      "fin": 22.652,
+      "inicio": 17.592,
+      "fin": 22.514,
       "texto": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
-      "textoOriginal": "Un día una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
+      "textoOriginal": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
       "confianza": 1.0,
       "id": "l04"
     },
     {
       "personaje": "narrador",
-      "inicio": 23.288,
-      "fin": 27.932,
+      "inicio": 23.32,
+      "fin": 27.794,
       "texto": "El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
       "textoOriginal": "El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
       "confianza": 1.0,
@@ -70,11 +70,11 @@
     },
     {
       "personaje": "narrador",
-      "inicio": 28.088,
-      "fin": 33.308,
+      "inicio": 27.96,
+      "fin": 33.17,
       "texto": "Era solo una nube con forma de dragón. Y así terminó su mayor aventura.",
-      "textoOriginal": "Era solo una network conforma de dragón y así terminó su mayor aventura",
-      "confianza": 0.966,
+      "textoOriginal": "Era solo una nube con forma de dragón y así terminó su mayor aventura.",
+      "confianza": 1.0,
       "id": "l06"
     }
   ],
