@@ -4,32 +4,44 @@ from __future__ import annotations
 from .analisis import Tramo
 
 
-def construir_lineas(piezas: list[Tramo], pausa_union: float = 0.7, max_linea: float = 8.0,
+def construir_lineas(piezas: list[Tramo], pausa_union: float = 0.45, max_linea: float = 8.0,
                      min_descartar: float = 0.2) -> list[Tramo]:
-    """Une piezas consecutivas del mismo hablante y divide las líneas demasiado largas.
+    """Une piezas consecutivas del mismo hablante separadas por pausas cortas.
 
-    Primero se une y después se descarta: una palabra corta como "No." al
-    principio de una frase se queda en su línea en vez de perderse.
+    - Primero se une y después se descarta: una palabra corta como "No." al
+      principio de una frase se queda en su línea en vez de perderse.
+    - Si una línea pasa de `max_linea`, se corta en su pausa más larga (nunca a
+      mitad de palabra ni pegando la primera palabra de una frase a la anterior).
     """
-    lineas: list[Tramo] = []
+    grupos: list[list[Tramo]] = []
     for p in sorted(piezas, key=lambda t: t.inicio):
-        ult = lineas[-1] if lineas else None
-        if (ult and ult.hablante == p.hablante and p.inicio - ult.fin < pausa_union
-                and p.fin - ult.inicio <= max_linea):
-            ult.fin = p.fin
+        g = grupos[-1] if grupos else None
+        if g and g[-1].hablante == p.hablante and p.inicio - g[-1].fin < pausa_union:
+            g.append(p)
         else:
-            lineas.append(Tramo(p.inicio, p.fin, p.hablante))
-    lineas = [l for l in lineas if l.dur >= min_descartar]
-    final: list[Tramo] = []
-    for l in lineas:
-        if l.dur <= max_linea:
-            final.append(l)
-            continue
-        n = int(l.dur // max_linea) + 1
-        paso = l.dur / n
-        for i in range(n):
-            final.append(Tramo(l.inicio + i * paso, l.inicio + (i + 1) * paso, l.hablante))
-    return final
+            grupos.append([p])
+
+    def partir(g: list[Tramo]) -> list[list[Tramo]]:
+        if g[-1].fin - g[0].inicio <= max_linea or len(g) == 1:
+            return [g]
+        k = max(range(1, len(g)), key=lambda i: g[i].inicio - g[i - 1].fin)
+        return partir(g[:k]) + partir(g[k:])
+
+    lineas: list[Tramo] = []
+    for g in grupos:
+        for trozo in partir(g):
+            l = Tramo(trozo[0].inicio, trozo[-1].fin, trozo[0].hablante)
+            if l.dur < min_descartar:
+                continue
+            if l.dur <= max_linea:
+                lineas.append(l)
+                continue
+            # Una sola pieza larguísima (sin pausas): se reparte a partes iguales
+            n = int(l.dur // max_linea) + 1
+            paso = l.dur / n
+            for i in range(n):
+                lineas.append(Tramo(l.inicio + i * paso, l.inicio + (i + 1) * paso, l.hablante))
+    return lineas
 
 
 def acolchar(lineas: list[Tramo], antes: float = 0.08, despues: float = 0.15, total: float | None = None) -> list[Tramo]:

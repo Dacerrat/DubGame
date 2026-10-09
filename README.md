@@ -99,9 +99,9 @@ Desde **Dub Packs → Detalles → Exportar .dubpack** se descarga el pack en un
 | La entrevista | 2 | 100 % | 100 % | ~0,1 s |
 | El atraco | 3 | 100 % | 100 % | ~0,1 s |
 | El narrador | 1 | 100 % | 100 % | ~0,1 s |
-| Las llaves (diálogo rápido, réplicas de una palabra) | 2 | ~95 % | ~95 % | ~0,2 s |
+| Las llaves (diálogo rápido, réplicas de una palabra) | 2 | 95 % | 95-100 % | ~0,15 s |
 
-Errores de transcripción con contexto (Whisper turbo): ~2 % de palabras.
+Errores de transcripción con contexto (Whisper turbo): 1-3 % de palabras. El fallo que queda en "Las llaves" es un "¡No!" gritado de 0,3 s entre dos frases del otro personaje; se corrige en el editor con "Dividir".
 
 Con un guion que **no** coincide con el audio (frases parafraseadas, inventadas o que faltan), los tiempos y los personajes siguen saliendo bien y el texto es el que se oye.
 

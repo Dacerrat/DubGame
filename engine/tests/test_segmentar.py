@@ -55,3 +55,10 @@ def test_palabra_corta_al_principio_no_se_pierde():
     piezas = [Tramo(9.68, 9.86, 0), Tramo(10.16, 12.3, 0), Tramo(13.0, 13.1, 1)]
     lineas = construir_lineas(piezas)
     assert [(l.inicio, l.fin, l.hablante) for l in lineas] == [(9.68, 12.3, 0)]
+
+
+def test_lineas_largas_se_cortan_en_la_pausa_mayor():
+    # Frase 1 (0-5 s) y frase 2 (5.4-9 s) del mismo hablante, con micro-pausas internas
+    piezas = [Tramo(0, 2.5, 0), Tramo(2.7, 5.0, 0), Tramo(5.4, 5.8, 0), Tramo(5.95, 9.0, 0)]
+    lineas = construir_lineas(piezas, max_linea=8.0)
+    assert [(l.inicio, l.fin) for l in lineas] == [(0, 5.0), (5.4, 9.0)]
