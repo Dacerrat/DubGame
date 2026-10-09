@@ -14,9 +14,44 @@ export async function despertar(): Promise<AudioContext> {
   return ctx;
 }
 
-/** Latencia de salida estimada (s). */
+// ---------------------------------------------------------------------------
+// Ajustes del jugador (en este navegador)
+
+function leerAjuste(clave: string): string | null {
+  try {
+    return localStorage.getItem(clave);
+  } catch {
+    return null;
+  }
+}
+function guardarAjuste(clave: string, valor: string) {
+  try {
+    localStorage.setItem(clave, valor);
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
+/** Retraso extra medido con la calibración (s); p. ej. auriculares Bluetooth. */
+export function latenciaExtra(): number {
+  const v = Number(leerAjuste('dubgame.latenciaExtra'));
+  return Number.isFinite(v) ? Math.max(0, Math.min(0.6, v)) : 0;
+}
+export function guardarLatenciaExtra(s: number) {
+  guardarAjuste('dubgame.latenciaExtra', String(Math.max(0, Math.min(0.6, s))));
+}
+
+export type ModoMicro = 'auriculares' | 'altavoces';
+export function modoMicro(): ModoMicro {
+  return leerAjuste('dubgame.micro') === 'altavoces' ? 'altavoces' : 'auriculares';
+}
+export function guardarModoMicro(m: ModoMicro) {
+  guardarAjuste('dubgame.micro', m);
+}
+
+/** Latencia de salida (s): la que informa el navegador + la calibrada. */
 export function latenciaSalida(ctx: AudioContext): number {
-  return (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
+  return (ctx.outputLatency || 0) + (ctx.baseLatency || 0) + latenciaExtra();
 }
 
 const cacheBuffers = new Map<string, Promise<AudioBuffer>>();
@@ -128,24 +163,20 @@ export class Reproduccion {
     const v = this.tramo.video;
     if (!v) return;
     v.muted = true;
-    v.pause();
     v.playbackRate = 1;
-    try {
-      v.currentTime = this.tramo.desde;
-    } catch {
-      /* vídeo sin cargar */
-    }
     const paso = () => {
       if (this.parado) return;
       const objetivo = this.posicion();
-      if (objetivo >= this.tramo.desde) {
+      if (objetivo >= this.tramo.desde - 0.02 && !v.seeking) {
         if (v.paused) v.play().catch(() => {});
         const deriva = v.currentTime - objetivo;
-        if (Math.abs(deriva) > 0.15) {
-          v.currentTime = objetivo;
+        if (Math.abs(deriva) > 0.3) {
+          // Salto solo si se ha ido mucho (y nunca mientras ya está saltando)
+          v.currentTime = objetivo + 0.05;
           v.playbackRate = 1;
         } else {
-          v.playbackRate = Math.abs(deriva) > 0.03 ? (deriva > 0 ? 0.97 : 1.03) : 1;
+          // Corrección suave: acelera o frena un poco hasta cuadrar
+          v.playbackRate = Math.abs(deriva) < 0.02 ? 1 : Math.max(0.9, Math.min(1.1, 1 - deriva * 1.5));
         }
       }
       this.raf = requestAnimationFrame(paso);
@@ -174,8 +205,36 @@ export class Reproduccion {
   }
 }
 
-export function reproducir(tramo: Tramo): Reproduccion {
-  return new Reproduccion(contexto(), tramo);
+/** Coloca el vídeo en `t` y espera a que esté listo (como mucho 800 ms). */
+async function prepararVideo(v: HTMLVideoElement, t: number): Promise<void> {
+  v.pause();
+  v.playbackRate = 1;
+  if (Math.abs(v.currentTime - t) < 0.03 && !v.seeking) return;
+  await new Promise<void>((resolver) => {
+    const listo = () => {
+      clearTimeout(limite);
+      v.removeEventListener('seeked', listo);
+      resolver();
+    };
+    const limite = setTimeout(listo, 800);
+    v.addEventListener('seeked', listo);
+    try {
+      v.currentTime = t;
+    } catch {
+      listo();
+    }
+  });
+}
+
+/**
+ * Reproduce un tramo del clip. Primero deja el vídeo en su sitio y después
+ * programa el audio, para que imagen, sonido y subtítulos arranquen juntos.
+ */
+export async function reproducir(tramo: Tramo): Promise<Reproduccion> {
+  const ctx = contexto();
+  if (tramo.video) await prepararVideo(tramo.video, tramo.desde);
+  const cuando = tramo.cuando !== undefined ? Math.max(tramo.cuando, ctx.currentTime + 0.05) : undefined;
+  return new Reproduccion(ctx, { ...tramo, cuando });
 }
 
 // ---------------------------------------------------------------------------
@@ -188,15 +247,18 @@ export class Microfono {
   private stream: MediaStream | null = null;
   nivel = 0;
 
-  static async abrir(): Promise<Microfono> {
+  static async abrir(modo: ModoMicro = modoMicro()): Promise<Microfono> {
     const ctx = await despertar();
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new Error('Este navegador no permite usar el micrófono aquí. Usa HTTPS o localhost.');
     }
     const stream = await navigator.mediaDevices.getUserMedia({
-      // Sin procesado del navegador: la supresión de ruido y la cancelación de eco
-      // destrozan la voz (suena metálica y entrecortada). Se recomiendan auriculares.
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 },
+      // Con auriculares, sin procesado del navegador: la supresión de ruido y la
+      // cancelación de eco deforman la voz. Con altavoces hace falta la cancelación
+      // de eco para que el micro no grabe el vídeo.
+      audio: modo === 'auriculares'
+        ? { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+        : { echoCancellation: true, noiseSuppression: false, autoGainControl: false, channelCount: 1 },
     });
     await ctx.audioWorklet.addModule('/grabador-worklet.js');
     const m = new Microfono();

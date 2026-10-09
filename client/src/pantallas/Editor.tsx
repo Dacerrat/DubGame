@@ -48,7 +48,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
     if (!audio || !pack) return;
     repRef.current?.parar();
     await despertar();
-    const rep = reproducir({
+    const rep = await reproducir({
       desde: Math.max(0, desde),
       hasta: Math.min(pack.duracion, hasta),
       video: videoRef.current,
@@ -152,6 +152,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
         derecha={<button className="boton primario peque" disabled={!cambios} onClick={guardar}>Guardar</button>}
       />
       <div className="contenido pila">
+        {pack.avisos?.map((a) => <p key={a} className="aviso" style={{ margin: 0 }}>⚠ {a}</p>)}
         <div className="columnas" style={{ gridTemplateColumns: '1fr 360px' }}>
           <div className="pantalla-video">
             <video ref={videoRef} src={`/packs/${pack.id}/video.mp4`} muted playsInline preload="auto" />

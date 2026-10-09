@@ -3,6 +3,7 @@ import { guardarNombre, nombreGuardado } from '../conexion';
 import { Microfono, contexto, crearBuffer, latenciaSalida } from '../audio/motor';
 import { normalizarVoz } from '../audio/dsp';
 import { Encabezado, Marco } from '../ui/componentes';
+import { Calibracion } from '../ui/Calibracion';
 
 export function Opciones({ volver }: { volver: () => void }) {
   const [nombre, setNombre] = useState(nombreGuardado());
@@ -72,6 +73,12 @@ export function Opciones({ volver }: { volver: () => void }) {
             </div>
           )}
           {error && <p className="error">{error}</p>}
+        </Marco>
+        <Marco titulo="Sincronía">
+          <p className="tenue" style={{ marginTop: 0 }}>
+            Si usas auriculares Bluetooth, el sonido te llega con retraso y el vídeo y los subtítulos parecen adelantados. Mídelo aquí una vez.
+          </p>
+          <Calibracion />
         </Marco>
       </div>
     </>

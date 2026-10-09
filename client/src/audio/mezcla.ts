@@ -1,11 +1,42 @@
 // Montaje final: fondo + tomas normalizadas + compresor + limitador (JS puro).
-import { OBJETIVO_VOZ_DB, aMono, comprimir, desdeDb, limitar, normalizarVoz, remuestrear, rmsConPuerta } from './dsp';
+import { OBJETIVO_VOZ_DB, aMono, comprimir, deteccionVoz, desdeDb, fundidos, limitar, normalizarVoz, remuestrear, rmsConPuerta } from './dsp';
+
+/** Las tomas se graban desde este margen (s) antes del inicio de la línea. */
+export const MARGEN_TOMA = 0.6;
 
 export interface TomaMontaje {
   /** Momento del clip (s) en el que empieza el audio de la toma. */
   en: number;
   datos: Float32Array;
   sr: number;
+  /** Línea doblada: si se indica, la toma se sincroniza sola con la voz original. */
+  linea?: { inicio: number; fin: number };
+}
+
+/**
+ * Sincronización automática de una toma: recorta los silencios del principio y del
+ * final y la desplaza para que la voz empiece donde empezaba la voz original.
+ * Así da igual que el jugador arranque un poco tarde o que sus auriculares
+ * (p. ej. Bluetooth) tengan retraso.
+ */
+export function colocarToma(
+  t: TomaMontaje,
+  vocesOriginales: Float32Array[] | null,
+  srVoces: number,
+): { datos: Float32Array; en: number } {
+  const voz = deteccionVoz(t.datos, t.sr);
+  if (!voz || !t.linea) return { datos: t.datos, en: t.en };
+  let objetivo = t.linea.inicio + 0.08; // margen que deja el motor antes de la voz
+  if (vocesOriginales) {
+    const ini = Math.max(0, t.linea.inicio - 0.15);
+    const orig = deteccionVoz(trozo(vocesOriginales, srVoces, ini, t.linea.fin + 0.1), srVoces);
+    if (orig) objetivo = ini + orig.inicio;
+  }
+  const desplazamiento = Math.max(-1.5, Math.min(0.6, objetivo - (t.en + voz.inicio)));
+  const a = Math.max(0, Math.round((voz.inicio - 0.06) * t.sr));
+  const b = Math.min(t.datos.length, Math.round((voz.fin + 0.25) * t.sr));
+  const datos = fundidos(t.datos.slice(a, b), t.sr, 0.015);
+  return { datos, en: t.en + a / t.sr + desplazamiento };
 }
 
 export interface EntradaMezcla {
@@ -45,10 +76,11 @@ export function mezclar(e: EntradaMezcla): { canales: [Float32Array, Float32Arra
   };
 
   for (const t of e.tomas) {
-    const datos = remuestrear(t.datos, t.sr, e.sr);
+    const colocada = colocarToma(t, e.voces, e.sr);
+    const datos = remuestrear(colocada.datos, t.sr, e.sr);
     const r = normalizarVoz(datos, e.sr);
     niveles.push(r.nivelDb + r.gananciaDb);
-    sumar(r.datos, t.en);
+    sumar(r.datos, colocada.en);
   }
   for (const o of e.originales) {
     const ini = Math.max(0, o.inicio - 0.05);
@@ -62,7 +94,7 @@ export function mezclar(e: EntradaMezcla): { canales: [Float32Array, Float32Arra
   const nivelVocesOrig = rmsConPuerta(aMono(e.voces), e.sr);
   const gFondoDb = nivelVocesOrig <= -90
     ? 0
-    : Math.max(-12, Math.min(12, OBJETIVO_VOZ_DB - nivelVocesOrig)) + (e.fondoDb ?? -2);
+    : Math.max(-12, Math.min(12, OBJETIVO_VOZ_DB - nivelVocesOrig)) + (e.fondoDb ?? 0);
   const gFondo = desdeDb(gFondoDb);
 
   const L = new Float32Array(n);

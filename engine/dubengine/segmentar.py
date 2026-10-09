@@ -46,18 +46,21 @@ def asignar_hablantes(voz: list[Tramo], diar: list[Tramo], trozo_min: float = 0.
 
 
 def construir_lineas(piezas: list[Tramo], pausa_union: float = 0.7, max_linea: float = 8.0,
-                     min_descartar: float = 0.25) -> list[Tramo]:
-    """Une piezas consecutivas del mismo hablante y divide las líneas demasiado largas."""
+                     min_descartar: float = 0.2) -> list[Tramo]:
+    """Une piezas consecutivas del mismo hablante y divide las líneas demasiado largas.
+
+    Primero se une y después se descarta: una palabra corta como "No." al
+    principio de una frase se queda en su línea en vez de perderse.
+    """
     lineas: list[Tramo] = []
     for p in sorted(piezas, key=lambda t: t.inicio):
-        if p.dur < min_descartar:
-            continue
         ult = lineas[-1] if lineas else None
         if (ult and ult.hablante == p.hablante and p.inicio - ult.fin < pausa_union
                 and p.fin - ult.inicio <= max_linea):
             ult.fin = p.fin
         else:
             lineas.append(Tramo(p.inicio, p.fin, p.hablante))
+    lineas = [l for l in lineas if l.dur >= min_descartar]
     final: list[Tramo] = []
     for l in lineas:
         if l.dur <= max_linea:

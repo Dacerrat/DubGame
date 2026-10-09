@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { OBJETIVO_VOZ_DB, db, limitar, normalizarVoz, rmsConPuerta } from '../../client/src/audio/dsp';
-import { mezclar } from '../../client/src/audio/mezcla';
+import { OBJETIVO_VOZ_DB, db, deteccionVoz, limitar, normalizarVoz, rmsConPuerta } from '../../client/src/audio/dsp';
+import { MARGEN_TOMA, colocarToma, mezclar } from '../../client/src/audio/mezcla';
+import { calcularRetraso } from '../../client/src/ui/Calibracion';
 import { codificarWav, decodificarWav } from '../../client/src/audio/wav';
 
 const SR = 16000;
@@ -94,5 +95,56 @@ describe('wav', () => {
     let err = 0;
     for (let i = 0; i < x.length; i++) err = Math.max(err, Math.abs(x[i] - canales[0][i]));
     expect(err).toBeLessThan(1e-3);
+  });
+});
+
+describe('sincronización automática de tomas', () => {
+  const silencio = (seg: number) => new Float32Array(Math.round(seg * SR));
+  const unir = (...partes: Float32Array[]) => {
+    const out = new Float32Array(partes.reduce((n, p) => n + p.length, 0));
+    let o = 0;
+    for (const p of partes) {
+      out.set(p, o);
+      o += p.length;
+    }
+    return out;
+  };
+
+  it('detecta dónde empieza y acaba la voz', () => {
+    const x = unir(silencio(0.7), voz(-20, 1.5), silencio(0.8));
+    const d = deteccionVoz(x, SR)!;
+    expect(Math.abs(d.inicio - 0.7)).toBeLessThan(0.04);
+    expect(Math.abs(d.fin - 2.2)).toBeLessThan(0.15);
+    expect(deteccionVoz(silencio(1), SR)).toBeNull();
+  });
+
+  it('una toma que empieza tarde se coloca donde empieza la voz original', () => {
+    // Voz original: empieza en t = 2.0 s (la línea va de 1.92 a 3.6)
+    const vocesOrig = unir(silencio(2.0), voz(-18, 1.5), silencio(1.5));
+    // El jugador habla 0.9 s después de empezar la grabación, que empezó en inicio - MARGEN_TOMA
+    const linea = { inicio: 1.92, fin: 3.6 };
+    const toma = { en: linea.inicio - MARGEN_TOMA, datos: unir(silencio(0.6 + 0.9), voz(-25, 1.2), silencio(1)), sr: SR, linea };
+    const c = colocarToma(toma, [vocesOrig], SR);
+    const empiezaVoz = c.en + deteccionVoz(c.datos, SR)!.inicio;
+    expect(Math.abs(empiezaVoz - 2.0)).toBeLessThan(0.05);
+    // Se recortan los silencios: la toma colocada dura poco más que la voz
+    expect(c.datos.length / SR).toBeLessThan(1.6);
+  });
+
+  it('sin línea o sin voz, la toma se queda como está', () => {
+    const t = { en: 1, datos: silencio(1), sr: SR };
+    expect(colocarToma(t, null, SR).en).toBe(1);
+  });
+});
+
+describe('calibración de sincronía', () => {
+  it('mide el retraso típico de unos auriculares Bluetooth', () => {
+    const clics = Array.from({ length: 10 }, (_, k) => 1 + k * 0.6);
+    // pulsa ~250 ms tarde con algo de variación; falla uno
+    const pulsaciones = clics.slice(1).map((c, k) => c + 0.25 + (k % 3 - 1) * 0.02);
+    expect(calcularRetraso(clics, pulsaciones)).toBeCloseTo(0.25, 2);
+  });
+  it('sin suficientes pulsaciones no inventa nada', () => {
+    expect(calcularRetraso([1, 1.6, 2.2], [1.1, 1.7])).toBeNull();
   });
 });

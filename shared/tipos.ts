@@ -40,6 +40,8 @@ export interface Pack {
   personajes: Personaje[];
   lineas: Linea[];
   extras?: Extra[];
+  /** Avisos del motor al crear el pack (p. ej. vídeo que no parece la escena). */
+  avisos?: string[];
 }
 
 export interface PackResumen {

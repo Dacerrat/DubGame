@@ -9,10 +9,15 @@ from .progreso import informar
 SR = 44100
 
 
-def separar(estereo: np.ndarray, metodo: str = "spleeter", hilos: int = 4) -> tuple[np.ndarray, np.ndarray]:
+def _rms(x: np.ndarray) -> float:
+    return float(np.sqrt(np.mean(np.square(x, dtype=np.float64))))
+
+
+def separar(estereo: np.ndarray, metodo: str = "uvr", hilos: int = 4) -> tuple[np.ndarray, np.ndarray]:
     """Recibe (2, n) a 44.1 kHz y devuelve (voces, fondo), ambos (2, n).
 
-    metodo: "spleeter" (rápido), "uvr" (mejor calidad, más lento) o "ninguno".
+    metodo: "uvr" (por defecto: separa muy bien y respeta el volumen del fondo),
+    "spleeter" (rápido, pero inestable en algunos audios) o "ninguno".
     """
     if metodo == "ninguno":
         return estereo.copy(), np.zeros_like(estereo)
@@ -45,4 +50,9 @@ def separar(estereo: np.ndarray, metodo: str = "spleeter", hilos: int = 4) -> tu
                 datos = np.stack([datos, datos])
             largo = min(datos.shape[1], bloque.shape[1])
             destino[:, i:i + largo] = datos[:, :largo]
+    # Spleeter a veces "explota": dos pistas enormes que solo se anulan al sumarse.
+    # Si pasa, se repite con UVR, que es estable.
+    if metodo == "spleeter" and max(_rms(voces), _rms(fondo)) > 2 * _rms(estereo) + 1e-3:
+        informar("separar", "Spleeter ha fallado con este audio; se repite con UVR…")
+        return separar(estereo, "uvr", hilos)
     return voces, fondo

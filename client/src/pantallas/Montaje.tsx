@@ -5,15 +5,41 @@ import {
   type Reproduccion, canalesDe, cargarAudioPack, contexto, crearBuffer, despertar, reproducir,
 } from '../audio/motor';
 import { decodificarWav, codificarWavCanales } from '../audio/wav';
-import { mezclar, type TomaMontaje } from '../audio/mezcla';
+import { MARGEN_TOMA, mezclar, type TomaMontaje } from '../audio/mezcla';
 import { Encabezado, Marco, useToast } from '../ui/componentes';
 import { usePack } from './Sala';
 
-const MARGEN_TOMA = 0.2;
 const TODOS = '__todos__';
 
-/** Construye todas las versiones del montaje (una, o una por jugador en solitario). */
-async function construirMontajes(sala: EstadoSala, pack: Pack, alAvanzar: (t: string) => void): Promise<Map<string, AudioBuffer>> {
+interface Entradas {
+  sr: number;
+  duracion: number;
+  fondo: Float32Array[];
+  voces: Float32Array[];
+  versiones: Map<string, { tomas: TomaMontaje[]; originales: { inicio: number; fin: number }[] }>;
+}
+
+function leerFondoDb(): number {
+  try {
+    const v = Number(localStorage.getItem('dubgame.fondoDb'));
+    return Number.isFinite(v) ? Math.max(-12, Math.min(12, v)) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Mezcla todas las versiones con el volumen de fondo elegido. */
+function mezclarVersiones(e: Entradas, fondoDb: number): Map<string, AudioBuffer> {
+  const salida = new Map<string, AudioBuffer>();
+  for (const [version, v] of e.versiones) {
+    const { canales } = mezclar({ sr: e.sr, duracion: e.duracion, fondo: e.fondo, voces: e.voces, ...v, fondoDb });
+    salida.set(version, crearBuffer(canales, e.sr));
+  }
+  return salida;
+}
+
+/** Descarga las tomas y prepara las entradas de cada versión (una, o una por jugador en solitario). */
+async function prepararEntradas(sala: EstadoSala, pack: Pack, alAvanzar: (t: string) => void): Promise<Entradas> {
   const audio = await cargarAudioPack(pack.id);
   const ctx = contexto();
   const sr = ctx.sampleRate;
@@ -39,7 +65,7 @@ async function construirMontajes(sala: EstadoSala, pack: Pack, alAvanzar: (t: st
     return p;
   };
 
-  const salida = new Map<string, AudioBuffer>();
+  const salida: Entradas['versiones'] = new Map();
   for (const version of versiones) {
     alAvanzar(version === TODOS ? 'Montando el doblaje…' : `Montando la versión de ${sala.jugadores.find((j) => j.id === version)?.nombre ?? '…'}`);
     const tomas: TomaMontaje[] = [];
@@ -47,19 +73,19 @@ async function construirMontajes(sala: EstadoSala, pack: Pack, alAvanzar: (t: st
     for (const linea of pack.lineas) {
       const autor = version === TODOS ? sala.asignacion[linea.personaje] : version;
       const t = autor && sala.tomas[autor]?.includes(linea.id) ? await bajarToma(autor, linea.id) : null;
-      if (t) tomas.push({ en: linea.inicio - MARGEN_TOMA, datos: t.datos, sr: t.sr });
+      if (t) tomas.push({ en: linea.inicio - MARGEN_TOMA, datos: t.datos, sr: t.sr, linea: { inicio: linea.inicio, fin: linea.fin } });
       else originales.push({ inicio: linea.inicio, fin: linea.fin });
     }
-    await new Promise((r) => setTimeout(r, 0)); // deja respirar a la interfaz
-    const { canales } = mezclar({ sr, duracion: pack.duracion, fondo, voces, tomas, originales });
-    salida.set(version, crearBuffer(canales, sr));
+    salida.set(version, { tomas, originales });
   }
-  return salida;
+  return { sr, duracion: pack.duracion, fondo, voces, versiones: salida };
 }
 
 export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
   const pack = usePack(sala.config.packId);
+  const [entradas, setEntradas] = useState<Entradas | null>(null);
   const [montajes, setMontajes] = useState<Map<string, AudioBuffer> | null>(null);
+  const [fondoDb, setFondoDb] = useState(leerFondoDb);
   const [estado, setEstado] = useState('Descargando tomas…');
   const [sonando, setSonando] = useState<string | null>(null);
   const [toast, avisar] = useToast();
@@ -70,23 +96,41 @@ export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
   const nombre = useCallback((id: string) => sala.jugadores.find((j) => j.id === id)?.nombre ?? '—', [sala.jugadores]);
   const huella = `${sala.ronda}|${JSON.stringify(sala.tomas)}`;
 
+  const primeraMezcla = useRef(true);
   useEffect(() => {
     if (!pack) return;
     let vivo = true;
+    setEntradas(null);
     setMontajes(null);
-    construirMontajes(sala, pack, (t) => vivo && setEstado(t))
-      .then((m) => {
-        if (!vivo) return;
-        setMontajes(m);
-        (window as unknown as { __dubgameMontajes?: unknown }).__dubgameMontajes = m;
-        acciones.montajeListo().catch(() => {});
-      })
+    primeraMezcla.current = true;
+    prepararEntradas(sala, pack, (t) => vivo && setEstado(t))
+      .then((e) => vivo && setEntradas(e))
       .catch((e) => vivo && setEstado(`Error al montar: ${(e as Error).message}`));
     return () => {
       vivo = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack, huella]);
+
+  // Mezcla (y vuelve a mezclar al mover el volumen del fondo)
+  useEffect(() => {
+    if (!entradas) return;
+    const t = setTimeout(() => {
+      const m = mezclarVersiones(entradas, fondoDb);
+      setMontajes(m);
+      (window as unknown as { __dubgameMontajes?: unknown }).__dubgameMontajes = m;
+      if (primeraMezcla.current) {
+        primeraMezcla.current = false;
+        acciones.montajeListo().catch(() => {});
+      }
+    }, primeraMezcla.current ? 0 : 250);
+    try {
+      localStorage.setItem('dubgame.fondoDb', String(fondoDb));
+    } catch {
+      /* sin almacenamiento */
+    }
+    return () => clearTimeout(t);
+  }, [entradas, fondoDb]);
 
   const parar = () => {
     repRef.current?.parar();
@@ -99,9 +143,9 @@ export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
     if (!buffer || !pack) return;
     repRef.current?.parar();
     await despertar();
-    const rep = reproducir({ desde: 0, hasta: pack.duracion, pistas: [{ buffer, en: 0 }], video: videoRef.current, cuando });
-    repRef.current = rep;
     setSonando(version);
+    const rep = await reproducir({ desde: 0, hasta: pack.duracion, pistas: [{ buffer, en: 0 }], video: videoRef.current, cuando });
+    repRef.current = rep;
     await rep.terminada;
     if (repRef.current === rep) {
       repRef.current = null;
@@ -196,8 +240,23 @@ export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
               <button className="boton peque" onClick={() => descargar(versiones.length === 1 ? versiones[0] : sonando ?? versiones[0], 'mp4')}>Descargar vídeo</button>
             </div>
           )}
+          <div className="fila centro" style={{ gap: 12 }}>
+            <label className="etiqueta" htmlFor="fondo">Música y efectos</label>
+            <input
+              id="fondo"
+              type="range"
+              min={-12}
+              max={12}
+              step={1}
+              value={fondoDb}
+              onChange={(e) => setFondoDb(Number(e.target.value))}
+              style={{ width: 200 }}
+              data-testid="volumen-fondo"
+            />
+            <span className="tenue" style={{ width: 60 }}>{fondoDb > 0 ? `+${fondoDb}` : fondoDb} dB</span>
+          </div>
           <p className="tenue centrado" style={{ fontSize: 15 }}>
-            Montajes listos en {listos}/{conectados} dispositivos. Voces normalizadas al mismo volumen.
+            Montajes listos en {listos}/{conectados} dispositivos. Las voces se sincronizan y se igualan de volumen solas.
           </p>
         </div>
 

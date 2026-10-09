@@ -11,6 +11,7 @@ Ejemplos:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import traceback
 from pathlib import Path
@@ -24,8 +25,9 @@ def _comun(p: argparse.ArgumentParser) -> None:
     p.add_argument("--salida", default="packs", help="Carpeta de packs (por defecto ./packs)")
     p.add_argument("--modelo", default="small", choices=["tiny", "base", "small", "medium", "turbo"],
                    help="Tamaño de Whisper")
-    p.add_argument("--separacion", default="spleeter", choices=["spleeter", "uvr", "ninguno"])
-    p.add_argument("--hilos", type=int, default=4)
+    p.add_argument("--separacion", default="uvr", choices=["uvr", "spleeter", "ninguno"],
+                   help="uvr: mejor calidad (por defecto); spleeter: más rápido")
+    p.add_argument("--hilos", type=int, default=max(1, min(8, os.cpu_count() or 4)))
     p.add_argument("--forzar", action="store_true", help="Sobrescribe el pack si ya existe")
     p.add_argument("--json", action="store_true", help="Progreso en líneas JSON (uso interno)")
 

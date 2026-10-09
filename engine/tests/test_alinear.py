@@ -63,3 +63,36 @@ def test_otro_idioma_por_turnos_y_duraciones():
     out, _ = alinear(GUION, det, mismo_idioma=False)
     assert [(o.personaje, o.inicio) for o in out] == [("a", 1.0), ("b", 3.1), ("a", 5.0), ("b", 7.4)]
     assert out[0].texto == GUION[0].texto  # se queda el texto en castellano
+
+
+def test_desde_audio_usa_lo_que_se_oye_si_el_guion_no_coincide():
+    from dubengine.alinear import lineas_desde_audio
+
+    guion = [
+        LineaGuion("shrek", "Los ogros son como las cebollas."),
+        LineaGuion("asno", "¿Apestan?"),
+        LineaGuion("shrek", "¡Sí! ¡No! Capas, las cebollas tienen capas."),
+        LineaGuion("asno", "A todo el mundo le gusta la tarta."),
+    ]
+    det = [
+        Detectada(1.0, 3.0, 0, "los ogros son como las cebollas"),       # coincide
+        Detectada(3.4, 4.2, 1, "huelen mal"),                            # el doblaje real dice otra cosa
+        Detectada(4.6, 7.0, 0, "si no capas las cebollas tienen capas"),  # coincide
+        Detectada(7.5, 8.2, 2, "eh vosotros"),                           # voz que no está en el guion
+        Detectada(8.6, 10.6, 1, "a todo el mundo le gusta la tarta"),     # coincide
+    ]
+    out, sobrantes = lineas_desde_audio(guion, det)
+    assert [(o.personaje, o.inicio, o.fin) for o in out] == [
+        ("shrek", 1.0, 3.0), ("asno", 3.4, 4.2), ("shrek", 4.6, 7.0), ("asno", 8.6, 10.6)]
+    assert out[0].texto == "Los ogros son como las cebollas."  # texto limpio del guion
+    assert out[1].texto == "huelen mal"  # lo que se oye de verdad
+    assert [s.texto for s in sobrantes] == ["eh vosotros"]
+
+
+def test_desde_audio_no_reparte_tiempos_a_ojo():
+    from dubengine.alinear import lineas_desde_audio
+
+    guion = [LineaGuion("a", "Hola."), LineaGuion("a", "¿Qué tal estás?"), LineaGuion("b", "Muy bien, gracias.")]
+    det = [Detectada(1.0, 3.2, 0, "hola que tal estas"), Detectada(3.6, 5.0, 1, "muy bien gracias")]
+    out, _ = lineas_desde_audio(guion, det)
+    assert [(o.personaje, o.inicio, o.fin) for o in out] == [("a", 1.0, 3.2), ("b", 3.6, 5.0)]

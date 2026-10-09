@@ -62,3 +62,10 @@ def test_agrupar_tramos_cortos_van_al_grupo_mas_parecido():
     emb = np.vstack([_emb(rng, a, 3), _emb(rng, b, 3), _emb(rng, b, 1)])
     etiquetas = agrupar(emb, [2, 2, 2, 2, 2, 2, 0.3], 2)
     assert etiquetas[6] == etiquetas[3]
+
+
+def test_palabra_corta_al_principio_no_se_pierde():
+    # "No." (0,18 s), pausa de 0,3 s y el resto de la frase, del mismo hablante
+    piezas = [Tramo(9.68, 9.86, 0), Tramo(10.16, 12.3, 0), Tramo(13.0, 13.1, 1)]
+    lineas = construir_lineas(piezas)
+    assert [(l.inicio, l.fin, l.hablante) for l in lineas] == [(9.68, 12.3, 0)]

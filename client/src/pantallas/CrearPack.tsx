@@ -16,6 +16,7 @@ const FASES: Record<string, string> = {
   transcribir: 'Transcribiendo',
   alinear: 'Ajustando guion',
   exportar: 'Exportando',
+  traducir: 'Traduciendo',
   listo: 'Listo',
 };
 
@@ -30,7 +31,7 @@ export function CrearPack({ volver, receta: recetaInicial, ir }: { volver: () =>
   const [idioma, setIdioma] = useState('es');
   const [hablantes, setHablantes] = useState('auto');
   const [modelo, setModelo] = useState<'base' | 'small' | 'medium'>('small');
-  const [separacion, setSeparacion] = useState<'spleeter' | 'uvr'>('spleeter');
+  const [separacion, setSeparacion] = useState<'spleeter' | 'uvr'>('uvr');
   const [inicio, setInicio] = useState('');
   const [fin, setFin] = useState('');
   const [trabajo, setTrabajo] = useState<TrabajoCreador | null>(null);
@@ -221,8 +222,8 @@ export function CrearPack({ volver, receta: recetaInicial, ir }: { volver: () =>
             nombre="Separar voces"
             valor={separacion}
             opciones={[
-              { valor: 'spleeter', texto: 'Rápido' },
               { valor: 'uvr', texto: 'Mejor calidad' },
+              { valor: 'spleeter', texto: 'Rápido' },
             ]}
             onCambio={setSeparacion}
           />

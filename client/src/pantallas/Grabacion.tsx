@@ -3,16 +3,20 @@ import type { EstadoSala, Linea, Pack } from '../../../shared/tipos';
 import { lineasDeJugador } from '../../../shared/reglas';
 import { acciones, api } from '../conexion';
 import {
-  type AudioPack, Microfono, type Reproduccion, cargarAudioPack, contexto, crearBuffer, despertar, latenciaSalida, reproducir,
+  type AudioPack, Microfono, type ModoMicro, type Reproduccion, canalesDe, cargarAudioPack, contexto, crearBuffer, despertar,
+  guardarModoMicro, latenciaSalida, modoMicro, reproducir,
 } from '../audio/motor';
 import { codificarWav } from '../audio/wav';
-import { normalizarVoz, rmsConPuerta } from '../audio/dsp';
-import { Encabezado, Marco, useTeclas, useToast } from '../ui/componentes';
+import { deteccionVoz, normalizarVoz } from '../audio/dsp';
+import { MARGEN_TOMA, colocarToma } from '../audio/mezcla';
+import { Encabezado, Marco, Selector, useTeclas, useToast } from '../ui/componentes';
+import { Calibracion } from '../ui/Calibracion';
 import { usePack } from './Sala';
 
+/** Segundos de escena antes de cada línea. */
 const PREROLL = 3;
-const POSTROLL = 0.6;
-const MARGEN_TOMA = 0.2;
+/** Se sigue grabando un poco tras el final de la línea para no cortar a nadie. */
+const COLA = 1.2;
 
 interface Sesion {
   codigo: string;
@@ -25,6 +29,7 @@ interface Toma {
   sr: number;
   en: number;
   silenciosa: boolean;
+  linea: { inicio: number; fin: number };
 }
 
 type Paso = 'listo' | 'grabando' | 'revisar' | 'subiendo' | 'reproduciendo';
@@ -49,6 +54,8 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   const [audio, setAudio] = useState<AudioPack | null>(null);
   const [mic, setMic] = useState<Microfono | null>(null);
   const [errorMic, setErrorMic] = useState('');
+  const [modo, setModo] = useState<ModoMicro>(modoMicro());
+  const [calibrando, setCalibrando] = useState(false);
   const subidas = sala.tomas[yo] ?? [];
   const [indice, setIndice] = useState(() => {
     const i = lineas.findIndex((l) => !subidas.includes(l.id));
@@ -88,7 +95,8 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     setErrorMic('');
     try {
       await despertar();
-      setMic(await Microfono.abrir());
+      guardarModoMicro(modo);
+      setMic(await Microfono.abrir(modo));
     } catch (e) {
       setErrorMic((e as Error).message.includes('Permission') || (e as Error).name === 'NotAllowedError'
         ? 'Has denegado el permiso del micrófono. Actívalo en el navegador para jugar.'
@@ -98,7 +106,7 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
 
   const tramo = (l: Linea) => ({
     desde: Math.max(0, l.inicio - PREROLL),
-    hasta: Math.min(pack.duracion, l.fin + POSTROLL),
+    hasta: Math.min(pack.duracion, l.fin + COLA + 0.1),
   });
 
   const parar = () => {
@@ -109,34 +117,34 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   const grabar = useCallback(async () => {
     if (!audio || !mic || !linea || paso === 'grabando' || paso === 'subiendo') return;
     parar();
+    setPaso('grabando');
+    setToma(null);
     await despertar();
     const { desde, hasta } = tramo(linea);
-    const rep = reproducir({
+    const rep = await reproducir({
       desde,
       hasta,
       video: videoRef.current,
       pistas: [
         { buffer: audio.fondo, en: 0 },
-        {
-          buffer: audio.voces,
-          en: 0,
-          automatizacion: [[desde, 1], [linea.inicio - 0.05, guia ? 0.3 : 0], [linea.fin + 0.1, 1]],
-        },
+        // La voz original suena hasta tu línea; desde ahí, solo como guía (o nada)
+        { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, guia ? 0.3 : 0]] },
       ],
     });
     repRef.current = rep;
-    setPaso('grabando');
-    setToma(null);
     await rep.terminada;
     if (repRef.current !== rep) return; // cancelada
     repRef.current = null;
     const ctx = contexto();
     const lat = latenciaSalida(ctx) + 0.01;
     const ini = rep.t0 + (linea.inicio - desde) - MARGEN_TOMA + lat;
-    const fin = rep.t0 + (linea.fin - desde) + 0.5 + lat;
+    const fin = rep.t0 + (linea.fin - desde) + COLA + lat;
     const datos = mic.extraer(ini, fin);
-    const silenciosa = rmsConPuerta(datos, ctx.sampleRate) < -55;
-    setToma({ datos, sr: ctx.sampleRate, en: linea.inicio - MARGEN_TOMA, silenciosa });
+    const silenciosa = deteccionVoz(datos, ctx.sampleRate) === null;
+    setToma({
+      datos, sr: ctx.sampleRate, en: linea.inicio - MARGEN_TOMA, silenciosa,
+      linea: { inicio: linea.inicio, fin: linea.fin },
+    });
     setPaso('revisar');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audio, mic, linea, paso, guia]);
@@ -144,21 +152,22 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   const escuchar = async () => {
     if (!audio || !toma || !linea) return;
     parar();
+    setPaso('reproduciendo');
     await despertar();
     const { desde, hasta } = tramo(linea);
-    const rep = reproducir({
+    // Igual que en el montaje final: sincronizada con la voz original y normalizada
+    const colocada = colocarToma(toma, canalesDe(audio.voces), audio.voces.sampleRate);
+    const rep = await reproducir({
       desde,
       hasta,
       video: videoRef.current,
       pistas: [
-        { buffer: audio.fondo, en: 0, ganancia: 0.7 },
-        { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, 0], [linea.fin + 0.1, 1]] },
-        // Misma normalización que en el montaje final
-        { buffer: crearBuffer([normalizarVoz(toma.datos, toma.sr).datos], toma.sr), en: toma.en },
+        { buffer: audio.fondo, en: 0 },
+        { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, 0]] },
+        { buffer: crearBuffer([normalizarVoz(colocada.datos, toma.sr).datos], toma.sr), en: colocada.en },
       ],
     });
     repRef.current = rep;
-    setPaso('reproduciendo');
     await rep.terminada;
     if (repRef.current === rep) repRef.current = null;
     setPaso('revisar');
@@ -170,14 +179,14 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     await despertar();
     const desde = Math.max(0, linea.inicio - 0.6);
     const anterior = paso;
-    const rep = reproducir({
+    setPaso('reproduciendo');
+    const rep = await reproducir({
       desde,
       hasta: Math.min(pack.duracion, linea.fin + 0.4),
       video: videoRef.current,
       pistas: [{ buffer: audio.fondo, en: 0 }, { buffer: audio.voces, en: 0 }],
     });
     repRef.current = rep;
-    setPaso('reproduciendo');
     await rep.terminada;
     if (repRef.current === rep) repRef.current = null;
     setPaso(anterior === 'revisar' ? 'revisar' : 'listo');
@@ -229,7 +238,25 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
                 {lineas.length} líneas. Te saldrán una a una: verás unos segundos de escena antes de cada una y una cuenta atrás.
                 {sala.config.escucharOriginal ? ' Oirás la voz original bajita como guía.' : ' No oirás la voz original: ¡a improvisar!'}
               </p>
-              <p className="aviso" style={{ margin: 0 }}>Ponte auriculares antes de empezar.</p>
+              <Selector
+                nombre="¿Cómo vas a oír el juego?"
+                valor={modo}
+                ayuda={modo === 'auriculares'
+                  ? 'Mejor calidad: el micro graba tu voz tal cual.'
+                  : 'Se activa la cancelación de eco para que el micro no grabe el vídeo (la voz pierde algo de calidad).'}
+                opciones={[
+                  { valor: 'auriculares', texto: 'Con auriculares' },
+                  { valor: 'altavoces', texto: 'Con altavoces' },
+                ]}
+                onCambio={setModo}
+              />
+              {calibrando ? (
+                <Calibracion alTerminar={() => setCalibrando(false)} />
+              ) : (
+                <p className="tenue" style={{ margin: 0, fontSize: 16 }}>
+                  ¿Auriculares Bluetooth? Tienen retraso: <button className="boton peque fantasma" onClick={() => setCalibrando(true)}>Ajustar sincronía</button>
+                </p>
+              )}
               {errorMic && <p className="error">{errorMic}</p>}
               <div className="fila fin">
                 <button className="boton primario grande" onClick={prepararMic} data-testid="activar-micro">Activar micrófono</button>
@@ -246,9 +273,13 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   const p = personaje(linea.personaje);
   const anterior = pack.lineas.filter((l) => l.fin <= linea.inicio + 0.01).at(-1);
   const enLinea = paso === 'grabando' && pos >= linea.inicio;
+  const enCola = enLinea && pos > linea.fin;
   const cuenta = paso === 'grabando' && pos < linea.inicio ? Math.ceil(linea.inicio - pos) : null;
   const progresoLinea = paso === 'grabando' ? Math.max(0, Math.min(1, (pos - linea.inicio) / (linea.fin - linea.inicio))) : paso === 'revisar' ? 1 : 0;
-  const subVisible = repRef.current ? pack.lineas.find((l) => pos >= l.inicio && pos <= l.fin) : undefined;
+  // Subtítulos de lo que se oye antes de tu línea (después, las otras voces están silenciadas)
+  const subVisible = repRef.current
+    ? pack.lineas.find((l) => pos >= l.inicio && pos <= l.fin && l.fin <= linea.inicio + 0.05)
+    : undefined;
 
   return (
     <div className="escenario">
@@ -287,14 +318,16 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
         <div className="cifra">
           {cuenta !== null
             ? `Empieza en ${cuenta}…`
-            : enLinea
+            : enCola
+              ? '¡Remata!'
+              : enLinea
               ? `${Math.max(0, linea.fin - pos).toFixed(1)} s`
               : `${(linea.fin - linea.inicio).toFixed(1)} s para esta línea`}
         </div>
       </div>
 
       {toma?.silenciosa && paso === 'revisar' && (
-        <p className="aviso centrado">No se oye casi nada en la toma. ¿Está bien el micrófono?</p>
+        <p className="aviso centrado">No se oye tu voz en la toma. ¿Está bien el micrófono?</p>
       )}
 
       <div className="fila centro">

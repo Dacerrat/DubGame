@@ -6,6 +6,8 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import type { TrabajoCreador } from '../shared/tipos';
 import { DIR_DATOS, DIR_PACKS, RAIZ, python } from './rutas';
+import { guardarPack, leerPack } from './packs';
+import { traduccionDisponible, traducirPack } from './traductor';
 
 export interface PeticionCreador {
   url?: string;
@@ -86,9 +88,8 @@ export class Creador extends EventEmitter {
       if (pet.video?.startsWith(path.join(DIR_DATOS, 'subidas'))) fs.rm(pet.video, { force: true }, () => {});
       if (trabajo.estado === 'error') return;
       if (code === 0 && trabajo.packId) {
-        trabajo.estado = 'terminado';
-        trabajo.mensaje = 'Pack creado';
-        trabajo.fraccion = 1;
+        this.terminar(trabajo).finally(actualizar);
+        return;
       } else {
         trabajo.estado = 'error';
         trabajo.error ??= `El motor terminó con código ${code}. ${trabajo.registro.slice(-3).join(' ')}`;
@@ -96,5 +97,25 @@ export class Creador extends EventEmitter {
       actualizar();
     });
     return trabajo;
+  }
+
+  /** Si el clip no está en castellano y hay clave de Claude, traduce lo que se oye. */
+  private async terminar(trabajo: TrabajoCreador): Promise<void> {
+    const pack = trabajo.packId ? leerPack(trabajo.packId) : null;
+    if (pack && pack.idiomaOriginal !== 'es' && traduccionDisponible()) {
+      trabajo.fase = 'traducir';
+      trabajo.mensaje = 'Traduciendo al castellano con Claude…';
+      trabajo.fraccion = null;
+      this.emit('progreso', { ...trabajo });
+      try {
+        const t = await traducirPack(pack, false);
+        guardarPack({ ...pack, lineas: pack.lineas.map((l) => (t[l.id] ? { ...l, texto: t[l.id] } : l)) });
+      } catch (e) {
+        trabajo.registro.push(`No se pudo traducir: ${(e as Error).message}`);
+      }
+    }
+    trabajo.estado = 'terminado';
+    trabajo.mensaje = 'Pack creado';
+    trabajo.fraccion = 1;
   }
 }

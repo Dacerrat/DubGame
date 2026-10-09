@@ -22,7 +22,7 @@ class Tramo:
         return self.fin - self.inicio
 
 
-def vad(voz: np.ndarray, silencio_min: float = 0.25, habla_min: float = 0.2) -> list[Tramo]:
+def vad(voz: np.ndarray, silencio_min: float = 0.25, habla_min: float = 0.12) -> list[Tramo]:
     import sherpa_onnx
 
     config = sherpa_onnx.VadModelConfig()

@@ -34,7 +34,13 @@ HTTPS=1 npm start            # https://<ip-de-tu-ordenador>:3000
 
 El certificado es autofirmado: la primera vez cada dispositivo tiene que aceptar el aviso del navegador. Para jugar con gente fuera de tu casa puedes usar un túnel (por ejemplo `cloudflared tunnel --url http://localhost:3000`), que ya da HTTPS.
 
-**Consejo:** usad auriculares; así el micrófono solo recoge vuestra voz.
+**Consejo:** usad auriculares; así el micrófono solo recoge vuestra voz (con altavoces, elige "Con altavoces" antes de grabar para activar la cancelación de eco).
+
+### Sincronía
+
+- **Las tomas se sincronizan solas**: el juego detecta dónde empieza tu voz y la coloca donde empezaba la voz original, aunque arranques un poco tarde. También recorta los silencios y no te corta si te alargas un poco.
+- **Auriculares Bluetooth**: tienen retraso y el vídeo y los subtítulos parecen ir adelantados. En *Opciones → Sincronía* (o antes de grabar, en "Ajustar sincronía") suenan unos clics: pulsa Espacio con cada uno y el juego compensa tu retraso.
+- En el montaje puedes subir o bajar la **música y efectos** del fondo.
 
 ## Crear packs (motor automático)
 
@@ -60,11 +66,11 @@ npm run pack -- --video escena.mp4 --titulo "Mi escena" --tipo pelicula --hablan
 Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx)):
 
 1. Descarga el clip (yt-dlp) y lo recorta.
-2. **Separa las voces de la música/efectos** (Spleeter o UVR), para que al doblar se oiga el fondo sin las voces.
+2. **Separa las voces de la música/efectos** (UVR por defecto; Spleeter es más rápido pero a veces distorsiona), para que al doblar se oiga el fondo sin las voces.
 3. Detecta los tramos con voz (VAD Silero).
 4. **Identifica quién habla** en cada tramo (diarización + agrupamiento por huella de voz CAM++).
 5. Divide en líneas y las **transcribe** con Whisper.
-6. Si hay receta, **ajusta el guion al audio**: por texto si el clip está en castellano, o por turnos y duraciones si está en otro idioma.
+6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
 
 La primera vez descarga los modelos (unos cientos de MB) en `~/.dubgame/modelos`.
@@ -90,8 +96,12 @@ Desde **Dub Packs → Detalles → Exportar .dubpack** se descarga el pack en un
 | Escena | Personajes | Personaje correcto (con receta) | Personaje correcto (automático) | Error medio de tiempos |
 |---|---|---|---|---|
 | La entrevista | 2 | 100 % | 100 % | ~0,1 s |
-| El atraco | 3 | 100 % | 92 % | ~0,1 s |
+| El atraco | 3 | 100 % | 100 % | ~0,1 s |
 | El narrador | 1 | 100 % | 100 % | ~0,1 s |
+
+Con un guion que **no** coincide con el audio (frases parafraseadas, inventadas o que faltan), los tiempos y los personajes siguen saliendo bien y el texto es el que se oye.
+
+Si creaste packs con una versión anterior del juego, vuelve a crearlos para aprovechar estas mejoras, por ejemplo `npm run pack -- --receta shrek-pantano-asno --forzar`.
 
 ## Recetas incluidas
 

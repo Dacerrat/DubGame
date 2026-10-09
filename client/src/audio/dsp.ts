@@ -176,3 +176,31 @@ export function aMono(canales: Float32Array[]): Float32Array {
   for (const c of canales) for (let i = 0; i < n; i++) y[i] += c[i] / canales.length;
   return y;
 }
+
+/**
+ * Dónde hay voz en una grabación (s): primer y último tramo de 30 ms seguidos por
+ * encima de un umbral que se adapta al ruido de fondo y al pico de la toma.
+ */
+export function deteccionVoz(x: Float32Array, sr: number): { inicio: number; fin: number } | null {
+  const paso = Math.max(1, Math.round(sr * 0.01));
+  const n = Math.floor(x.length / paso);
+  if (n < 3) return null;
+  const rms = new Float32Array(n);
+  for (let k = 0; k < n; k++) {
+    let s = 0;
+    for (let i = k * paso; i < (k + 1) * paso; i++) s += x[i] * x[i];
+    rms[k] = Math.sqrt(s / paso);
+  }
+  const orden = Float32Array.from(rms).sort();
+  const ruido = orden[Math.floor(n * 0.15)];
+  const pico = orden[n - 1];
+  if (db(pico) < -55) return null;
+  const umbral = Math.max(ruido * 4, pico * desdeDb(-30), desdeDb(-55));
+  const activo = (k: number) => rms[k] > umbral && rms[k + 1] > umbral && rms[k + 2] > umbral;
+  let ini = -1;
+  for (let k = 0; k + 2 < n; k++) if (activo(k)) { ini = k; break; }
+  if (ini < 0) return null;
+  let fin = ini;
+  for (let k = n - 3; k >= ini; k--) if (activo(k)) { fin = k + 2; break; }
+  return { inicio: (ini * paso) / sr, fin: ((fin + 1) * paso) / sr };
+}

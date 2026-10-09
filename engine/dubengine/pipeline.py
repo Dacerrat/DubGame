@@ -1,6 +1,7 @@
 """Pipeline completo: vídeo -> Dub Pack."""
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import tempfile
@@ -12,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from . import analisis, audio, separar as sep
-from .alinear import Detectada, LineaGuion, alinear
+from .alinear import Detectada, LineaGuion, alinear, lineas_desde_audio, similitud
 from .progreso import informar
 from .segmentar import acolchar, agrupar, asignar_hablantes, construir_lineas, renumerar_hablantes
 
@@ -34,10 +35,10 @@ class Opciones:
     idioma: str = "es"
     n_hablantes: int | None = None
     modelo: str = "small"
-    separacion: str = "spleeter"
+    separacion: str = "uvr"
     salida: str = "packs"
     id: str | None = None
-    hilos: int = 4
+    hilos: int = max(1, min(8, os.cpu_count() or 4))
     forzar: bool = False
     recorte_auto: bool = True
     margen: float = 1.5
@@ -145,10 +146,24 @@ def procesar(op: Opciones) -> Path:
             trozo = voz16[int(l.inicio * analisis.SR):int(l.fin * analisis.SR)]
             detectadas.append(Detectada(l.inicio, l.fin, l.hablante, tr.transcribir(trozo)))
 
+        avisos: list[str] = []
         if receta:
             informar("alinear", "Ajustando el guion al audio…")
             guion = [LineaGuion(g["p"], g["t"]) for g in receta["guion"]]
-            alineadas, sobrantes = alinear(guion, detectadas, mismo_idioma=op.idioma == "es")
+            if op.idioma == "es":
+                # ¿El clip descargado es de verdad la escena de la receta?
+                parecidos = [max(similitud(d.texto, g.texto) for g in guion) for d in detectadas if d.texto.strip()]
+                coincidencia = sum(parecidos) / max(1, len(parecidos))
+                if coincidencia < 0.35:
+                    avisos.append("El audio se parece poco al guion de la receta: puede que el vídeo descargado "
+                                  "no sea la escena correcta. Se han usado las frases que se oyen en el clip.")
+                    informar("alinear", avisos[-1])
+            if op.idioma == "es":
+                # Clip en castellano: mandan los tiempos y el texto reales del audio;
+                # el guion solo pone nombres (y su texto si coincide con lo que se oye).
+                alineadas, sobrantes = lineas_desde_audio(guion, detectadas)
+            else:
+                alineadas, sobrantes = alinear(guion, detectadas, mismo_idioma=False)
             personajes = [{"id": p["id"], "nombre": p["nombre"]} for p in receta["personajes"]
                           if any(g.personaje == p["id"] for g in guion)]
             lineas_pack = [{
@@ -198,7 +213,8 @@ def procesar(op: Opciones) -> Path:
             if audio.tiene_video(origen):
                 audio.ejecutar(["-ss", f"{v_ini:.3f}", "-i", str(origen), "-t", f"{dur_final:.3f}", "-an",
                                 "-vf", "scale=-2:'min(720,ih)',fps=30", "-c:v", "libx264", "-preset", "veryfast",
-                                "-crf", "26", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+                                # Fotograma clave cada 0,5 s: saltos rápidos y exactos al sincronizar
+                                "-g", "15", "-keyint_min", "15", "-sc_threshold", "0", "-crf", "26", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                                 str(tmp_pack / "video.mp4")])
                 t_portada = (lineas_pack[0]["inicio"] + lineas_pack[0]["fin"]) / 2 if lineas_pack else dur_final / 2
                 audio.ejecutar(["-ss", f"{v_ini + t_portada:.3f}", "-i", str(origen), "-frames:v", "1",
@@ -214,7 +230,8 @@ def procesar(op: Opciones) -> Path:
                 "autor": op.autor,
                 "idiomaOriginal": op.idioma,
                 "duracion": round(dur_final, 3),
-                "estado": "listo" if confianza_min >= UMBRAL_LISTO else "revisar",
+                "estado": "listo" if confianza_min >= UMBRAL_LISTO and not avisos else "revisar",
+                "avisos": avisos,
                 "creado": time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "fuente": {"url": op.url, "inicio": round(v_ini, 3), "fin": round(v_ini + dur_final, 3)},
                 "personajes": personajes,

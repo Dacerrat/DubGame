@@ -190,3 +190,48 @@ def alinear(guion: list[LineaGuion], det: list[Detectada], mismo_idioma: bool) -
         ini = prev_fin + 0.1
         salida[i] = Alineada(guion[i].personaje, guion[i].texto, round(ini, 3), round(ini + dur, 3), 0.0)
     return [s for s in salida if s is not None], sobrantes
+
+
+def lineas_desde_audio(guion: list[LineaGuion], det: list[Detectada],
+                       umbral_texto: float = 0.8) -> tuple[list[Alineada], list[Detectada]]:
+    """Variante para clips en el mismo idioma que el guion (castellano).
+
+    Mandan las líneas detectadas en el audio: sus tiempos son los reales y nunca se
+    reparten a ojo. El guion sirve para poner nombre a cada voz y, cuando su texto
+    coincide de verdad con lo que se oye (similitud >= umbral_texto), para usar su
+    texto limpio; si no coincide, se usa la transcripción, de modo que los
+    subtítulos siempre corresponden al audio.
+    """
+    pasos = _dp(guion, det, True, None)
+    mapa = _mapa_hablantes(guion, det, pasos)
+    pasos = _dp(guion, det, True, mapa)
+    mapa = _mapa_hablantes(guion, det, pasos)
+
+    salida: list[Alineada] = []
+    sobrantes: list[Detectada] = []
+    for tipo, i, j, a, b, s in pasos:
+        if tipo == "d":
+            d = det[j]
+            personaje = mapa.get(d.hablante)
+            if personaje is None or not d.texto.strip():
+                sobrantes.append(d)  # voz que no es de ningún personaje del guion
+            else:
+                salida.append(Alineada(personaje, d.texto, d.inicio, d.fin, 0.6, d.texto, [d.hablante]))
+        elif tipo == "m":
+            ds = det[j:j + b]
+            gs = guion[i:i + a]
+            texto_g = " ".join(g.texto for g in gs)
+            texto_d = " ".join(x.texto for x in ds).strip()
+            sim = similitud(texto_g, texto_d)
+            texto = texto_g if sim >= umbral_texto or not texto_d else texto_d
+            if a == 1:
+                personaje = gs[0].personaje
+            else:
+                # Varias líneas del guion en un solo tramo de audio: es una sola línea
+                # para doblar; se queda con la voz que más habla en ese tramo.
+                personaje = mapa.get(max(ds, key=lambda x: x.dur).hablante, gs[0].personaje)
+            salida.append(Alineada(personaje, texto, ds[0].inicio, ds[-1].fin, max(s, sim), texto_d,
+                                   [x.hablante for x in ds]))
+        # tipo "g": línea del guion que no está en el audio -> no hay nada que doblar
+    salida.sort(key=lambda x: x.inicio)
+    return salida, sobrantes
