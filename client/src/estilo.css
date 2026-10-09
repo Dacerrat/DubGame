@@ -496,3 +496,12 @@ kbd { font-family: var(--titulo); font-size: 11px; border: 1px solid var(--linea
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Barra de tiempo de la línea que se graba */
+.texto-activo { color: var(--hueso); text-shadow: var(--brillo); }
+.reloj-linea { display: grid; grid-template-columns: 1fr 190px; gap: 16px; align-items: center; }
+.reloj-linea .pista { height: 14px; background: rgba(236, 230, 214, 0.12); border: 1px solid var(--linea-fuerte); overflow: hidden; }
+.reloj-linea .relleno { height: 100%; background: var(--hueso); }
+.reloj-linea .cifra { font-family: var(--titulo); font-size: 26px; letter-spacing: 0.06em; text-align: right; color: var(--hueso-2); }
+.reloj-linea.activo .relleno { background: var(--rojo); box-shadow: 0 0 14px rgba(215, 123, 123, 0.6); }
+.reloj-linea.activo .cifra { color: #ffd6d6; font-size: 34px; }

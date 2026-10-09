@@ -1,6 +1,6 @@
 // Procesado de audio en JS puro (sin Web Audio) para que sea determinista y testeable.
 
-export const OBJETIVO_VOZ_DB = -18;
+export const OBJETIVO_VOZ_DB = -16;
 
 export function db(x: number): number {
   return 20 * Math.log10(Math.max(x, 1e-12));
@@ -112,7 +112,7 @@ export function remuestrear(x: Float32Array, srOrigen: number, srDestino: number
 export function comprimir(
   x: Float32Array,
   sr: number,
-  { umbralDb = -24, ratio = 3, ataque = 0.005, relajacion = 0.12, compensacionDb = 3 } = {},
+  { umbralDb = -18, ratio = 2, ataque = 0.01, relajacion = 0.2, compensacionDb = 1 } = {},
 ): Float32Array {
   const aA = Math.exp(-1 / (sr * ataque));
   const aR = Math.exp(-1 / (sr * relajacion));

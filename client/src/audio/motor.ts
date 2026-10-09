@@ -194,7 +194,9 @@ export class Microfono {
       throw new Error('Este navegador no permite usar el micrófono aquí. Usa HTTPS o localhost.');
     }
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: false, channelCount: 1 },
+      // Sin procesado del navegador: la supresión de ruido y la cancelación de eco
+      // destrozan la voz (suena metálica y entrecortada). Se recomiendan auriculares.
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 },
     });
     await ctx.audioWorklet.addModule('/grabador-worklet.js');
     const m = new Microfono();

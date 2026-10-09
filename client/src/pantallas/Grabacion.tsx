@@ -6,7 +6,7 @@ import {
   type AudioPack, Microfono, type Reproduccion, cargarAudioPack, contexto, crearBuffer, despertar, latenciaSalida, reproducir,
 } from '../audio/motor';
 import { codificarWav } from '../audio/wav';
-import { rmsConPuerta } from '../audio/dsp';
+import { normalizarVoz, rmsConPuerta } from '../audio/dsp';
 import { Encabezado, Marco, useTeclas, useToast } from '../ui/componentes';
 import { usePack } from './Sala';
 
@@ -151,9 +151,10 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
       hasta,
       video: videoRef.current,
       pistas: [
-        { buffer: audio.fondo, en: 0 },
+        { buffer: audio.fondo, en: 0, ganancia: 0.7 },
         { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, 0], [linea.fin + 0.1, 1]] },
-        { buffer: crearBuffer([toma.datos], toma.sr), en: toma.en, ganancia: 1.4 },
+        // Misma normalización que en el montaje final
+        { buffer: crearBuffer([normalizarVoz(toma.datos, toma.sr).datos], toma.sr), en: toma.en },
       ],
     });
     repRef.current = rep;
@@ -278,14 +279,19 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
       <div className="linea-actual">
         <div className="personaje" style={{ color: p?.color }}>{p?.nombre}</div>
         <div className="texto" data-testid="texto-linea">
-          <span className="karaoke" style={{ ['--p' as string]: `${progresoLinea * 100}%` }}>
-            <span className="base">{linea.texto || '(sin texto)'}</span>
-            <span className="relleno" aria-hidden="true">{linea.texto}</span>
-          </span>
+          <span className={enLinea ? 'texto-activo' : ''}>{linea.texto || '(sin texto)'}</span>
         </div>
-        <div className="tenue" style={{ fontSize: 15, marginTop: 4 }}>{(linea.fin - linea.inicio).toFixed(1)} s</div>
       </div>
-      <div className="barra"><div style={{ width: `${progresoLinea * 100}%` }} /></div>
+      <div className={`reloj-linea ${enLinea ? 'activo' : ''}`} data-testid="reloj-linea">
+        <div className="pista"><div className="relleno" style={{ width: `${progresoLinea * 100}%` }} /></div>
+        <div className="cifra">
+          {cuenta !== null
+            ? `Empieza en ${cuenta}…`
+            : enLinea
+              ? `${Math.max(0, linea.fin - pos).toFixed(1)} s`
+              : `${(linea.fin - linea.inicio).toFixed(1)} s para esta línea`}
+        </div>
+      </div>
 
       {toma?.silenciosa && paso === 'revisar' && (
         <p className="aviso centrado">No se oye casi nada en la toma. ¿Está bien el micrófono?</p>

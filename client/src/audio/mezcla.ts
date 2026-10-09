@@ -74,6 +74,15 @@ export function mezclar(e: EntradaMezcla): { canales: [Float32Array, Float32Arra
     L[i] = v + (fL[i] ?? 0) * gFondo;
     R[i] = v + (fR[i] ?? 0) * gFondo;
   }
+  // Volumen final: el montaje se lleva a un nivel alto y homogéneo (~-14 dBFS)
+  const nivel = rmsConPuerta(L, e.sr);
+  if (nivel > -90) {
+    const g = desdeDb(Math.max(-6, Math.min(12, -14 - nivel)));
+    for (let i = 0; i < n; i++) {
+      L[i] *= g;
+      R[i] *= g;
+    }
+  }
   limitar([L, R], e.sr, -1);
   return { canales: [L, R], info: { gananciaFondoDb: gFondoDb, nivelesTomasDb: niveles } };
 }
