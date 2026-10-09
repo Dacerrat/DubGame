@@ -74,7 +74,7 @@ Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/s
 6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
 
-La primera vez descarga los modelos (unos cientos de MB) en `~/.dubgame/modelos`.
+La primera vez descarga los modelos (unos cientos de MB) en `~/.dubgame/modelos`. Los vídeos descargados se guardan en `~/.dubgame/descargas`, así que al rehacer un pack (por ejemplo con `--forzar` tras actualizar el juego) no se vuelven a bajar; puedes borrar esa carpeta cuando quieras. Si YouTube corta la descarga, el motor reintenta solo y sigue donde se quedó.
 
 Después puedes repasar cualquier pack en el **editor**: forma de onda con las líneas por personaje (arrastra los bordes para ajustar tiempos), cambiar quién dice cada línea, dividir/unir, renombrar personajes y corregir el texto (con un botón para usar lo que se oye). **Dividir** corta por la pausa más larga de la línea y el texto por el final de frase, así que una línea con dos personajes (“Ponme un ejemplo. ¿Un ejemplo?”) se arregla con un clic y cambiando el personaje de una mitad.
 

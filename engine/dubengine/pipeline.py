@@ -1,6 +1,8 @@
 """Pipeline completo: vídeo -> Dub Pack."""
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -51,14 +53,52 @@ def slug(t: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:60] or "pack"
 
 
-def descargar(objetivo: str, carpeta: Path) -> Path:
+# Los vídeos descargados se guardan para no bajarlos otra vez al rehacer un pack
+DIR_DESCARGAS = Path(os.environ.get("DUBGAME_DESCARGAS", Path.home() / ".dubgame" / "descargas"))
+INTENTOS_DESCARGA = 4
+
+
+def error_de_red(e: Exception) -> bool:
+    """¿Se ha cortado la conexión (y merece la pena reintentar)?"""
+    t = str(e).lower()
+    return any(k in t for k in (
+        "10053", "10054", "10060", "connection", "conexión", "timed out", "timeout", "reset by peer",
+        "incompleteread", "incomplete read", "remote end closed", "temporary failure", "http error 5",
+        "eof occurred", "network is unreachable"))
+
+
+def mensaje_descarga(e: Exception) -> str:
+    motivo = re.sub(r"^(\s*(ERROR:|\[[^\]]*\])\s*)+", "", str(e)).strip()
+    if error_de_red(e):
+        return ("No se pudo descargar el vídeo: la conexión se cortó varias veces (a veces YouTube corta las "
+                "descargas). Vuelve a intentarlo dentro de un rato: seguirá donde se quedó. También puedes "
+                f"descargar tú el vídeo y usar --video archivo.mp4. Detalle: {motivo}")
+    return f"No se pudo descargar el vídeo: {motivo}"
+
+
+def descargar(objetivo: str) -> tuple[Path, str | None]:
+    """Descarga el vídeo (o lo reutiliza si ya se descargó) y devuelve (ruta, título)."""
     import yt_dlp
 
+    carpeta = DIR_DESCARGAS / hashlib.sha1(objetivo.encode("utf-8")).hexdigest()[:16]
+    marca = carpeta / "descarga.json"
+    try:
+        hecho = json.loads(marca.read_text(encoding="utf-8"))
+        if (carpeta / hecho["archivo"]).exists():
+            informar("descargar", "Vídeo ya descargado antes: no hace falta bajarlo otra vez.", 1.0)
+            return carpeta / hecho["archivo"], hecho.get("titulo")
+    except (OSError, ValueError, KeyError):
+        pass
+    carpeta.mkdir(parents=True, exist_ok=True)
     informar("descargar", f"Descargando {objetivo}…")
 
     def gancho(d: dict) -> None:
-        if d.get("status") == "downloading" and d.get("total_bytes"):
-            informar("descargar", "Descargando vídeo…", d["downloaded_bytes"] / d["total_bytes"])
+        total = d.get("total_bytes") or d.get("total_bytes_estimate")
+        if d.get("status") == "downloading" and total:
+            informar("descargar", "Descargando vídeo…", min(1.0, d["downloaded_bytes"] / total))
+
+    def espera(n: int) -> float:
+        return min(30.0, 2.0 ** n)
 
     opciones = {
         "format": "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720]/bv*+ba/b",
@@ -67,15 +107,43 @@ def descargar(objetivo: str, carpeta: Path) -> Path:
         "noplaylist": True,
         "quiet": True,
         "no_warnings": True,
+        "noprogress": True,
         "ffmpeg_location": audio.ffmpeg(),
         "progress_hooks": [gancho],
+        # Desde Python, yt-dlp no reintenta nada si no se le dice (su línea de
+        # órdenes sí): YouTube corta a veces la conexión a mitad de descarga.
+        "retries": 10,
+        "fragment_retries": 10,
+        "extractor_retries": 3,
+        "retry_sleep_functions": {"http": espera, "fragment": espera, "extractor": espera},
+        "socket_timeout": 30,
+        "continuedl": True,
+        # En trozos de 10 MB: YouTube limita y corta menos las conexiones cortas
+        "http_chunk_size": 10 * 1024 * 1024,
     }
-    with yt_dlp.YoutubeDL(opciones) as ydl:
-        ydl.download([objetivo])
-    archivos = [p for p in carpeta.glob("origen.*") if p.suffix not in (".part", ".ytdl")]
+    info: dict | None = None
+    for intento in range(1, INTENTOS_DESCARGA + 1):
+        try:
+            with yt_dlp.YoutubeDL(opciones) as ydl:
+                info = ydl.extract_info(objetivo, download=True)
+            break
+        except yt_dlp.utils.DownloadError as e:
+            if intento == INTENTOS_DESCARGA or not error_de_red(e):
+                raise RuntimeError(mensaje_descarga(e)) from e
+            informar("descargar", f"Se ha cortado la conexión; sigo donde se quedó ({intento + 1}/{INTENTOS_DESCARGA})…")
+            time.sleep(5 * intento)
+    if info and info.get("entries") is not None:  # búsqueda: el primer resultado
+        info = next((e for e in info["entries"] if e), None)
+    # El vídeo final (no los trozos intermedios de vídeo y audio, "origen.f137.mp4"…)
+    archivos = sorted((p for p in carpeta.glob("origen.*")
+                       if p.suffix not in (".part", ".ytdl", ".json") and not re.fullmatch(r"origen\.f[\w-]+", p.stem)),
+                      key=lambda p: p.suffix != ".mp4")
     if not archivos:
         raise RuntimeError("yt-dlp no generó ningún archivo")
-    return archivos[0]
+    titulo = (info or {}).get("title")
+    marca.write_text(json.dumps({"objetivo": objetivo, "archivo": archivos[0].name, "titulo": titulo},
+                                ensure_ascii=False), encoding="utf-8")
+    return archivos[0], titulo
 
 
 def transcribir_lineas(voz16: np.ndarray, lineas, op: Opciones) -> tuple[list[Detectada], list[Detectada]]:
@@ -177,8 +245,8 @@ def procesar(op: Opciones) -> Path:
     salida_base = Path(op.salida)
     with tempfile.TemporaryDirectory(prefix="dubpack-") as tmp_str:
         tmp = Path(tmp_str)
-        origen = Path(op.video) if op.video else descargar(op.url, tmp)
-        op.titulo = op.titulo or origen.stem
+        origen, titulo_video = (Path(op.video), None) if op.video else descargar(op.url)
+        op.titulo = op.titulo or titulo_video or origen.stem
         op.obra = op.obra or op.titulo
         pack_id = op.id or slug(op.titulo)
         destino = salida_base / pack_id
