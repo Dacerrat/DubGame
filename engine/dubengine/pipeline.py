@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from . import analisis, audio, diarizacion, separar as sep
-from .transcripcion import bloques, es_no_voz, limpiar, repartir
+from .transcripcion import bloques, es_alucinacion, es_no_voz, limpiar, repartir
 from .alinear import Detectada, LineaGuion, alinear, lineas_desde_audio, similitud
 from .progreso import informar
 from .segmentar import acolchar, construir_lineas, renumerar_hablantes
@@ -85,37 +85,60 @@ def transcribir_lineas(voz16: np.ndarray, lineas, op: Opciones) -> tuple[list[De
     def trozo(a: float, b: float) -> np.ndarray:
         return voz16[int(max(0.0, a) * sr):int(b * sr)]
 
+    # Líneas casi mudas (un roce, una respiración): Whisper se inventa ahí cosas
+    # como "¡Gracias!". Se comparan con el volumen típico de las voces del clip.
+    energias = [audio.rms_db(trozo(l.inicio, l.fin)) for l in lineas]
+    referencia = float(np.median(energias)) if energias else -30.0
+    sin_voz: set[int] = {i for i, e in enumerate(energias) if e < referencia - 18}
+
     rapido = op.modelo if op.modelo in ("tiny", "base") else "base"
     informar("transcribir", f"Transcribiendo {len(lineas)} líneas…")
     guia_tr = analisis.Transcriptor(rapido, op.idioma, op.hilos)
-    guias = []
-    for k, l in enumerate(lineas):
-        informar("transcribir", "Primera escucha de cada línea…", k / max(1, len(lineas)))
-        guias.append(guia_tr.transcribir(trozo(l.inicio, l.fin)))
+    guias = [""] * len(lineas)
+    for i, l in enumerate(lineas):
+        informar("transcribir", "Primera escucha de cada línea…", i / max(1, len(lineas)))
+        if i not in sin_voz:
+            guias[i] = guia_tr.transcribir(trozo(l.inicio, l.fin))
     tr = guia_tr if rapido == op.modelo else analisis.Transcriptor(op.modelo, op.idioma, op.hilos)
 
     textos = list(guias)
-    sin_voz: set[int] = set()
     solas: set[int] = set()
     for i, l in enumerate(lineas):
-        if es_no_voz(guias[i]):
+        if i in sin_voz:
+            continue
+        floja = energias[i] < referencia - 10
+        if es_no_voz(guias[i]) or (floja and l.dur < 1.2 and es_alucinacion(guias[i])):
             # Se confirma con el modelo bueno antes de descartar
             t = tr.transcribir(trozo(l.inicio, l.fin))
-            if es_no_voz(t):
+            if es_no_voz(t) or (floja and es_alucinacion(t)):
                 sin_voz.add(i)
             else:
                 textos[i] = t
                 solas.add(i)
 
-    validas = [i for i in range(len(lineas)) if i not in sin_voz and i not in solas]
-    grupos = bloques([(lineas[i].inicio, lineas[i].fin) for i in validas])
-    for g, grupo in enumerate(grupos):
+    # Bloques de contexto: nunca cruzan una línea descartada, para que sus
+    # palabras (si las hubiera) no acaben en la línea de al lado.
+    grupos: list[list[int]] = []
+    tramo: list[int] = []
+    for i in range(len(lineas) + 1):
+        if i < len(lineas) and i not in sin_voz and i not in solas:
+            tramo.append(i)
+            continue
+        if tramo:
+            grupos += [[tramo[k] for k in g] for g in bloques([(lineas[j].inicio, lineas[j].fin) for j in tramo])]
+            tramo = []
+    for g, idx in enumerate(grupos):
         informar("transcribir", f"Transcribiendo con contexto (Whisper {op.modelo})…", g / max(1, len(grupos)))
-        idx = [validas[k] for k in grupo]
         if len(idx) == 1:
             textos[idx[0]] = tr.transcribir(trozo(lineas[idx[0]].inicio, lineas[idx[0]].fin))
             continue
-        texto = tr.transcribir(trozo(lineas[idx[0]].inicio - 0.05, lineas[idx[-1]].fin + 0.05))
+        # Solo el audio de las líneas, pegadas con un silencio corto: Whisper tiene
+        # contexto pero no oye nada que no sea de estas líneas.
+        silencio = np.zeros(int(0.3 * sr), dtype=np.float32)
+        partes_audio = []
+        for i in idx:
+            partes_audio += [trozo(lineas[i].inicio, lineas[i].fin), silencio]
+        texto = tr.transcribir(np.concatenate(partes_audio[:-1]))
         partes = repartir(texto, [guias[i] for i in idx], [lineas[i].dur for i in idx])
         if partes is None:
             for i in idx:

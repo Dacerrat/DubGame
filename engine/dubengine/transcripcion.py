@@ -22,6 +22,17 @@ _NO_VOZ = re.compile(
     re.IGNORECASE)
 
 
+# Frases que Whisper suele inventarse en silencios o ruidos flojos
+_ALUCINACIONES = {
+    "gracias", "muchas gracias", "gracias por ver", "gracias por ver el video", "gracias por vernos",
+    "suscribete", "hasta luego", "adios", "un saludo", "bye", "amen", "chao", "hola", "eh", "mmm", "ah", "oh",
+}
+
+
+def es_alucinacion(texto: str) -> bool:
+    return normalizar(texto) in _ALUCINACIONES
+
+
 def es_no_voz(texto: str) -> bool:
     t = texto.strip()
     if not t or not normalizar(t):
@@ -61,19 +72,28 @@ def repartir(texto: str, guias: list[str], duraciones: list[float]) -> list[str]
         return None
     if m == 1:
         return [" ".join(palabras)]
-    max_pal = [max(2, int(d * 5) + 6) for d in duraciones]
+    max_pal = [max(2, int(d * 6) + 8) for d in duraciones]
     fin_frase = [bool(re.search(r"[.?!…]$", w)) for w in palabras]
     inicio_frase = [bool(re.match(r"^[¿¡]", w)) for w in palabras]
 
     NEG = float("-inf")
+    SALTO = -0.35  # coste de dejar una palabra fuera (red de seguridad)
+    # Palabras que caben en cada línea (~3 por segundo, con margen)
+    caben = [max(2.0, d * 3.2) + 2 for d in duraciones]
     mejor = [[NEG] * (n + 1) for _ in range(m + 1)]
     previo = [[-1] * (n + 1) for _ in range(m + 1)]
     mejor[0][0] = 0.0
-    for i in range(m):
-        guia = guias[i]
-        for j in range(n):
+    for i in range(m + 1):
+        for j in range(n + 1):
             if mejor[i][j] == NEG:
                 continue
+            # saltar la palabra j
+            if j < n and mejor[i][j] + SALTO > mejor[i][j + 1]:
+                mejor[i][j + 1] = mejor[i][j] + SALTO
+                previo[i][j + 1] = -2 - j  # marca de salto
+            if i == m:
+                continue
+            guia = guias[i]
             # deja al menos una palabra para cada línea que falta
             for k in range(j + 1, min(n - (m - i - 1), j + max_pal[i]) + 1):
                 grupo = " ".join(palabras[j:k])
@@ -82,17 +102,24 @@ def repartir(texto: str, guias: list[str], duraciones: list[float]) -> list[str]
                 s += 0.25 * min(r, 1 / r)
                 if k < n:
                     s += 0.15 * fin_frase[k - 1] + 0.1 * inicio_frase[k]
+                s -= 0.3 * max(0.0, (k - j) - caben[i])  # demasiadas palabras para su duración
+                if j > 0 and fin_frase[j - 1]:
+                    s += 0.2  # la línea empieza donde empieza una frase
                 v = mejor[i][j] + s
                 if v > mejor[i + 1][k]:
                     mejor[i + 1][k] = v
                     previo[i + 1][k] = j
     if mejor[m][n] == NEG:
         return None
-    cortes = [n]
-    for i in range(m, 0, -1):
-        cortes.append(previo[i][cortes[-1]])
-    cortes.reverse()
-    grupos = [" ".join(palabras[cortes[i]:cortes[i + 1]]) for i in range(m)]
+    grupos = [""] * m
+    i, k = m, n
+    while i > 0 or k > 0:
+        j = previo[i][k]
+        if j <= -2:  # palabra saltada
+            k -= 1
+            continue
+        grupos[i - 1] = " ".join(palabras[j:k])
+        i, k = i - 1, j
     con_guia = [(g, gu) for g, gu in zip(grupos, guias) if normalizar(gu)]
     if con_guia and sum(similitud(g, gu) for g, gu in con_guia) / len(con_guia) < 0.35:
         return None

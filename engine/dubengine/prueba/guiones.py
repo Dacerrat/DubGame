@@ -105,4 +105,32 @@ ESCENAS = [
             ("jose", "Vale, vale. Pero las llaves van a quedar limpísimas."),
         ],
     },
+    {
+        # Como Shrek y Asno: uno habla con pausas dramáticas dentro de su frase y el
+        # otro contesta pegado, a veces pisando; además la música suena fuerte.
+        "id": "prueba-el-mago",
+        "titulo": "El mago",
+        "obra": "Escena de prueba DubGame",
+        "pausas": (0.1, 0.4),
+        "pegadas": 0.6,
+        "musica": 2.5,
+        "personajes": [
+            {"id": "mago", "nombre": "El Mago", "voz": ("davefx", 0, 0.95)},
+            {"id": "aprendiz", "nombre": "La Aprendiz", "voz": ("sharvard", 1, 1.1)},
+        ],
+        "guion": [
+            ("mago", "Para que lo sepas, | un mago es mucho más complicado de lo que la gente piensa."),
+            ("aprendiz", "¿Por ejemplo?"),
+            ("mago", "¿Un ejemplo? | Vale. | Los magos son como los relojes."),
+            ("aprendiz", "¿Hacen tic tac?"),
+            ("mago", "¡No!"),
+            ("aprendiz", "¿Se paran si no les das cuerda?"),
+            ("mago", "¡No! | Tienen mecanismos. | Muchas piezas pequeñas que no se ven desde fuera."),
+            ("aprendiz", "Ah, piezas. Como los puzles."),
+            ("mago", "No, como los puzles no."),
+            ("aprendiz", "A todo el mundo le gustan los puzles."),
+            ("mago", "Me da igual lo que le guste a todo el mundo."),
+            ("aprendiz", "Pues a mí los relojes me dan sueño."),
+        ],
+    },
 ]

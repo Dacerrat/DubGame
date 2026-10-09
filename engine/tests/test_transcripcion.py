@@ -34,3 +34,10 @@ def test_repartir_con_guias_imperfectas():
 def test_repartir_sin_reparto_convincente():
     assert repartir("hola", ["a", "b"], [1, 1]) is None  # menos palabras que líneas
     assert repartir("frase totalmente distinta de todo", ["xyz abc", "qwe rty"], [1, 1]) is None
+
+
+def test_alucinaciones_tipicas():
+    from dubengine.transcripcion import es_alucinacion
+
+    assert es_alucinacion("¡Gracias!") and es_alucinacion("Muchas gracias.")
+    assert not es_alucinacion("Gracias por salvarme la vida, Shrek.")

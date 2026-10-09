@@ -62,3 +62,10 @@ def test_lineas_largas_se_cortan_en_la_pausa_mayor():
     piezas = [Tramo(0, 2.5, 0), Tramo(2.7, 5.0, 0), Tramo(5.4, 5.8, 0), Tramo(5.95, 9.0, 0)]
     lineas = construir_lineas(piezas, max_linea=8.0)
     assert [(l.inicio, l.fin) for l in lineas] == [(0, 5.0), (5.4, 9.0)]
+
+
+def test_mismo_hablante_varias_frases_seguidas_es_una_linea():
+    # Tres frases del mismo personaje con pausas de hasta ~0,9 s: no se corta
+    piezas = [Tramo(0, 1.5, 0), Tramo(2.2, 3.4, 0), Tramo(4.3, 6.0, 0), Tramo(6.4, 7.0, 1)]
+    lineas = construir_lineas(piezas)
+    assert [(l.inicio, l.fin, l.hablante) for l in lineas] == [(0, 6.0, 0), (6.4, 7.0, 1)]

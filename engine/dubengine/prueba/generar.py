@@ -93,16 +93,25 @@ def construir_escena(esc: dict, carpeta: Path, cache: dict, semilla: int) -> tup
     t = 1.5  # silencio inicial
     verdad = []
     for k, (pid, texto) in enumerate(esc["guion"]):
-        x = sintetizar(texto, pers[pid]["voz"], cache)
+        # "Frase | resto" = una sola línea con una pausa dramática dentro
+        partes = [sintetizar(p.strip(), pers[pid]["voz"], cache) for p in texto.split("|")]
+        hueco = np.zeros(int(rng.uniform(*esc.get("pausa_interna", (0.5, 0.7))) * SR), dtype=np.float32)
+        x = partes[0]
+        for p in partes[1:]:
+            x = np.concatenate([x, hueco, p])
+        if k > 0 and "pegadas" in esc and rng.random() < esc["pegadas"]:
+            t -= rng.uniform(0.1, 0.35)  # contestación pegada: sin pausa o pisando un poco
+            t = max(t, verdad[-1]["fin"] - 0.1)
         clips.append((t, x))
-        verdad.append({"personaje": pid, "texto": texto, "inicio": round(t, 3), "fin": round(t + len(x) / SR, 3)})
+        texto_limpio = " ".join(p.strip() for p in texto.split("|"))
+        verdad.append({"personaje": pid, "texto": texto_limpio, "inicio": round(t, 3), "fin": round(t + len(x) / SR, 3)})
         t += len(x) / SR + rng.uniform(*esc.get("pausas", (0.45, 1.0)))
     total = t + 1.5
     voces = np.zeros(int(total * SR) + 1, dtype=np.float32)
     for ini, x in clips:
         i = int(ini * SR)
         voces[i:i + len(x)] += x * (0.5 / (np.sqrt(np.mean(x ** 2)) + 1e-9)) * 0.25
-    fondo = musica(len(voces) / SR + 0.1, semilla)[:, :len(voces)]
+    fondo = musica(len(voces) / SR + 0.1, semilla)[:, :len(voces)] * esc.get("musica", 1.0)
     mezcla = np.stack([voces, voces]) + fondo
     mezcla /= max(1.0, float(np.max(np.abs(mezcla))) / 0.95)
     audio.escribir_wav(carpeta / "audio.wav", mezcla, SR)
@@ -132,7 +141,7 @@ def construir_escena(esc: dict, carpeta: Path, cache: dict, semilla: int) -> tup
         "id": esc["id"], "titulo": esc["titulo"], "obra": esc["obra"], "tipo": "prueba",
         "idiomaOriginal": "es", "fuente": {"busqueda": "(generada localmente)"},
         "personajes": [{"id": p["id"], "nombre": p["nombre"]} for p in esc["personajes"]],
-        "guion": [{"p": p, "t": t} for p, t in esc["guion"]],
+        "guion": [{"p": p, "t": " ".join(x.strip() for x in t.split("|"))} for p, t in esc["guion"]],
     }
     return salida, {"receta": receta, "verdad": verdad, "duracion": total}
 

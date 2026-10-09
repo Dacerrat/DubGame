@@ -4,7 +4,7 @@ from __future__ import annotations
 from .analisis import Tramo
 
 
-def construir_lineas(piezas: list[Tramo], pausa_union: float = 0.45, max_linea: float = 8.0,
+def construir_lineas(piezas: list[Tramo], pausa_union: float = 1.0, max_linea: float = 10.0,
                      min_descartar: float = 0.2) -> list[Tramo]:
     """Une piezas consecutivas del mismo hablante separadas por pausas cortas.
 
