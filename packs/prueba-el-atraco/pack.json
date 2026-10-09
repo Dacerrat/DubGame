@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "id": "prueba-el-atraco",
+  "titulo": "El atraco",
+  "obra": "Escena de prueba DubGame",
+  "tipo": "prueba",
+  "autor": "anónimo",
+  "idiomaOriginal": "es",
+  "duracion": 43.736,
+  "estado": "listo",
+  "creado": "2026-10-09T02:25:52",
+  "fuente": {
+    "url": null,
+    "inicio": 0.0,
+    "fin": 43.736
+  },
+  "personajes": [
+    {
+      "id": "jefa",
+      "nombre": "La Jefa",
+      "color": "#e8d9b5"
+    },
+    {
+      "id": "novato",
+      "nombre": "El Novato",
+      "color": "#8fb8de"
+    },
+    {
+      "id": "vigilante",
+      "nombre": "Vigilante",
+      "color": "#de8f8f"
+    }
+  ],
+  "lineas": [
+    {
+      "personaje": "jefa",
+      "inicio": 1.352,
+      "fin": 5.82,
+      "texto": "Escuchad bien. Tenemos exactamente tres minutos para entrar y salir.",
+      "textoOriginal": "Escucha bien, tenemos exactamente 3 minutos para entrar y salir.",
+      "confianza": 0.971,
+      "id": "l01"
+    },
+    {
+      "personaje": "novato",
+      "inicio": 6.728,
+      "fin": 8.86,
+      "texto": "Jefa, una pregunta. ¿Puedo ir antes al baño?",
+      "textoOriginal": "Una pregunta, puedo ir antes al vano.",
+      "confianza": 0.924,
+      "id": "l02"
+    },
+    {
+      "personaje": "jefa",
+      "inicio": 9.864,
+      "fin": 12.38,
+      "texto": "No. Nadie va al baño en mitad de un atraco.",
+      "textoOriginal": "nadie va al baño en mitad de una trato",
+      "confianza": 0.939,
+      "id": "l03"
+    },
+    {
+      "personaje": "vigilante",
+      "inicio": 12.68,
+      "fin": 15.356,
+      "texto": "¡Alto ahí! ¿Quién anda por el pasillo a estas horas?",
+      "textoOriginal": "alto ahí quien anda por el pasillo de estas horas",
+      "confianza": 0.967,
+      "id": "l04"
+    },
+    {
+      "personaje": "novato",
+      "inicio": 16.168,
+      "fin": 19.42,
+      "texto": "Somos los de la limpieza. Venimos a fregar la cámara acorazada.",
+      "textoOriginal": "Somos los de la limpie, venimos a fregar la cámara ojada",
+      "confianza": 0.941,
+      "id": "l05"
+    },
+    {
+      "personaje": "vigilante",
+      "inicio": 19.656,
+      "fin": 22.396,
+      "texto": "¿A las tres de la mañana? Qué raro. Bueno, pasad.",
+      "textoOriginal": "a las 3 de la mañana, piecaro, vuelvo a pasar",
+      "confianza": 0.85,
+      "id": "l06"
+    },
+    {
+      "personaje": "jefa",
+      "inicio": 22.728,
+      "fin": 24.892,
+      "texto": "No me lo puedo creer. Ha funcionado.",
+      "textoOriginal": "No me lo puedo creer, ha funcionado.",
+      "confianza": 0.994,
+      "id": "l07"
+    },
+    {
+      "personaje": "novato",
+      "inicio": 26.312,
+      "fin": 29.34,
+      "texto": "Jefa, ya he abierto la caja fuerte. Pero solo hay croquetas.",
+      "textoOriginal": "Ya había vio de la caja fuerte, pero solo hay croquetecos.",
+      "confianza": 0.871,
+      "id": "l08"
+    },
+    {
+      "personaje": "vigilante",
+      "inicio": 29.672,
+      "fin": 32.988,
+      "texto": "¡Eh, esas croquetas son mías! Me las hizo mi abuela.",
+      "textoOriginal": "Esas coquetas son nías, me les hizo día vuela.",
+      "confianza": 0.908,
+      "id": "l09"
+    },
+    {
+      "personaje": "jefa",
+      "inicio": 33.576,
+      "fin": 37.116,
+      "texto": "Retirada. Repito, retirada. Y dejad las croquetas.",
+      "textoOriginal": "retirada, repito, retirada y dejadas croquetas",
+      "confianza": 0.987,
+      "id": "l10"
+    },
+    {
+      "personaje": "novato",
+      "inicio": 37.576,
+      "fin": 39.516,
+      "texto": "Solo me he comido una, lo prometo.",
+      "textoOriginal": "solo me he comido una de los promesos",
+      "confianza": 0.929,
+      "id": "l11"
+    },
+    {
+      "personaje": "vigilante",
+      "inicio": 39.976,
+      "fin": 42.236,
+      "texto": "¡Os voy a denunciar por robo de croquetas!",
+      "textoOriginal": "Os voy a denunciar por robo de croquetas.",
+      "confianza": 0.985,
+      "id": "l12"
+    }
+  ],
+  "extras": []
+}

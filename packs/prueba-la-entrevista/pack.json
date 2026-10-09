@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "id": "prueba-la-entrevista",
+  "titulo": "La entrevista",
+  "obra": "Escena de prueba DubGame",
+  "tipo": "prueba",
+  "autor": "anónimo",
+  "idiomaOriginal": "es",
+  "duracion": 56.664,
+  "estado": "listo",
+  "creado": "2026-10-09T02:25:24",
+  "fuente": {
+    "url": null,
+    "inicio": 0.0,
+    "fin": 56.664
+  },
+  "personajes": [
+    {
+      "id": "periodista",
+      "nombre": "Periodista",
+      "color": "#e8d9b5"
+    },
+    {
+      "id": "chef",
+      "nombre": "Chef Ramírez",
+      "color": "#8fb8de"
+    }
+  ],
+  "lineas": [
+    {
+      "personaje": "periodista",
+      "inicio": 1.384,
+      "fin": 6.62,
+      "texto": "Buenas noches y bienvenidos a Cocina Extrema. Hoy tenemos con nosotros al chef Ramírez.",
+      "textoOriginal": "Buenas noches y bienvenidos a cocina extrema, hoy tenemos con nosotros al chef Ramide",
+      "confianza": 0.984,
+      "id": "l01"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 7.144,
+      "fin": 10.716,
+      "texto": "Buenas noches. Gracias por invitarme, es un honor estar aquí.",
+      "textoOriginal": "Buenas noches, gracias por invitarme, es un honor estar aquí.",
+      "confianza": 0.994,
+      "id": "l02"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 11.016,
+      "fin": 15.036,
+      "texto": "Chef, dicen que su tortilla de patatas lleva un ingrediente secreto.",
+      "textoOriginal": "Sez dice que su tortilla de patatas lleva una ingrediente secreta.",
+      "confianza": 0.952,
+      "id": "l03"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 15.624,
+      "fin": 19.1,
+      "texto": "Eso dicen, sí. Pero si se lo cuento, dejará de ser secreto.",
+      "textoOriginal": "Eso dicen, si pero si se lo cuento dejará de ser secreto.",
+      "confianza": 0.995,
+      "id": "l04"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 19.336,
+      "fin": 22.204,
+      "texto": "Vamos, una pista para nuestros espectadores.",
+      "textoOriginal": "Vamos una pista para nuestros estados",
+      "confianza": 0.96,
+      "id": "l05"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 22.792,
+      "fin": 25.66,
+      "texto": "Está bien. Empieza por ce y termina por ebolla.",
+      "textoOriginal": "Está bien, empieza por ser y termina para mojar.",
+      "confianza": 0.884,
+      "id": "l06"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 26.088,
+      "fin": 29.98,
+      "texto": "¡Cebolla! ¡Lo sabía! Esto va a provocar un escándalo nacional.",
+      "textoOriginal": "de bola, lo sabía, esto va a provocar un escándalo nacional",
+      "confianza": 0.978,
+      "id": "l07"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 30.216,
+      "fin": 33.532,
+      "texto": "Por favor, no se lo diga a mi madre. Ella es del equipo sin cebolla.",
+      "textoOriginal": "Por favor no se lo diga ni madre, que lleges del equipo sin cebolle.",
+      "confianza": 0.919,
+      "id": "l08"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 34.024,
+      "fin": 37.436,
+      "texto": "Demasiado tarde, estamos en directo para toda España.",
+      "textoOriginal": "Demasiado tarde, estamos en directo para toda España.",
+      "confianza": 0.998,
+      "id": "l09"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 37.736,
+      "fin": 40.22,
+      "texto": "Pues entonces me voy a tener que mudar a Portugal.",
+      "textoOriginal": "pues entonces me voy a tener que mudar a Portugal",
+      "confianza": 0.976,
+      "id": "l10"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 40.648,
+      "fin": 44.028,
+      "texto": "Una última pregunta. ¿Qué opina de la paella con chorizo?",
+      "textoOriginal": "Una última pregunta, ¿qué opinas de la paella con Sorifo?",
+      "confianza": 0.961,
+      "id": "l11"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 44.296,
+      "fin": 47.484,
+      "texto": "Señorita, hay líneas que un cocinero nunca debe cruzar.",
+      "textoOriginal": "Señorita, hay líneas que un cocinero nunca debe cruzar.",
+      "confianza": 0.992,
+      "id": "l12"
+    },
+    {
+      "personaje": "periodista",
+      "inicio": 47.72,
+      "fin": 52.156,
+      "texto": "Ahí lo tienen. Esto ha sido Cocina Extrema. ¡Hasta la semana que viene!",
+      "textoOriginal": "Ahí lo tienen, esto ha sido cocinar estemo, hasta la semana que viene.",
+      "confianza": 0.971,
+      "id": "l13"
+    },
+    {
+      "personaje": "chef",
+      "inicio": 52.584,
+      "fin": 55.164,
+      "texto": "Y recuerden, la cebolla siempre bien pochada.",
+      "textoOriginal": "y recuerden, la cebolla siempre bien pochada",
+      "confianza": 0.991,
+      "id": "l14"
+    }
+  ],
+  "extras": []
+}

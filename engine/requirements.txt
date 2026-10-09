@@ -1,0 +1,4 @@
+sherpa-onnx>=1.12.9
+numpy>=1.26
+yt-dlp>=2024.1.1
+imageio-ffmpeg>=0.5
