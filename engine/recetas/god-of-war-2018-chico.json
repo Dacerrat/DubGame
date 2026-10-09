@@ -1,0 +1,79 @@
+{
+  "id": "god-of-war-2018-chico",
+  "titulo": "Chico",
+  "obra": "God of War (2018)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "God of War 2018 Kratos Atreus chico escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "kratos",
+      "nombre": "Kratos"
+    },
+    {
+      "id": "atreus",
+      "nombre": "Atreus"
+    },
+    {
+      "id": "mimir",
+      "nombre": "Mímir"
+    }
+  ],
+  "guion": [
+    {
+      "p": "kratos",
+      "t": "Chico. Concéntrate. Respira y apunta."
+    },
+    {
+      "p": "atreus",
+      "t": "Lo intento, pero el ciervo no para de moverse."
+    },
+    {
+      "p": "kratos",
+      "t": "No es el ciervo el que se mueve. Eres tú."
+    },
+    {
+      "p": "atreus",
+      "t": "Vale. Lo tengo. Lo tengo…"
+    },
+    {
+      "p": "mimir",
+      "t": "Hermano, el crío tiene buen pulso. Deberías decírselo más a menudo."
+    },
+    {
+      "p": "kratos",
+      "t": "No te he pedido opinión, cabeza."
+    },
+    {
+      "p": "mimir",
+      "t": "Nunca la pides. Por eso te la doy gratis."
+    },
+    {
+      "p": "atreus",
+      "t": "¡Le he dado! ¿Lo has visto, padre?"
+    },
+    {
+      "p": "kratos",
+      "t": "Lo he visto. Bien hecho."
+    },
+    {
+      "p": "atreus",
+      "t": "¿Bien hecho? ¿Eso es todo?"
+    },
+    {
+      "p": "mimir",
+      "t": "Viniendo de él, chaval, eso es prácticamente un desfile."
+    },
+    {
+      "p": "kratos",
+      "t": "No te confíes, chico. El bosque no perdona."
+    },
+    {
+      "p": "atreus",
+      "t": "Ya lo sé. Pero, por una vez, déjame estar contento."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

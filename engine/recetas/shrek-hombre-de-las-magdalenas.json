@@ -1,0 +1,79 @@
+{
+  "id": "shrek-hombre-de-las-magdalenas",
+  "titulo": "El hombre de las magdalenas",
+  "obra": "Shrek (2001)",
+  "tipo": "pelicula",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Shrek Lord Farquaad Jengi interrogatorio hombre de las magdalenas castellano"
+  },
+  "personajes": [
+    {
+      "id": "farquaad",
+      "nombre": "Lord Farquaad"
+    },
+    {
+      "id": "jengi",
+      "nombre": "Jengi"
+    }
+  ],
+  "guion": [
+    {
+      "p": "farquaad",
+      "t": "Corre, corre, corre todo lo que puedas…"
+    },
+    {
+      "p": "jengi",
+      "t": "¡No me pillarás, soy el hombre de jengibre!"
+    },
+    {
+      "p": "farquaad",
+      "t": "Eres un monstruo."
+    },
+    {
+      "p": "jengi",
+      "t": "¡Yo no soy el monstruo aquí, eres tú! Tú y ese bufón de Farquaad."
+    },
+    {
+      "p": "farquaad",
+      "t": "¡Basta! Te estoy dando una oportunidad. ¿Dónde están los demás?"
+    },
+    {
+      "p": "jengi",
+      "t": "¡Cómete los dedos!"
+    },
+    {
+      "p": "farquaad",
+      "t": "He tratado de ser justo contigo. ¡Ahora contéstame! ¿Dónde están?"
+    },
+    {
+      "p": "jengi",
+      "t": "Está bien, te lo diré. ¿Conoces al hombre de las magdalenas?"
+    },
+    {
+      "p": "farquaad",
+      "t": "¿El hombre de las magdalenas?"
+    },
+    {
+      "p": "jengi",
+      "t": "El hombre de las magdalenas."
+    },
+    {
+      "p": "farquaad",
+      "t": "Sí, conozco al hombre de las magdalenas. Vive en la calle Drury."
+    },
+    {
+      "p": "jengi",
+      "t": "Pues… ¡está casado con la princesa Fiona!"
+    },
+    {
+      "p": "farquaad",
+      "t": "¿Que está casado con…? ¡Guardias!"
+    },
+    {
+      "p": "jengi",
+      "t": "¡Pero los botones de caramelo no, por favor!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

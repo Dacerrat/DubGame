@@ -1,0 +1,71 @@
+{
+  "id": "monstruos-sa-roz",
+  "titulo": "Mike y el papeleo",
+  "obra": "Monstruos S.A. (2001)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Monstruos S.A. Roz Mike papeleo escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "mike",
+      "nombre": "Mike"
+    },
+    {
+      "id": "sulley",
+      "nombre": "Sulley"
+    },
+    {
+      "id": "roz",
+      "nombre": "Roz"
+    }
+  ],
+  "guion": [
+    {
+      "p": "mike",
+      "t": "Buenos días, Roz, mi tesoro secreto. ¿Qué tal estamos hoy?"
+    },
+    {
+      "p": "roz",
+      "t": "Wazowski. No has entregado el papeleo."
+    },
+    {
+      "p": "mike",
+      "t": "¿El papeleo? Ah, sí, claro. Lo tenía justo aquí."
+    },
+    {
+      "p": "sulley",
+      "t": "Mike, el papeleo lo tenías que hacer tú anoche."
+    },
+    {
+      "p": "mike",
+      "t": "Gracias por el apoyo, colega. Roz, te prometo que mañana lo tienes."
+    },
+    {
+      "p": "roz",
+      "t": "Te estoy vigilando, Wazowski. Siempre. Te. Estoy. Vigilando."
+    },
+    {
+      "p": "sulley",
+      "t": "Será mejor que nos pongamos a trabajar."
+    },
+    {
+      "p": "mike",
+      "t": "Esa mujer me pone los pelos de punta. Y eso que no tengo pelo."
+    },
+    {
+      "p": "roz",
+      "t": "Lo he oído."
+    },
+    {
+      "p": "mike",
+      "t": "¡Roz! ¡Qué jersey más bonito llevas hoy!"
+    },
+    {
+      "p": "sulley",
+      "t": "Venga, que llegamos tarde al planeta del susto."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

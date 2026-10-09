@@ -14,6 +14,7 @@ import {
 } from './packs';
 import { DIR_CLIENTE, DIR_DATOS, DIR_PACKS, idSeguro } from './rutas';
 import { ErrorSala, GestorSalas, type Sala } from './salas';
+import { traduccionDisponible, traducirPack } from './traductor';
 
 const PUERTO = Number(process.env.PORT ?? 3000);
 const USAR_HTTPS = process.env.HTTPS === '1';
@@ -51,7 +52,7 @@ const enviarError = (res: express.Response, e: unknown, codigo = 400) =>
 app.use('/packs', express.static(DIR_PACKS, { dotfiles: 'deny', fallthrough: false, maxAge: '1h' }));
 
 app.get('/api/info', (req, res) => {
-  res.json({ local: esLocal(req), ffmpeg: !!FFMPEG, hora: Date.now() });
+  res.json({ local: esLocal(req), ffmpeg: !!FFMPEG, traduccion: traduccionDisponible(), hora: Date.now() });
 });
 app.get('/api/hora', (_req, res) => res.json({ hora: Date.now() }));
 
@@ -77,6 +78,17 @@ app.delete('/api/packs/:id', soloLocal, (req, res) => {
     res.json({ ok: true });
   } catch (e) {
     enviarError(res, e);
+  }
+});
+app.post('/api/packs/:id/traducir', soloLocal, express.json(), async (req, res) => {
+  const pack = idSeguro(String(req.params.id)) ? leerPack(String(req.params.id)) : null;
+  if (!pack) return res.status(404).json({ error: 'No existe ese pack' });
+  if (!traduccionDisponible()) return res.status(501).json({ error: 'Configura ANTHROPIC_API_KEY en el servidor para traducir' });
+  try {
+    res.json({ traducciones: await traducirPack(pack, req.body?.soloVacias !== false) });
+  } catch (e) {
+    console.error('[traducir]', e);
+    enviarError(res, e, 502);
   }
 });
 app.get('/api/packs/:id/exportar', (req, res) => {

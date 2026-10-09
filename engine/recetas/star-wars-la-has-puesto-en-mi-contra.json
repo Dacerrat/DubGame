@@ -1,0 +1,79 @@
+{
+  "id": "star-wars-la-has-puesto-en-mi-contra",
+  "titulo": "¡La has puesto en mi contra!",
+  "obra": "Star Wars: Episodio III (2005)",
+  "tipo": "pelicula",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Star Wars La venganza de los Sith Mustafar Anakin Obi-Wan castellano"
+  },
+  "personajes": [
+    {
+      "id": "anakin",
+      "nombre": "Anakin"
+    },
+    {
+      "id": "obiwan",
+      "nombre": "Obi-Wan"
+    }
+  ],
+  "guion": [
+    {
+      "p": "anakin",
+      "t": "¡La has puesto en mi contra!"
+    },
+    {
+      "p": "obiwan",
+      "t": "Eso lo has hecho tú mismo."
+    },
+    {
+      "p": "anakin",
+      "t": "¡No me la quitarás!"
+    },
+    {
+      "p": "obiwan",
+      "t": "Tu rabia y tu ansia de poder ya lo han hecho."
+    },
+    {
+      "p": "anakin",
+      "t": "No me vengas con tus mentiras. He visto el engaño de los Jedi."
+    },
+    {
+      "p": "obiwan",
+      "t": "Anakin, el canciller Palpatine es malvado."
+    },
+    {
+      "p": "anakin",
+      "t": "Desde mi punto de vista, los Jedi son malvados."
+    },
+    {
+      "p": "obiwan",
+      "t": "Entonces estás perdido."
+    },
+    {
+      "p": "anakin",
+      "t": "Si no estás conmigo, eres mi enemigo."
+    },
+    {
+      "p": "obiwan",
+      "t": "Solo un Sith piensa en términos absolutos. Haré lo que tenga que hacer."
+    },
+    {
+      "p": "anakin",
+      "t": "Inténtalo."
+    },
+    {
+      "p": "obiwan",
+      "t": "Se acabó, Anakin. Tengo la posición elevada."
+    },
+    {
+      "p": "anakin",
+      "t": "¡Subestimas mi poder!"
+    },
+    {
+      "p": "obiwan",
+      "t": "No lo intentes."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

@@ -1,0 +1,75 @@
+{
+  "id": "binding-of-isaac-intro",
+  "titulo": "La intro de Isaac",
+  "obra": "The Binding of Isaac (2011)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "en",
+  "fuente": {
+    "busqueda": "The Binding of Isaac intro narrador"
+  },
+  "personajes": [
+    {
+      "id": "narrador",
+      "nombre": "Narrador"
+    },
+    {
+      "id": "madre",
+      "nombre": "Madre"
+    },
+    {
+      "id": "dios",
+      "nombre": "Voz de Dios"
+    }
+  ],
+  "guion": [
+    {
+      "p": "narrador",
+      "t": "Isaac y su madre vivían solos en una pequeña casa en lo alto de una colina."
+    },
+    {
+      "p": "narrador",
+      "t": "Isaac pasaba los días dibujando y jugando con sus juguetes, mientras su madre veía programas cristianos en la tele."
+    },
+    {
+      "p": "narrador",
+      "t": "La vida era sencilla, y los dos eran felices. Hasta que un día, la madre de Isaac oyó una voz que venía de lo alto."
+    },
+    {
+      "p": "dios",
+      "t": "Tu hijo se ha corrompido por el pecado. Necesita ser salvado."
+    },
+    {
+      "p": "madre",
+      "t": "Haré todo lo que pueda para salvarlo, mi señor."
+    },
+    {
+      "p": "narrador",
+      "t": "Y la madre de Isaac le quitó todo lo que tenía: sus dibujos, sus juguetes, incluso su ropa."
+    },
+    {
+      "p": "dios",
+      "t": "Aún queda pecado en él. Apártalo de todo lo malo."
+    },
+    {
+      "p": "madre",
+      "t": "Lo encerraré en su habitación, lejos del mal que corrompe este mundo."
+    },
+    {
+      "p": "dios",
+      "t": "Tu fe ha sido puesta a prueba. Demuestra tu devoción y sacrifica a tu hijo."
+    },
+    {
+      "p": "madre",
+      "t": "Lo haré, mi señor."
+    },
+    {
+      "p": "narrador",
+      "t": "Isaac lo vio todo a través de una rendija de la puerta. Asustado, buscó una salida."
+    },
+    {
+      "p": "narrador",
+      "t": "Y vio una trampilla oculta bajo la alfombra. Sin pensarlo, se lanzó a lo desconocido."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

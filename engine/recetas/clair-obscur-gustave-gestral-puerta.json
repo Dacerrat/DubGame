@@ -1,0 +1,75 @@
+{
+  "id": "clair-obscur-gustave-gestral-puerta",
+  "titulo": "Gustave y el gestral de la puerta",
+  "obra": "Clair Obscur: Expedition 33 (2025)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "en",
+  "fuente": {
+    "busqueda": "Clair Obscur Expedition 33 Gustave gestral puerta pueblo"
+  },
+  "personajes": [
+    {
+      "id": "gustave",
+      "nombre": "Gustave"
+    },
+    {
+      "id": "gestral",
+      "nombre": "Gestral"
+    },
+    {
+      "id": "maelle",
+      "nombre": "Maelle"
+    }
+  ],
+  "guion": [
+    {
+      "p": "gestral",
+      "t": "¡Alto! Nadie entra en el pueblo de los gestrales sin pelear antes."
+    },
+    {
+      "p": "gustave",
+      "t": "No venimos a pelear. Solo queremos pasar."
+    },
+    {
+      "p": "gestral",
+      "t": "¡Todos dicen eso! Y luego resulta que no saben ni sujetar una espada."
+    },
+    {
+      "p": "maelle",
+      "t": "Gustave, creo que no nos va a dejar pasar por las buenas."
+    },
+    {
+      "p": "gustave",
+      "t": "Escúchame bien. Llevamos días caminando y estamos agotados."
+    },
+    {
+      "p": "gestral",
+      "t": "¡Pues pelea agotado! ¡Así es más divertido!"
+    },
+    {
+      "p": "gustave",
+      "t": "¿Me estás tomando el pelo? ¡Abre la puerta de una vez!"
+    },
+    {
+      "p": "gestral",
+      "t": "Abrir puertas no es mi trabajo. Mi trabajo es gritar y pegar."
+    },
+    {
+      "p": "maelle",
+      "t": "Bueno, al menos es sincero."
+    },
+    {
+      "p": "gustave",
+      "t": "¡Que abras la puñetera puerta o la tiro abajo yo mismo!"
+    },
+    {
+      "p": "gestral",
+      "t": "¡Eso! ¡Eso es lo que quería oír! ¡A pelear!"
+    },
+    {
+      "p": "maelle",
+      "t": "Enhorabuena, Gustave. Lo has conseguido."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

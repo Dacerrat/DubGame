@@ -1,0 +1,71 @@
+{
+  "id": "los-increibles-nada-de-capas",
+  "titulo": "¡Nada de capas!",
+  "obra": "Los Increíbles (2004)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Los Increíbles Edna Moda nada de capas castellano"
+  },
+  "personajes": [
+    {
+      "id": "edna",
+      "nombre": "Edna Moda"
+    },
+    {
+      "id": "bob",
+      "nombre": "Bob Parr"
+    }
+  ],
+  "guion": [
+    {
+      "p": "edna",
+      "t": "Bob, querido, cuánto tiempo. Estás gordo. Siéntate, siéntate."
+    },
+    {
+      "p": "bob",
+      "t": "Edna, necesito que me arregles el traje. Tiene un pequeño desgarro."
+    },
+    {
+      "p": "edna",
+      "t": "¿Esto? ¡Esto es un harapo! Necesitas un traje nuevo. Lo haré yo."
+    },
+    {
+      "p": "bob",
+      "t": "Bueno, si insistes… Quizá podría llevar capa, algo con presencia."
+    },
+    {
+      "p": "edna",
+      "t": "¡Nada de capas!"
+    },
+    {
+      "p": "bob",
+      "t": "Pero Thunderhead llevaba capa y quedaba espléndido."
+    },
+    {
+      "p": "edna",
+      "t": "Thunderhead. Noviembre del cincuenta y ocho. Se le enganchó la capa en un misil."
+    },
+    {
+      "p": "bob",
+      "t": "Ya, pero eso fue un caso aislado."
+    },
+    {
+      "p": "edna",
+      "t": "¿Aislado? Stratogale, abril del cincuenta y siete: la capa se le enredó en una turbina."
+    },
+    {
+      "p": "bob",
+      "t": "Vale, vale, lo entiendo."
+    },
+    {
+      "p": "edna",
+      "t": "Meta-Man, Dynaguy, Splashdown… ¡Todos con capa! ¡Nada de capas!"
+    },
+    {
+      "p": "bob",
+      "t": "Está bien, Edna. Sin capa. Lo que tú digas."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

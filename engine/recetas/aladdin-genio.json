@@ -1,0 +1,71 @@
+{
+  "id": "aladdin-genio",
+  "titulo": "La presentación del Genio",
+  "obra": "Aladdín (1992)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Aladdin genio aparece lámpara escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "genio",
+      "nombre": "Genio"
+    },
+    {
+      "id": "aladdin",
+      "nombre": "Aladdín"
+    }
+  ],
+  "guion": [
+    {
+      "p": "genio",
+      "t": "¡Diez mil años en una lámpara le dan tortícolis a cualquiera!"
+    },
+    {
+      "p": "aladdin",
+      "t": "¿Pero tú quién eres?"
+    },
+    {
+      "p": "genio",
+      "t": "¡Qué alegría verte! ¿Cómo te llamas? ¿De dónde eres? ¿Te gusta mi peinado?"
+    },
+    {
+      "p": "aladdin",
+      "t": "Me llamo Aladdín. ¿Estás saliendo de la lámpara?"
+    },
+    {
+      "p": "genio",
+      "t": "Aladdín, qué nombre más bonito. Y sí, la lámpara es mi casa. Pequeñita, pero acogedora."
+    },
+    {
+      "p": "aladdin",
+      "t": "Espera… ¿eres un genio?"
+    },
+    {
+      "p": "genio",
+      "t": "¡Premio para el caballero! Y como me has liberado, tienes tres deseos."
+    },
+    {
+      "p": "aladdin",
+      "t": "¿Tres deseos? ¿Los que yo quiera?"
+    },
+    {
+      "p": "genio",
+      "t": "Con letra pequeña: no puedo matar a nadie, no puedo enamorar a nadie…"
+    },
+    {
+      "p": "aladdin",
+      "t": "Vaya, pues no es para tanto."
+    },
+    {
+      "p": "genio",
+      "t": "¿Perdona? ¿Que no es para tanto? ¡Siéntate, que te voy a enseñar lo que es un amigo como yo!"
+    },
+    {
+      "p": "aladdin",
+      "t": "Vale, vale. Te escucho."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

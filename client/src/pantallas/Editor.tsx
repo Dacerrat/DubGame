@@ -14,6 +14,8 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
   const [sel, setSel] = useState<string | null>(null);
   const [cabezal, setCabezal] = useState(0);
   const [cambios, setCambios] = useState(false);
+  const [traduccion, setTraduccion] = useState(false);
+  const [traduciendo, setTraduciendo] = useState(false);
   const [toast, avisar] = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const repRef = useRef<Reproduccion | null>(null);
@@ -21,6 +23,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
   useEffect(() => {
     api.pack(packId).then(setPack).catch((e) => avisar(e.message));
     cargarAudioPack(packId).then(setAudio).catch((e) => avisar(e.message));
+    api.info().then((i) => setTraduccion(i.traduccion)).catch(() => {});
     return () => repRef.current?.parar();
   }, [packId, avisar]);
 
@@ -98,6 +101,23 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
     setSel(id);
     return p;
   });
+
+  const traducir = async () => {
+    if (!pack) return;
+    const vacias = pack.lineas.some((l) => !l.texto.trim());
+    const soloVacias = vacias && !confirm('¿Traducir TODAS las líneas? (Cancelar = solo las que no tienen texto)');
+    setTraduciendo(true);
+    try {
+      const { traducciones } = await api.traducir(pack.id, soloVacias);
+      const n = Object.keys(traducciones).length;
+      modificar((p) => ({ ...p, lineas: p.lineas.map((l) => (traducciones[l.id] ? { ...l, texto: traducciones[l.id], confianza: 1 } : l)) }));
+      avisar(`${n} líneas traducidas. Revísalas y guarda.`);
+    } catch (e) {
+      avisar((e as Error).message);
+    } finally {
+      setTraduciendo(false);
+    }
+  };
 
   const guardar = async () => {
     if (!pack) return;
@@ -189,6 +209,11 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
             <button className="boton peque" onClick={() => tocar(cabezal, pack.duracion, false)}>▶ Sin voces</button>
             <button className="boton peque" onClick={parar}>■ Parar</button>
             <button className="boton peque" onClick={anadir}>+ Línea en el cabezal</button>
+            {traduccion && (
+              <button className="boton peque" disabled={traduciendo} onClick={traducir} title="Traduce con Claude al castellano de España">
+                {traduciendo ? 'Traduciendo…' : 'Traducir al castellano'}
+              </button>
+            )}
           </div>
           <span className={dudosas ? 'aviso' : 'tenue'}>
             {pack.lineas.length} líneas{dudosas ? ` · ${dudosas} por revisar` : ''} · Estado: {pack.estado}

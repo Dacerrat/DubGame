@@ -1,0 +1,79 @@
+{
+  "id": "el-rey-leon-recuerda-quien-eres",
+  "titulo": "Recuerda quién eres",
+  "obra": "El Rey León (1994)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "El Rey León recuerda quién eres Mufasa Simba Rafiki castellano"
+  },
+  "personajes": [
+    {
+      "id": "rafiki",
+      "nombre": "Rafiki"
+    },
+    {
+      "id": "simba",
+      "nombre": "Simba"
+    },
+    {
+      "id": "mufasa",
+      "nombre": "Mufasa"
+    }
+  ],
+  "guion": [
+    {
+      "p": "rafiki",
+      "t": "Él vive en ti. Mira ahí abajo, en el agua."
+    },
+    {
+      "p": "simba",
+      "t": "Es solo mi reflejo."
+    },
+    {
+      "p": "rafiki",
+      "t": "No. Mira más hondo."
+    },
+    {
+      "p": "mufasa",
+      "t": "Simba."
+    },
+    {
+      "p": "simba",
+      "t": "¿Padre?"
+    },
+    {
+      "p": "mufasa",
+      "t": "Simba, me has olvidado."
+    },
+    {
+      "p": "simba",
+      "t": "¡No! ¿Cómo podría olvidarte?"
+    },
+    {
+      "p": "mufasa",
+      "t": "Has olvidado quién eres, y así me has olvidado a mí. Mira en tu interior."
+    },
+    {
+      "p": "mufasa",
+      "t": "Eres más de lo que eres ahora. Debes ocupar tu lugar en el ciclo de la vida."
+    },
+    {
+      "p": "simba",
+      "t": "¿Cómo voy a volver? No soy el que era."
+    },
+    {
+      "p": "mufasa",
+      "t": "Recuerda quién eres. Eres mi hijo y el único rey verdadero."
+    },
+    {
+      "p": "simba",
+      "t": "¡No me dejes! ¡Padre, por favor!"
+    },
+    {
+      "p": "rafiki",
+      "t": "Vaya. Qué tiempo más raro, ¿eh? Parece que el viento está cambiando."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

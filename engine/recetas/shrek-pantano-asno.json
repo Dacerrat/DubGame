@@ -1,0 +1,75 @@
+{
+  "id": "shrek-pantano-asno",
+  "titulo": "Las cebollas",
+  "obra": "Shrek (2001)",
+  "tipo": "pelicula",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Shrek Asno los ogros son como las cebollas castellano"
+  },
+  "personajes": [
+    {
+      "id": "shrek",
+      "nombre": "Shrek"
+    },
+    {
+      "id": "asno",
+      "nombre": "Asno"
+    }
+  ],
+  "guion": [
+    {
+      "p": "shrek",
+      "t": "Para que lo sepas, los ogros somos mucho más de lo que la gente cree."
+    },
+    {
+      "p": "asno",
+      "t": "¿Por ejemplo?"
+    },
+    {
+      "p": "shrek",
+      "t": "Por ejemplo… los ogros son como las cebollas."
+    },
+    {
+      "p": "asno",
+      "t": "¿Apestan?"
+    },
+    {
+      "p": "shrek",
+      "t": "¡Sí! ¡No!"
+    },
+    {
+      "p": "asno",
+      "t": "Ah, ya. Te hacen llorar."
+    },
+    {
+      "p": "shrek",
+      "t": "¡No! Capas. Las cebollas tienen capas. Los ogros tienen capas. ¿Lo pillas?"
+    },
+    {
+      "p": "asno",
+      "t": "Ah, que los dos tenéis capas. Pues a todo el mundo le gusta la tarta. Las tartas tienen capas."
+    },
+    {
+      "p": "shrek",
+      "t": "¡Me dan igual las tartas!"
+    },
+    {
+      "p": "asno",
+      "t": "¿Has visto a alguien que diga: ¡Eh, vamos a comer cebolla!?"
+    },
+    {
+      "p": "shrek",
+      "t": "¡No! ¡Cebollas! Los ogros son como las cebollas. Fin de la historia."
+    },
+    {
+      "p": "asno",
+      "t": "Los parfaits también tienen capas. Y están riquísimos."
+    },
+    {
+      "p": "shrek",
+      "t": "Adiós. Hasta luego. Me voy."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

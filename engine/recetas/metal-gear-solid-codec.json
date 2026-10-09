@@ -1,0 +1,75 @@
+{
+  "id": "metal-gear-solid-codec",
+  "titulo": "El códec",
+  "obra": "Metal Gear Solid (1998)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Metal Gear Solid codec Snake Campbell Otacon castellano"
+  },
+  "personajes": [
+    {
+      "id": "snake",
+      "nombre": "Snake"
+    },
+    {
+      "id": "campbell",
+      "nombre": "Coronel Campbell"
+    },
+    {
+      "id": "otacon",
+      "nombre": "Otacon"
+    }
+  ],
+  "guion": [
+    {
+      "p": "campbell",
+      "t": "Snake, ¿me recibes? Ya estás dentro de la instalación de Shadow Moses."
+    },
+    {
+      "p": "snake",
+      "t": "Te recibo, coronel. Hace un frío que pela aquí abajo."
+    },
+    {
+      "p": "campbell",
+      "t": "Tu objetivo es rescatar a los rehenes y averiguar si pueden lanzar un ataque nuclear."
+    },
+    {
+      "p": "snake",
+      "t": "Lo de siempre, entonces."
+    },
+    {
+      "p": "otacon",
+      "t": "¿Snake? Soy Otacon. Te hablo desde mi laboratorio. Estoy… escondido en el armario."
+    },
+    {
+      "p": "snake",
+      "t": "¿En el armario?"
+    },
+    {
+      "p": "otacon",
+      "t": "Es largo de explicar. Te he dejado la tarjeta de acceso cerca del ascensor."
+    },
+    {
+      "p": "campbell",
+      "t": "Snake, ten cuidado. Liquid sabe que estás aquí."
+    },
+    {
+      "p": "snake",
+      "t": "Coronel, ¿hay algo que no me estés contando?"
+    },
+    {
+      "p": "campbell",
+      "t": "Te he contado todo lo que necesitas saber."
+    },
+    {
+      "p": "otacon",
+      "t": "Snake, ¿crees que el amor puede florecer en un campo de batalla?"
+    },
+    {
+      "p": "snake",
+      "t": "Otacon, céntrate. Ahora no es el momento."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

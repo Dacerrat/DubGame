@@ -1,0 +1,79 @@
+{
+  "id": "the-last-of-us-jirafas",
+  "titulo": "Las jirafas",
+  "obra": "The Last of Us (2013)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "The Last of Us jirafas Joel Ellie escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "joel",
+      "nombre": "Joel"
+    },
+    {
+      "id": "ellie",
+      "nombre": "Ellie"
+    }
+  ],
+  "guion": [
+    {
+      "p": "joel",
+      "t": "Ellie, ¿qué pasa? Llevas toda la mañana callada."
+    },
+    {
+      "p": "ellie",
+      "t": "No es nada. Estoy bien."
+    },
+    {
+      "p": "joel",
+      "t": "Vamos, que ya casi estamos. Sube por aquí."
+    },
+    {
+      "p": "ellie",
+      "t": "Espera… ¿has oído eso?"
+    },
+    {
+      "p": "joel",
+      "t": "Ellie, espera. ¡Ellie!"
+    },
+    {
+      "p": "ellie",
+      "t": "Tienes que ver esto. ¡Rápido!"
+    },
+    {
+      "p": "joel",
+      "t": "Vaya…"
+    },
+    {
+      "p": "ellie",
+      "t": "¿Son de verdad? ¡Mira cómo comen! Es increíble."
+    },
+    {
+      "p": "joel",
+      "t": "Ten cuidado. No vayas a asustarlas."
+    },
+    {
+      "p": "ellie",
+      "t": "Hola, bonita. ¿Has visto esto, Joel? ¡Es enorme!"
+    },
+    {
+      "p": "joel",
+      "t": "Sí. Ya lo veo. ¿Quieres que sigamos?"
+    },
+    {
+      "p": "ellie",
+      "t": "Dame un minuto más. Solo uno."
+    },
+    {
+      "p": "joel",
+      "t": "No tenemos que hacer esto. Podemos volver a Jackson y olvidarnos de todo."
+    },
+    {
+      "p": "ellie",
+      "t": "Después de todo lo que hemos pasado… esto tiene que servir para algo. Vamos."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

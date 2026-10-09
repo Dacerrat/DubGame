@@ -1,0 +1,87 @@
+{
+  "id": "zootropolis-perezosos",
+  "titulo": "Los perezosos de la oficina",
+  "obra": "Zootrópolis (2016)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Zootrópolis perezosos Flash escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "judy",
+      "nombre": "Judy Hopps"
+    },
+    {
+      "id": "nick",
+      "nombre": "Nick Wilde"
+    },
+    {
+      "id": "flash",
+      "nombre": "Flash"
+    }
+  ],
+  "guion": [
+    {
+      "p": "nick",
+      "t": "Flash, Flash, ¿eres tú? Te presento a mi amiga. Va con un poco de prisa."
+    },
+    {
+      "p": "flash",
+      "t": "Hola…… ¿Qué…… puedo…… hacer…… por…… vosotros?"
+    },
+    {
+      "p": "judy",
+      "t": "Necesito que compruebe una matrícula. Es muy urgente."
+    },
+    {
+      "p": "flash",
+      "t": "Claro…… ¿Cuál…… es…… la…… matrícula?"
+    },
+    {
+      "p": "judy",
+      "t": "Dos, nueve, tango, ocho, cero, cero. ¿Lo tiene?"
+    },
+    {
+      "p": "flash",
+      "t": "Dos……… nueve……… tango………"
+    },
+    {
+      "p": "nick",
+      "t": "Oye, Flash, ¿sabes cómo llamas a un ciervo con tres jorobas?"
+    },
+    {
+      "p": "flash",
+      "t": "No…… sé…… ¿Cómo……?"
+    },
+    {
+      "p": "nick",
+      "t": "Un ciervo con tres jorobas. Pausa dramática… Un jorobado."
+    },
+    {
+      "p": "flash",
+      "t": "Ja…… ja…… ja……"
+    },
+    {
+      "p": "judy",
+      "t": "¡No! ¡No le cuente chistes! ¡Que tenemos prisa!"
+    },
+    {
+      "p": "flash",
+      "t": "Aquí…… tiene…… la…… matrícula."
+    },
+    {
+      "p": "judy",
+      "t": "¡Por fin! ¿Qué hora es? ¡Ya es de noche!"
+    },
+    {
+      "p": "nick",
+      "t": "Tranquila, zanahoria. Al menos ya sabemos algo."
+    },
+    {
+      "p": "flash",
+      "t": "Que…… tengáis…… un…… buen…… día……"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

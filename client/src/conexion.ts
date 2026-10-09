@@ -177,7 +177,10 @@ async function json<T>(r: Response): Promise<T> {
 }
 
 export const api = {
-  info: () => fetch('/api/info').then((r) => json<{ local: boolean; ffmpeg: boolean }>(r)),
+  info: () => fetch('/api/info').then((r) => json<{ local: boolean; ffmpeg: boolean; traduccion: boolean }>(r)),
+  traducir: (id: string, soloVacias: boolean) =>
+    fetch(`/api/packs/${id}/traducir`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soloVacias }) })
+      .then((r) => json<{ traducciones: Record<string, string> }>(r)),
   packs: () => fetch('/api/packs').then((r) => json<PackResumen[]>(r)),
   pack: (id: string) => fetch(`/api/packs/${id}`).then((r) => json<Pack>(r)),
   guardarPack: (p: Pack) =>

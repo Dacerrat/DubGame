@@ -1,0 +1,79 @@
+{
+  "id": "hercules-hades",
+  "titulo": "Hades pierde los nervios",
+  "obra": "Hércules (1997)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Hércules Hades Pena Pánico escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "hades",
+      "nombre": "Hades"
+    },
+    {
+      "id": "pena",
+      "nombre": "Pena"
+    },
+    {
+      "id": "panico",
+      "nombre": "Pánico"
+    }
+  ],
+  "guion": [
+    {
+      "p": "pena",
+      "t": "Pena…"
+    },
+    {
+      "p": "panico",
+      "t": "¡Y Pánico!"
+    },
+    {
+      "p": "pena",
+      "t": "Presentes para servirle, señor."
+    },
+    {
+      "p": "hades",
+      "t": "Muy bien. Recordadme, ¿qué os pedí hace dieciocho años?"
+    },
+    {
+      "p": "panico",
+      "t": "Que… ¿que matáramos al niño?"
+    },
+    {
+      "p": "hades",
+      "t": "Que matarais al niño. Exacto. Y entonces, ¿por qué está vivo?"
+    },
+    {
+      "p": "pena",
+      "t": "Técnicamente, jefe, se tomó casi toda la poción."
+    },
+    {
+      "p": "panico",
+      "t": "¡Casi toda! ¡Casi! Le faltó una gotita."
+    },
+    {
+      "p": "hades",
+      "t": "¿Una gotita? ¿Me estáis diciendo que he perdido el cosmos por una gotita?"
+    },
+    {
+      "p": "pena",
+      "t": "Visto así, suena fatal."
+    },
+    {
+      "p": "hades",
+      "t": "¡Tengo veinticuatro horas para arreglar esto! ¡Veinticuatro!"
+    },
+    {
+      "p": "panico",
+      "t": "¿Le preparo una manzanilla, jefe?"
+    },
+    {
+      "p": "hades",
+      "t": "Sí, una manzanilla. Y de paso, un plan. ¡Fuera de mi vista!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

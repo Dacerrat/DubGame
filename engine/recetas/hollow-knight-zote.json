@@ -1,0 +1,59 @@
+{
+  "id": "hollow-knight-zote",
+  "titulo": "Zote el Todopoderoso",
+  "obra": "Hollow Knight (2017)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "en",
+  "fuente": {
+    "busqueda": "Hollow Knight Zote dialogue all"
+  },
+  "personajes": [
+    {
+      "id": "zote",
+      "nombre": "Zote"
+    },
+    {
+      "id": "narrador",
+      "nombre": "Narrador"
+    }
+  ],
+  "guion": [
+    {
+      "p": "narrador",
+      "t": "En lo más hondo del Bosque Fúngico, una figura colgaba de una rama, atrapada."
+    },
+    {
+      "p": "zote",
+      "t": "¡Tú! ¡Bicho! No necesito tu ayuda. Estaba a punto de liberarme yo solo."
+    },
+    {
+      "p": "narrador",
+      "t": "El Caballero cortó la red. La figura cayó de cabeza contra el suelo."
+    },
+    {
+      "p": "zote",
+      "t": "Soy Zote el Todopoderoso, caballero de gran renombre. No olvides mi nombre."
+    },
+    {
+      "p": "zote",
+      "t": "Precepto número uno: di siempre que sí al desafío. Precepto número dos: nunca confíes en tu reflejo."
+    },
+    {
+      "p": "narrador",
+      "t": "Nadie le había preguntado. Aun así, siguió hablando."
+    },
+    {
+      "p": "zote",
+      "t": "Precepto número diecisiete: no comas nunca setas que te hablen."
+    },
+    {
+      "p": "narrador",
+      "t": "Y así, Zote se marchó, convencido de que el rescate había sido idea suya."
+    },
+    {
+      "p": "zote",
+      "t": "¡Nos volveremos a ver, bicho! ¡Y entonces tú serás quien necesite ayuda!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

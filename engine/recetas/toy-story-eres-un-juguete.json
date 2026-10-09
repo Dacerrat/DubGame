@@ -1,0 +1,71 @@
+{
+  "id": "toy-story-eres-un-juguete",
+  "titulo": "¡Eres un juguete!",
+  "obra": "Toy Story (1995)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Toy Story eres un juguete Woody Buzz escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "woody",
+      "nombre": "Woody"
+    },
+    {
+      "id": "buzz",
+      "nombre": "Buzz Lightyear"
+    }
+  ],
+  "guion": [
+    {
+      "p": "buzz",
+      "t": "Woody, cuando lleguemos a Star Command tendrás que responder por lo que has hecho."
+    },
+    {
+      "p": "woody",
+      "t": "¿Star Command? ¡Buzz, mírate! ¡No eres un guardián espacial!"
+    },
+    {
+      "p": "buzz",
+      "t": "Claro que lo soy. Y mi misión es detener al emperador Zurg."
+    },
+    {
+      "p": "woody",
+      "t": "¡Eres un juguete! ¡Un JUGUETE! ¡Un muñeco de plástico para niños!"
+    },
+    {
+      "p": "buzz",
+      "t": "Estás alterado. Es evidente que el viaje te ha afectado."
+    },
+    {
+      "p": "woody",
+      "t": "¡No puedes volar! ¡Esas alas son de plástico! ¡No funcionan!"
+    },
+    {
+      "p": "buzz",
+      "t": "Lo que pasa es que tienes envidia de mi equipo."
+    },
+    {
+      "p": "woody",
+      "t": "¿Envidia yo? ¿De un láser que es una bombillita que hace bip?"
+    },
+    {
+      "p": "buzz",
+      "t": "Ciudadano, si sigues así tendré que reducirte."
+    },
+    {
+      "p": "woody",
+      "t": "Muy bien, señor guardián espacial. Adelante, demuéstrame que vuelas."
+    },
+    {
+      "p": "buzz",
+      "t": "Lo haré. Hasta el infinito… ¡y más allá!"
+    },
+    {
+      "p": "woody",
+      "t": "Eso no es volar. ¡Eso es caer con estilo!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

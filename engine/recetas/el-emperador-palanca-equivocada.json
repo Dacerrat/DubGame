@@ -1,0 +1,79 @@
+{
+  "id": "el-emperador-palanca-equivocada",
+  "titulo": "¡Palanca equivocada!",
+  "obra": "El emperador y sus locuras (2000)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "El emperador y sus locuras Yzma Kronk palanca castellano"
+  },
+  "personajes": [
+    {
+      "id": "yzma",
+      "nombre": "Yzma"
+    },
+    {
+      "id": "kronk",
+      "nombre": "Kronk"
+    },
+    {
+      "id": "kuzco",
+      "nombre": "Kuzco"
+    }
+  ],
+  "guion": [
+    {
+      "p": "yzma",
+      "t": "Kronk, es el momento. ¡Tira de la palanca!"
+    },
+    {
+      "p": "kronk",
+      "t": "¡Marchando!"
+    },
+    {
+      "p": "kuzco",
+      "t": "¿Pero qué…? ¡Aaaaaah!"
+    },
+    {
+      "p": "yzma",
+      "t": "¡Palanca equivocada! ¿Por qué tenemos esa palanca?"
+    },
+    {
+      "p": "kronk",
+      "t": "Es la de los cocodrilos, jefa. La otra es la buena."
+    },
+    {
+      "p": "yzma",
+      "t": "¡Pues tira de la buena, so melón!"
+    },
+    {
+      "p": "kuzco",
+      "t": "Eh, ¿alguien me puede explicar por qué soy una llama?"
+    },
+    {
+      "p": "yzma",
+      "t": "Ah, Kuzco, eres una llama porque te he envenenado. Bueno, más o menos."
+    },
+    {
+      "p": "kuzco",
+      "t": "Esto es inaceptable. ¡Soy el emperador!"
+    },
+    {
+      "p": "kronk",
+      "t": "Para ser una llama, tiene muy buen pelo, jefa."
+    },
+    {
+      "p": "yzma",
+      "t": "¡Kronk! ¡Concéntrate! ¡Hay que deshacerse de él!"
+    },
+    {
+      "p": "kronk",
+      "t": "Sí, sí. Deshacerse de él. Entendido. Lo tengo todo controlado."
+    },
+    {
+      "p": "kuzco",
+      "t": "Fantástico. Mi vida está en manos de este."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

@@ -1,0 +1,75 @@
+{
+  "id": "gta-san-andreas-pedido-big-smoke",
+  "titulo": "El pedido de Big Smoke",
+  "obra": "GTA: San Andreas (2004)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "en",
+  "fuente": {
+    "busqueda": "GTA San Andreas Big Smoke order drive thru"
+  },
+  "personajes": [
+    {
+      "id": "smoke",
+      "nombre": "Big Smoke"
+    },
+    {
+      "id": "empleado",
+      "nombre": "Empleado"
+    },
+    {
+      "id": "cj",
+      "nombre": "CJ"
+    }
+  ],
+  "guion": [
+    {
+      "p": "empleado",
+      "t": "Bienvenidos a Cluckin' Bell, ¿puedo tomar nota?"
+    },
+    {
+      "p": "cj",
+      "t": "Venga, Smoke, pide algo rápido."
+    },
+    {
+      "p": "smoke",
+      "t": "Quiero dos números nueve, un número nueve grande, un número seis con extra de salsa…"
+    },
+    {
+      "p": "smoke",
+      "t": "…un número siete, dos números cuarenta y cinco, uno con queso, y un refresco grande."
+    },
+    {
+      "p": "empleado",
+      "t": "¿Algo más?"
+    },
+    {
+      "p": "cj",
+      "t": "¿Ya está? ¿Seguro?"
+    },
+    {
+      "p": "smoke",
+      "t": "Ya que estamos, ponme también unas patatas. Grandes. Y unas alitas."
+    },
+    {
+      "p": "empleado",
+      "t": "Son treinta y cinco dólares. Pasen a la siguiente ventanilla."
+    },
+    {
+      "p": "cj",
+      "t": "¿Treinta y cinco pavos? Tío, ¿vas a comer por todo el barrio?"
+    },
+    {
+      "p": "smoke",
+      "t": "Estoy creciendo, CJ. Un hombre necesita su energía."
+    },
+    {
+      "p": "empleado",
+      "t": "Aquí tienen. ¡Que aproveche!"
+    },
+    {
+      "p": "cj",
+      "t": "Vámonos antes de que pida el postre."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

@@ -1,0 +1,71 @@
+{
+  "id": "god-of-war-kratos-al-vacio",
+  "titulo": "Kratos se lanza al vacío",
+  "obra": "God of War (2005)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "God of War 1 final Kratos se lanza al vacío acantilado castellano"
+  },
+  "personajes": [
+    {
+      "id": "narradora",
+      "nombre": "Narradora"
+    },
+    {
+      "id": "kratos",
+      "nombre": "Kratos"
+    },
+    {
+      "id": "atenea",
+      "nombre": "Atenea"
+    }
+  ],
+  "guion": [
+    {
+      "p": "narradora",
+      "t": "Los dioses del Olimpo lo habían abandonado. No había esperanza."
+    },
+    {
+      "p": "kratos",
+      "t": "Los dioses del Olimpo me han abandonado."
+    },
+    {
+      "p": "kratos",
+      "t": "Ya no queda nada. Solo las pesadillas que me persiguen cada noche."
+    },
+    {
+      "p": "narradora",
+      "t": "Kratos, el fantasma de Esparta, subió a lo más alto del acantilado más alto de Grecia."
+    },
+    {
+      "p": "kratos",
+      "t": "Diez años les he servido. Y ahora, ni siquiera me libran de mis recuerdos."
+    },
+    {
+      "p": "atenea",
+      "t": "Kratos, has cumplido con lo que te pedimos."
+    },
+    {
+      "p": "kratos",
+      "t": "Prometisteis que me libraríais de las pesadillas. ¡Me mentisteis!"
+    },
+    {
+      "p": "atenea",
+      "t": "Te perdonamos tus pecados, pero nunca dijimos que los olvidarías."
+    },
+    {
+      "p": "narradora",
+      "t": "Y así, el guerrero se lanzó al mar Egeo. Pero su historia no acababa ahí."
+    },
+    {
+      "p": "kratos",
+      "t": "Que así sea."
+    },
+    {
+      "p": "atenea",
+      "t": "No puedes morir, Kratos. Aún no."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

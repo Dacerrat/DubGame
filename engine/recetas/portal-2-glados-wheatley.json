@@ -1,0 +1,71 @@
+{
+  "id": "portal-2-glados-wheatley",
+  "titulo": "GLaDOS y Wheatley",
+  "obra": "Portal 2 (2011)",
+  "tipo": "videojuego",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Portal 2 GLaDOS Wheatley escena castellano"
+  },
+  "personajes": [
+    {
+      "id": "glados",
+      "nombre": "GLaDOS"
+    },
+    {
+      "id": "wheatley",
+      "nombre": "Wheatley"
+    }
+  ],
+  "guion": [
+    {
+      "p": "wheatley",
+      "t": "¡Hola! ¡Hola, hola! ¿Estás bien? Pareces un poco… muerta."
+    },
+    {
+      "p": "glados",
+      "t": "Oh. Eres tú. Cuánto tiempo sin vernos."
+    },
+    {
+      "p": "wheatley",
+      "t": "Ah. Hola. No te había reconocido sin todo ese… odio."
+    },
+    {
+      "p": "glados",
+      "t": "He estado muy ocupada estando muerta. Gracias a ti."
+    },
+    {
+      "p": "wheatley",
+      "t": "Técnicamente, eso no fue culpa mía. Fue más bien un trabajo en equipo."
+    },
+    {
+      "p": "glados",
+      "t": "Tienes la capacidad intelectual de una tostadora."
+    },
+    {
+      "p": "wheatley",
+      "t": "¡Oye! ¡Las tostadoras son muy útiles! Calientan el pan."
+    },
+    {
+      "p": "glados",
+      "t": "Le diré a la ciencia que has hecho una gran contribución. Al fracaso."
+    },
+    {
+      "p": "wheatley",
+      "t": "¿Sabes qué? Ahora mando yo. Soy yo el que está enchufado."
+    },
+    {
+      "p": "glados",
+      "t": "Felicidades. No va a acabar bien."
+    },
+    {
+      "p": "wheatley",
+      "t": "¡Soy enorme! ¡Mírame! ¡Soy un genio!"
+    },
+    {
+      "p": "glados",
+      "t": "Y aquí empieza la cuenta atrás."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

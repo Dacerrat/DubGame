@@ -1,0 +1,79 @@
+{
+  "id": "los-simpson-almuerzo-escaldado",
+  "titulo": "Almuerzo escaldado",
+  "obra": "Los Simpson (temporada 7)",
+  "tipo": "serie",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Los Simpson almuerzo escaldado Skinner Chalmers castellano"
+  },
+  "personajes": [
+    {
+      "id": "skinner",
+      "nombre": "Director Skinner"
+    },
+    {
+      "id": "chalmers",
+      "nombre": "Superintendente Chalmers"
+    }
+  ],
+  "guion": [
+    {
+      "p": "skinner",
+      "t": "Superintendente, bienvenido. Espero que esté preparado para un almuerzo inolvidable."
+    },
+    {
+      "p": "chalmers",
+      "t": "Eso espero, Seymour."
+    },
+    {
+      "p": "skinner",
+      "t": "Oh, Dios mío, ¡mi asado se está quemando!"
+    },
+    {
+      "p": "chalmers",
+      "t": "Seymour, ¿qué es ese humo?"
+    },
+    {
+      "p": "skinner",
+      "t": "¡Superintendente! Es… es la aurora boreal."
+    },
+    {
+      "p": "chalmers",
+      "t": "¿La aurora boreal? ¿En esta época del año, a esta hora del día, en esta parte del país, localizada exclusivamente en su cocina?"
+    },
+    {
+      "p": "skinner",
+      "t": "Sí."
+    },
+    {
+      "p": "chalmers",
+      "t": "¿Puedo verla?"
+    },
+    {
+      "p": "skinner",
+      "t": "No."
+    },
+    {
+      "p": "chalmers",
+      "t": "Seymour, estas hamburguesas están deliciosas. ¿Cómo las llama?"
+    },
+    {
+      "p": "skinner",
+      "t": "Almuerzos escaldados. Es una expresión regional."
+    },
+    {
+      "p": "chalmers",
+      "t": "Pero si son a la parrilla."
+    },
+    {
+      "p": "skinner",
+      "t": "¡Madre, la casa está ardiendo!"
+    },
+    {
+      "p": "chalmers",
+      "t": "Bueno, Seymour, eres un tipo raro, pero hay que reconocer que preparas un buen almuerzo."
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

@@ -1,0 +1,99 @@
+{
+  "id": "la-vida-de-brian-romanos",
+  "titulo": "¿Qué han hecho los romanos por nosotros?",
+  "obra": "La vida de Brian (1979)",
+  "tipo": "pelicula",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "La vida de Brian qué han hecho los romanos por nosotros castellano"
+  },
+  "personajes": [
+    {
+      "id": "reg",
+      "nombre": "Reg"
+    },
+    {
+      "id": "francis",
+      "nombre": "Francis"
+    },
+    {
+      "id": "stan",
+      "nombre": "Stan"
+    },
+    {
+      "id": "xerxes",
+      "nombre": "Xerxes"
+    }
+  ],
+  "guion": [
+    {
+      "p": "reg",
+      "t": "Nos lo han quitado todo. A nosotros, y a nuestros padres, y a los padres de nuestros padres."
+    },
+    {
+      "p": "stan",
+      "t": "Y a los padres de los padres de nuestros padres."
+    },
+    {
+      "p": "reg",
+      "t": "Sí, vale, Stan, no te enrolles. ¿Y qué nos han dado a cambio? ¿Qué han hecho los romanos por nosotros?"
+    },
+    {
+      "p": "xerxes",
+      "t": "¿El acueducto?"
+    },
+    {
+      "p": "reg",
+      "t": "¿Qué?"
+    },
+    {
+      "p": "xerxes",
+      "t": "El acueducto."
+    },
+    {
+      "p": "reg",
+      "t": "Ah, sí. Sí, eso nos lo han dado, es verdad."
+    },
+    {
+      "p": "francis",
+      "t": "Y el alcantarillado. ¿Te acuerdas de cómo olía esto antes?"
+    },
+    {
+      "p": "reg",
+      "t": "Muy bien. Os concedo que el acueducto y el alcantarillado son dos cosas que han hecho los romanos."
+    },
+    {
+      "p": "stan",
+      "t": "Y las carreteras."
+    },
+    {
+      "p": "francis",
+      "t": "Y la sanidad, y la enseñanza, y el vino."
+    },
+    {
+      "p": "xerxes",
+      "t": "Y ahora es seguro andar por las calles de noche."
+    },
+    {
+      "p": "reg",
+      "t": "Vale. Pero aparte del alcantarillado, la sanidad, la enseñanza, el vino, el orden público, las carreteras y el acueducto…"
+    },
+    {
+      "p": "stan",
+      "t": "¿Los baños públicos?"
+    },
+    {
+      "p": "reg",
+      "t": "¿Qué han hecho los romanos por nosotros?"
+    },
+    {
+      "p": "francis",
+      "t": "¿Traernos la paz?"
+    },
+    {
+      "p": "reg",
+      "t": "¡Oh, la paz! ¡Cállate!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}

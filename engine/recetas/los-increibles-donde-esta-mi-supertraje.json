@@ -1,0 +1,79 @@
+{
+  "id": "los-increibles-donde-esta-mi-supertraje",
+  "titulo": "¿Dónde está mi supertraje?",
+  "obra": "Los Increíbles (2004)",
+  "tipo": "disney",
+  "idiomaOriginal": "es",
+  "fuente": {
+    "busqueda": "Los Increíbles dónde está mi supertraje Frozono Honey castellano"
+  },
+  "personajes": [
+    {
+      "id": "lucius",
+      "nombre": "Lucius (Frozono)"
+    },
+    {
+      "id": "honey",
+      "nombre": "Honey"
+    }
+  ],
+  "guion": [
+    {
+      "p": "lucius",
+      "t": "¡Cariño! ¿Dónde está mi supertraje?"
+    },
+    {
+      "p": "honey",
+      "t": "¿Tu qué?"
+    },
+    {
+      "p": "lucius",
+      "t": "¡Mi supertraje! ¡Ahí fuera hay una amenaza para el bien común!"
+    },
+    {
+      "p": "honey",
+      "t": "Lo he guardado."
+    },
+    {
+      "p": "lucius",
+      "t": "¿Que lo has guardado? ¿Dónde?"
+    },
+    {
+      "p": "honey",
+      "t": "¿Por qué lo quieres saber?"
+    },
+    {
+      "p": "lucius",
+      "t": "¡Porque lo necesito! ¡La ciudad está en peligro!"
+    },
+    {
+      "p": "honey",
+      "t": "Ni se te ocurra pensar que vas a salir a jugar a los héroes."
+    },
+    {
+      "p": "lucius",
+      "t": "¡Mujer, estamos hablando del mayor peligro de la historia!"
+    },
+    {
+      "p": "honey",
+      "t": "¡Yo soy tu mayor peligro! Teníamos planes para esta noche, llevamos dos años preparándola."
+    },
+    {
+      "p": "lucius",
+      "t": "¡El bien común! ¿Dónde está?"
+    },
+    {
+      "p": "honey",
+      "t": "¡Es el mayor plan que hemos hecho juntos y tú quieres salir corriendo!"
+    },
+    {
+      "p": "lucius",
+      "t": "¿Dónde. Está. Mi. Supertraje?"
+    },
+    {
+      "p": "honey",
+      "t": "¡Te lo he guardado para que no te hagas daño!"
+    }
+  ],
+  "notas": "Guion en castellano escrito para DubGame siguiendo la escena; puede no coincidir palabra por palabra con el doblaje oficial. El motor ajusta los tiempos al audio real y en el editor puedes usar el texto que se oye."
+}
