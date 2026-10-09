@@ -6,14 +6,14 @@
   "tipo": "prueba",
   "autor": "DubGame",
   "idiomaOriginal": "es",
-  "duracion": 34.67,
+  "duracion": 35.15,
   "estado": "listo",
   "avisos": [],
-  "creado": "2026-10-09T13:32:57",
+  "creado": "2026-10-09T15:02:58",
   "fuente": {
     "url": null,
     "inicio": 0.0,
-    "fin": 34.67
+    "fin": 35.15
   },
   "personajes": [
     {
@@ -28,13 +28,13 @@
       "inicio": 1.4,
       "fin": 7.602,
       "texto": "Hace mucho tiempo, en un pueblo perdido entre montañas, vivía un caballero sin espada.",
-      "textoOriginal": "Hace mucho tiempo, en un pueblo perdido entre montañas, vivía un caballero sin espada.",
+      "textoOriginal": "Hace mucho tiempo, en un pueblo perdido entre montañas vivía un caballero sin espada.",
       "confianza": 1.0,
       "id": "l01"
     },
     {
       "personaje": "narrador",
-      "inicio": 7.992,
+      "inicio": 7.928,
       "fin": 12.466,
       "texto": "Cada mañana se levantaba antes que el sol y salía a buscar aventuras.",
       "textoOriginal": "Cada mañana se levantaba antes que el sol y salía a buscar aventuras.",
@@ -43,8 +43,8 @@
     },
     {
       "personaje": "narrador",
-      "inicio": 12.792,
-      "fin": 17.426,
+      "inicio": 13.176,
+      "fin": 17.778,
       "texto": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
       "textoOriginal": "Pero en aquel pueblo nunca pasaba nada, salvo alguna gallina escapada.",
       "confianza": 1.0,
@@ -52,30 +52,21 @@
     },
     {
       "personaje": "narrador",
-      "inicio": 17.592,
-      "fin": 22.514,
-      "texto": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
-      "textoOriginal": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse.",
+      "inicio": 18.168,
+      "fin": 27.954,
+      "texto": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse. El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
+      "textoOriginal": "Un día, una sombra enorme cubrió el cielo y todos corrieron a esconderse. El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
       "confianza": 1.0,
       "id": "l04"
     },
     {
       "personaje": "narrador",
-      "inicio": 23.32,
-      "fin": 27.794,
-      "texto": "El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
-      "textoOriginal": "El caballero levantó la vista, respiró hondo y dijo que no tenía miedo.",
-      "confianza": 1.0,
-      "id": "l05"
-    },
-    {
-      "personaje": "narrador",
-      "inicio": 27.96,
-      "fin": 33.17,
+      "inicio": 28.44,
+      "fin": 33.65,
       "texto": "Era solo una nube con forma de dragón. Y así terminó su mayor aventura.",
       "textoOriginal": "Era solo una nube con forma de dragón y así terminó su mayor aventura.",
       "confianza": 1.0,
-      "id": "l06"
+      "id": "l05"
     }
   ],
   "extras": []

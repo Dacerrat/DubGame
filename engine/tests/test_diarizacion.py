@@ -1,7 +1,7 @@
 import numpy as np
 
 from dubengine.analisis import Tramo
-from dubengine.diarizacion import agrupar_robusto, cortes_en_valles, diarizar, etiquetas_por_votos, ventanas
+from dubengine.diarizacion import agrupar_robusto, cortes_en_valles, diarizar, etiquetas_por_votos, revisar_lineas, ventanas
 
 SR = 16000
 
@@ -68,3 +68,37 @@ def test_diarizar_separa_turnos_sin_pausa():
     etiquetas_en = lambda t: next(p.hablante for p in piezas if p.inicio <= t < p.fin)
     assert etiquetas_en(1.0) == etiquetas_en(3.0)
     assert etiquetas_en(2.2) != etiquetas_en(1.0)
+
+
+def _emb_por_turnos(turnos, centros):
+    """Huellas de voz falsas: la mezcla de las voces que suenan en cada trozo."""
+    def emb(trozos):
+        out = []
+        for tr in trozos:
+            ts = np.linspace(tr.inicio, tr.fin, 40, endpoint=False)
+            quien = [next((h for a, b, h in turnos if a <= t < b), None) for t in ts]
+            v = np.mean([centros[h] for h in quien if h is not None] or [np.ones(centros.shape[1])], axis=0)
+            out.append(v / np.linalg.norm(v))
+        return np.array(out)
+    return emb
+
+
+def test_revisar_parte_una_linea_con_dos_personajes():
+    centros = np.eye(2, 8)
+    # A: 0-3 s; "Ponme un ejemplo." de B (4-5 s) y "¿Un ejemplo? Vale…" de A (5.3-8 s); B: 9-12 s
+    turnos = [(0, 3, 0), (4, 5, 1), (5.3, 8, 0), (9, 12, 1)]
+    emb = _emb_por_turnos(turnos, centros)
+    piezas = [Tramo(0, 3, 0), Tramo(4, 4.5, 0), Tramo(4.5, 5, 0), Tramo(5.3, 6.5, 0), Tramo(6.5, 8, 0), Tramo(9, 12, 1)]
+    # La línea 4-8 s ha quedado entera como de A
+    lineas = [Tramo(0, 3, 0), Tramo(4, 8, 0), Tramo(9, 12, 1)]
+    r = revisar_lineas(lineas, piezas, emb)
+    assert [(l.inicio, l.fin, l.hablante) for l in r] == [(0, 3, 0), (4, 5, 1), (5.3, 8, 0), (9, 12, 1)]
+
+
+def test_revisar_no_toca_las_lineas_de_un_solo_personaje():
+    centros = np.eye(2, 8)
+    turnos = [(0, 3, 0), (3.5, 7, 0), (8, 11, 1)]
+    emb = _emb_por_turnos(turnos, centros)
+    piezas = [Tramo(0, 1.5, 0), Tramo(1.5, 3, 0), Tramo(3.5, 7, 0), Tramo(8, 11, 1)]
+    lineas = [Tramo(0, 7, 0), Tramo(8, 11, 1)]
+    assert revisar_lineas(lineas, piezas, emb) == lineas

@@ -206,3 +206,62 @@ def diarizar(voz: np.ndarray, sr: int, tramos: list[Tramo], n: int | None, embed
             else:
                 p.hablante = por_ventanas(p)
     return piezas
+
+
+def revisar_lineas(lineas: list[Tramo], piezas: list[Tramo], embeddings: Embeddings, min_parte: float = 0.6,
+                   margen: float = 0.1, min_referencia: float = 1.5) -> list[Tramo]:
+    """Parte las líneas en las que se han colado dos personajes.
+
+    Los trozos cortos se clasifican mal a veces y la línea acaba juntando, por
+    ejemplo, "Ponme un ejemplo." (Asno) y "¿Un ejemplo?" (Shrek). Aquí se mira
+    cada línea ya formada: si a un lado de una pausa suena claramente un
+    personaje y al otro, otro (con trozos de al menos `min_parte` s, que ya
+    dan una huella de voz fiable), se parte por ahí. Las voces de referencia
+    salen de las líneas largas, sin contar la que se está revisando.
+    """
+    hablantes = {l.hablante for l in lineas}
+    largas = [l for l in lineas if l.dur >= min_referencia]
+    if len(hablantes) < 2 or not largas:
+        return lineas
+    el = embeddings(largas)
+    el = el / (np.linalg.norm(el, axis=1, keepdims=True) + 1e-9)
+
+    def referencias(excluir: Tramo) -> dict[int, np.ndarray] | None:
+        out = {}
+        for h in hablantes:
+            idx = [i for i, l in enumerate(largas) if l.hablante == h and l is not excluir]
+            if not idx:
+                return None
+            c = el[idx].mean(axis=0)
+            out[h] = c / (np.linalg.norm(c) + 1e-9)
+        return out
+
+    def clasificar(e: np.ndarray, refs: dict[int, np.ndarray]) -> tuple[int, float]:
+        e = e / (np.linalg.norm(e) + 1e-9)
+        s = sorted(((float(e @ c), h) for h, c in refs.items()), reverse=True)
+        return s[0][1], s[0][0] - s[1][0]
+
+    out: list[Tramo] = []
+    pendientes = list(lineas)
+    while pendientes:
+        l = pendientes.pop(0)
+        refs = referencias(l)
+        ps = [p for p in piezas if p.inicio >= l.inicio - 1e-6 and p.fin <= l.fin + 1e-6]
+        candidatos = [(k, Tramo(l.inicio, ps[k - 1].fin), Tramo(ps[k].inicio, l.fin)) for k in range(1, len(ps))]
+        candidatos = [c for c in candidatos if c[1].dur >= min_parte and c[2].dur >= min_parte]
+        mejor = None
+        if refs and candidatos:
+            e = embeddings([t for _, a, b in candidatos for t in (a, b)])
+            for j, (k, _, _) in enumerate(candidatos):
+                hi, si = clasificar(e[2 * j], refs)
+                hd, sd = clasificar(e[2 * j + 1], refs)
+                # Los cambios de turno suelen coincidir con una pausa
+                v = si + sd + 0.2 * min(1.0, (ps[k].inicio - ps[k - 1].fin) / 0.5)
+                if hi != hd and si >= margen and sd >= margen and (mejor is None or v > mejor[0]):
+                    mejor = (v, k, hi, hd)
+        if mejor:
+            _, k, hi, hd = mejor
+            pendientes[:0] = [Tramo(l.inicio, ps[k - 1].fin, hi), Tramo(ps[k].inicio, l.fin, hd)]
+        else:
+            out.append(l)
+    return out

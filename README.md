@@ -69,7 +69,7 @@ Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/s
 1. Descarga el clip (yt-dlp) y lo recorta.
 2. **Separa las voces de la música/efectos** (UVR por defecto; Spleeter es más rápido pero a veces distorsiona), para que al doblar se oiga el fondo sin las voces.
 3. Detecta los tramos con voz (VAD Silero).
-4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz (CAM++) en ventanas cortas, cortes en las micro-pausas entre palabras y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase).
+4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz (CAM++) en ventanas cortas, cortes en las micro-pausas entre palabras y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase). Al final **revisa cada línea**: si a un lado de una pausa suena un personaje y al otro, otro, la parte ahí.
 5. Divide en líneas (las frases seguidas de un mismo personaje van juntas, hasta 10 s) y las **transcribe con contexto** (Whisper turbo): oye la conversación entera y reparte el texto entre las líneas, porque frase a frase se equivoca mucho más. Lo que no es voz (`[Música]`, risas…) no se convierte en línea, ni las frases que Whisper se inventa en ruidos flojos (un “¡Gracias!” donde no hay nadie).
 6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
@@ -92,16 +92,19 @@ Desde **Dub Packs → Detalles → Exportar .dubpack** se descarga el pack en un
 
 ### Precisión del motor (escenas de prueba)
 
-`npm run packs:prueba` genera 3 escenas con voces sintéticas en castellano (guion y tiempos conocidos), las pasa por el motor y mide el resultado:
+`npm run packs:prueba` genera 5 escenas con voces sintéticas en castellano (guion y tiempos conocidos), las pasa por el motor y mide el resultado:
 
-| Escena | Personajes | Personaje correcto (con receta) | Personaje correcto (automático) | Error medio de tiempos |
+| Escena | Personajes | Personaje correcto (con receta) | Personaje correcto (automático) | Desfase medio inicio / fin |
 |---|---|---|---|---|
-| La entrevista | 2 | 100 % | 100 % | ~0,1 s |
-| El atraco | 3 | 100 % | 100 % | ~0,1 s |
-| El narrador | 1 | 100 % | 100 % | ~0,1 s |
-| Las llaves (diálogo rápido, réplicas de una palabra) | 2 | 95 % | 95-100 % | ~0,15 s |
+| La entrevista | 2 | 100 % | 100 % | 0,1 / 0,2 s |
+| El atraco | 3 | 100 % | 100 % | 0,1 / 0,2 s |
+| El narrador | 1 | 100 % | 100 % | 0,1 / 0,2 s |
+| Las llaves (diálogo rápido, réplicas de una palabra) | 2 | 100 % | 95 % | 0,1 / 0,1 s |
+| El mago (contestaciones pegadas, pausas dramáticas y música alta) | 2 | 100 % | 92 % | 0,1 / 0,1 s |
 
-Errores de transcripción con contexto (Whisper turbo): 1-3 % de palabras. El fallo que queda en "Las llaves" es un "¡No!" gritado de 0,3 s entre dos frases del otro personaje; se corrige en el editor con "Dividir".
+El desfase del final es en parte a propósito: cada línea lleva un pequeño margen para no cortar la última sílaba. Errores de transcripción (Whisper turbo, lo que se oye): 0-8 % de palabras, casi todo grafías («puzzles», «tic-tac») o una palabra en el borde entre dos frases; con receta, el texto sale exacto en las 5.
+
+Lo que aún falla sin receta es siempre lo mismo: un «¡No!» de 0,3 s pegado a la frase del otro personaje, demasiado corto para reconocer la voz. Con receta sale bien y, si no, en el editor se arregla con **Dividir**. Cuando las partes mezcladas son más largas, la revisión del paso 4 las separa: en una prueba con 100 líneas a las que se les juntó a propósito la réplica del otro personaje, separó bien 94; las 6 restantes eran réplicas de una sola palabra.
 
 Con un guion que **no** coincide con el audio (frases parafraseadas, inventadas o que faltan), los tiempos y los personajes siguen saliendo bien y el texto es el que se oye.
 

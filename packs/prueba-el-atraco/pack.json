@@ -6,14 +6,14 @@
   "tipo": "prueba",
   "autor": "DubGame",
   "idiomaOriginal": "es",
-  "duracion": 43.886,
+  "duracion": 43.406,
   "estado": "listo",
   "avisos": [],
-  "creado": "2026-10-09T13:31:51",
+  "creado": "2026-10-09T15:00:57",
   "fuente": {
     "url": null,
     "inicio": 0.0,
-    "fin": 43.886
+    "fin": 43.406
   },
   "personajes": [
     {
@@ -36,7 +36,7 @@
     {
       "personaje": "jefa",
       "inicio": 1.4,
-      "fin": 5.97,
+      "fin": 5.874,
       "texto": "Escuchad bien. Tenemos exactamente tres minutos para entrar y salir.",
       "textoOriginal": "Escuchad bien, tenemos exactamente tres minutos para entrar y salir.",
       "confianza": 1.0,
@@ -44,17 +44,17 @@
     },
     {
       "personaje": "novato",
-      "inicio": 6.36,
-      "fin": 9.138,
+      "inicio": 6.616,
+      "fin": 9.234,
       "texto": "Jefa, una pregunta. ¿Puedo ir antes al baño?",
-      "textoOriginal": "Jefa, una pregunta. ¿Puedo ir antes al baño?",
-      "confianza": 1.0,
+      "textoOriginal": "Eza, una pregunta. ¿Puedo ir antes al baño?",
+      "confianza": 0.973,
       "id": "l02"
     },
     {
       "personaje": "jefa",
-      "inicio": 9.848,
-      "fin": 12.658,
+      "inicio": 9.784,
+      "fin": 12.626,
       "texto": "No. Nadie va al baño en mitad de un atraco.",
       "textoOriginal": "No, nadie va al baño en mitad de un atraco.",
       "confianza": 1.0,
@@ -62,7 +62,7 @@
     },
     {
       "personaje": "vigilante",
-      "inicio": 12.92,
+      "inicio": 12.952,
       "fin": 15.698,
       "texto": "¡Alto ahí! ¿Quién anda por el pasillo a estas horas?",
       "textoOriginal": "¡Alto ahí! ¿Quién anda por el pasillo a estas horas?",
@@ -71,26 +71,26 @@
     },
     {
       "personaje": "novato",
-      "inicio": 16.44,
-      "fin": 19.698,
+      "inicio": 15.96,
+      "fin": 19.41,
       "texto": "Somos los de la limpieza. Venimos a fregar la cámara acorazada.",
-      "textoOriginal": "Somos los de la limpieza. Venimos a fregar la cámara acorazada.",
-      "confianza": 1.0,
+      "textoOriginal": "Somos los de la limpieza. Venimos a agregar la cámara acorazada.",
+      "confianza": 0.976,
       "id": "l05"
     },
     {
       "personaje": "vigilante",
-      "inicio": 19.864,
-      "fin": 22.322,
+      "inicio": 19.8,
+      "fin": 22.482,
       "texto": "¿A las tres de la mañana? Qué raro. Bueno, pasad.",
-      "textoOriginal": "¿A las tres de la mañana? ¡Qué raro! Bueno, pasad.",
-      "confianza": 1.0,
+      "textoOriginal": "¿A las tres de la mañana? ¡Qué dado! Bueno, pasad.",
+      "confianza": 0.955,
       "id": "l06"
     },
     {
       "personaje": "jefa",
-      "inicio": 22.616,
-      "fin": 24.882,
+      "inicio": 22.904,
+      "fin": 25.234,
       "texto": "No me lo puedo creer. Ha funcionado.",
       "textoOriginal": "No me lo puedo creer. Ha funcionado.",
       "confianza": 1.0,
@@ -98,35 +98,35 @@
     },
     {
       "personaje": "novato",
-      "inicio": 25.688,
-      "fin": 29.554,
+      "inicio": 25.88,
+      "fin": 29.202,
       "texto": "Jefa, ya he abierto la caja fuerte. Pero solo hay croquetas.",
-      "textoOriginal": "Jeza, ya he abierto la caja fuerte, pero solo hay croquetas. ¡Eh!",
-      "confianza": 0.973,
+      "textoOriginal": "Jefa, ya he abierto la caja fuerte, pero solo veis croquetas.",
+      "confianza": 0.953,
       "id": "l08"
     },
     {
       "personaje": "vigilante",
-      "inicio": 29.784,
-      "fin": 33.17,
+      "inicio": 29.528,
+      "fin": 32.882,
       "texto": "¡Eh, esas croquetas son mías! Me las hizo mi abuela.",
-      "textoOriginal": "¡Esas croquetas son mías! Me las hizo mi abuela.",
-      "confianza": 0.98,
+      "textoOriginal": "¡Eh! ¡Esas croquetas son mías! Me las hizo mi abuela.",
+      "confianza": 1.0,
       "id": "l09"
     },
     {
       "personaje": "jefa",
-      "inicio": 33.656,
-      "fin": 37.202,
+      "inicio": 33.208,
+      "fin": 36.626,
       "texto": "Retirada. Repito, retirada. Y dejad las croquetas.",
-      "textoOriginal": "Retirada, repito, retirada. Y dejad las croquetas.",
+      "textoOriginal": "Retirada, repito, retirada, y dejad las croquetas.",
       "confianza": 1.0,
       "id": "l10"
     },
     {
       "personaje": "novato",
-      "inicio": 37.624,
-      "fin": 39.57,
+      "inicio": 37.272,
+      "fin": 39.186,
       "texto": "Solo me he comido una, lo prometo.",
       "textoOriginal": "Solo me he comido una, lo prometo.",
       "confianza": 1.0,
@@ -134,10 +134,10 @@
     },
     {
       "personaje": "vigilante",
-      "inicio": 39.96,
-      "fin": 42.386,
+      "inicio": 39.384,
+      "fin": 41.906,
       "texto": "¡Os voy a denunciar por robo de croquetas!",
-      "textoOriginal": "Os voy a denunciar por robo de croquetas.",
+      "textoOriginal": "¡Os voy a denunciar por robo de croquetas!",
       "confianza": 1.0,
       "id": "l12"
     }

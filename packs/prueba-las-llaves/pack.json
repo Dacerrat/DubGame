@@ -6,14 +6,14 @@
   "tipo": "prueba",
   "autor": "DubGame",
   "idiomaOriginal": "es",
-  "duracion": 29.8,
+  "duracion": 29.358,
   "estado": "listo",
   "avisos": [],
-  "creado": "2026-10-09T13:34:06",
+  "creado": "2026-10-09T15:04:58",
   "fuente": {
     "url": null,
     "inicio": 0.0,
-    "fin": 29.8
+    "fin": 29.358
   },
   "personajes": [
     {
@@ -31,7 +31,7 @@
     {
       "personaje": "marta",
       "inicio": 1.4,
-      "fin": 3.17,
+      "fin": 3.138,
       "texto": "Oye, ¿tú has visto mis llaves?",
       "textoOriginal": "Oye, ¿tú has visto mis llaves?",
       "confianza": 1.0,
@@ -39,8 +39,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 3.17,
-      "fin": 3.898,
+      "inicio": 3.138,
+      "fin": 3.836,
       "texto": "¿Qué llaves?",
       "textoOriginal": "¿Qué llaves?",
       "confianza": 1.0,
@@ -48,8 +48,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 3.898,
-      "fin": 4.898,
+      "inicio": 3.836,
+      "fin": 4.754,
       "texto": "Las del coche.",
       "textoOriginal": "Las del coche.",
       "confianza": 1.0,
@@ -57,8 +57,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 4.898,
-      "fin": 5.348,
+      "inicio": 4.754,
+      "fin": 5.218,
       "texto": "No.",
       "textoOriginal": "No.",
       "confianza": 1.0,
@@ -66,8 +66,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 5.348,
-      "fin": 5.922,
+      "inicio": 5.218,
+      "fin": 5.826,
       "texto": "¿Seguro?",
       "textoOriginal": "¿Seguro?",
       "confianza": 1.0,
@@ -75,8 +75,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 5.944,
-      "fin": 8.162,
+      "inicio": 5.826,
+      "fin": 7.938,
       "texto": "Segurísimo. Bueno, a lo mejor.",
       "textoOriginal": "Segurísimo. Bueno, a lo mejor.",
       "confianza": 1.0,
@@ -84,8 +84,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 8.184,
-      "fin": 9.266,
+      "inicio": 7.96,
+      "fin": 9.18,
       "texto": "¿Cómo que a lo mejor?",
       "textoOriginal": "¿Cómo que a lo mejor?",
       "confianza": 1.0,
@@ -93,8 +93,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 9.266,
-      "fin": 12.86,
+      "inicio": 9.18,
+      "fin": 12.482,
       "texto": "Es que esta mañana cogí unas llaves, pero creía que eran las mías.",
       "textoOriginal": "Es que esta mañana cogí unas llaves, pero creía que eran las mías.",
       "confianza": 1.0,
@@ -102,8 +102,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 12.86,
-      "fin": 13.81,
+      "inicio": 12.482,
+      "fin": 13.39,
       "texto": "¿Y dónde están?",
       "textoOriginal": "¿Y dónde están?",
       "confianza": 1.0,
@@ -111,8 +111,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 13.81,
-      "fin": 14.754,
+      "inicio": 13.39,
+      "fin": 14.274,
       "texto": "En el bolsillo.",
       "textoOriginal": "En el bolsillo.",
       "confianza": 1.0,
@@ -120,8 +120,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 14.754,
-      "fin": 15.682,
+      "inicio": 14.274,
+      "fin": 15.314,
       "texto": "¿En qué bolsillo?",
       "textoOriginal": "¿En qué bolsillo?",
       "confianza": 1.0,
@@ -129,8 +129,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 15.682,
-      "fin": 17.698,
+      "inicio": 15.314,
+      "fin": 17.378,
       "texto": "En el del pantalón que llevaba ayer.",
       "textoOriginal": "En el del pantalón que llevaba ayer.",
       "confianza": 1.0,
@@ -138,8 +138,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 17.72,
-      "fin": 19.266,
+      "inicio": 17.4,
+      "fin": 18.93,
       "texto": "¿Y dónde está ese pantalón?",
       "textoOriginal": "¿Y dónde está ese pantalón?",
       "confianza": 1.0,
@@ -147,8 +147,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 19.288,
-      "fin": 20.258,
+      "inicio": 18.968,
+      "fin": 19.89,
       "texto": "En la lavadora.",
       "textoOriginal": "En la lavadora.",
       "confianza": 1.0,
@@ -156,17 +156,17 @@
     },
     {
       "personaje": "marta",
-      "inicio": 20.258,
-      "fin": 20.778,
+      "inicio": 19.89,
+      "fin": 20.322,
       "texto": "¡No!",
-      "textoOriginal": "¡No!",
+      "textoOriginal": "No.",
       "confianza": 1.0,
       "id": "l15"
     },
     {
       "personaje": "jose",
-      "inicio": 20.778,
-      "fin": 21.314,
+      "inicio": 20.322,
+      "fin": 20.75,
       "texto": "Sí.",
       "textoOriginal": "Sí.",
       "confianza": 1.0,
@@ -174,8 +174,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 21.314,
-      "fin": 22.112,
+      "inicio": 20.75,
+      "fin": 21.666,
       "texto": "¿Está puesta?",
       "textoOriginal": "¿Está puesta?",
       "confianza": 1.0,
@@ -183,8 +183,8 @@
     },
     {
       "personaje": "jose",
-      "inicio": 22.112,
-      "fin": 23.266,
+      "inicio": 21.688,
+      "fin": 22.866,
       "texto": "Desde hace una hora.",
       "textoOriginal": "Desde hace una hora.",
       "confianza": 1.0,
@@ -192,8 +192,8 @@
     },
     {
       "personaje": "marta",
-      "inicio": 23.266,
-      "fin": 25.298,
+      "inicio": 22.872,
+      "fin": 24.802,
       "texto": "Pues ya puedes ir corriendo a pararla.",
       "textoOriginal": "Pues ya puedes ir corriendo a pararla.",
       "confianza": 1.0,
@@ -201,11 +201,11 @@
     },
     {
       "personaje": "jose",
-      "inicio": 25.304,
-      "fin": 28.306,
+      "inicio": 24.802,
+      "fin": 27.858,
       "texto": "Vale, vale. Pero las llaves van a quedar limpísimas.",
-      "textoOriginal": "Dale, dale, pero las llaves van a quedar limpísimas.",
-      "confianza": 0.968,
+      "textoOriginal": "Vale, vale, pero las llaves van a quedar limpísimas.",
+      "confianza": 1.0,
       "id": "l20"
     }
   ],

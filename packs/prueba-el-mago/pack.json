@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "id": "prueba-el-mago",
+  "titulo": "El mago",
+  "obra": "Escena de prueba DubGame",
+  "tipo": "prueba",
+  "autor": "DubGame",
+  "idiomaOriginal": "es",
+  "duracion": 29.88,
+  "estado": "listo",
+  "avisos": [],
+  "creado": "2026-10-09T15:06:49",
+  "fuente": {
+    "url": null,
+    "inicio": 0.0,
+    "fin": 29.88
+  },
+  "personajes": [
+    {
+      "id": "mago",
+      "nombre": "El Mago",
+      "color": "#e8d9b5"
+    },
+    {
+      "id": "aprendiz",
+      "nombre": "La Aprendiz",
+      "color": "#8fb8de"
+    }
+  ],
+  "lineas": [
+    {
+      "personaje": "mago",
+      "inicio": 1.4,
+      "fin": 5.852,
+      "texto": "Para que lo sepas, un mago es mucho más complicado de lo que la gente piensa.",
+      "textoOriginal": "Para que lo sepas, un mago es mucho más complicado de lo que la gente piensa.",
+      "confianza": 1.0,
+      "id": "l01"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 5.852,
+      "fin": 6.542,
+      "texto": "¿Por ejemplo?",
+      "textoOriginal": "Por ejemplo.",
+      "confianza": 1.0,
+      "id": "l02"
+    },
+    {
+      "personaje": "mago",
+      "inicio": 6.542,
+      "fin": 10.626,
+      "texto": "¿Un ejemplo? Vale. Los magos son como los relojes.",
+      "textoOriginal": "Un ejemplo. Dale, los magos son como los relojes.",
+      "confianza": 0.983,
+      "id": "l03"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 10.626,
+      "fin": 11.566,
+      "texto": "¿Hacen tic tac?",
+      "textoOriginal": "Hacen tic-tac.",
+      "confianza": 1.0,
+      "id": "l04"
+    },
+    {
+      "personaje": "mago",
+      "inicio": 11.566,
+      "fin": 12.178,
+      "texto": "¡No!",
+      "textoOriginal": "No.",
+      "confianza": 1.0,
+      "id": "l05"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 12.344,
+      "fin": 14.014,
+      "texto": "¿Se paran si no les das cuerda?",
+      "textoOriginal": "Separan si no les das cuerda.",
+      "confianza": 0.982,
+      "id": "l06"
+    },
+    {
+      "personaje": "mago",
+      "inicio": 14.014,
+      "fin": 18.41,
+      "texto": "¡No! Tienen mecanismos. Muchas piezas pequeñas que no se ven desde fuera.",
+      "textoOriginal": "No. Tiene mecanismos. Muchas piezas pequeñas que no se ven desde fuera.",
+      "confianza": 0.993,
+      "id": "l07"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 18.41,
+      "fin": 20.06,
+      "texto": "Ah, piezas. Como los puzles.",
+      "textoOriginal": "Ah, piezas. Como los puzzles.",
+      "confianza": 0.983,
+      "id": "l08"
+    },
+    {
+      "personaje": "mago",
+      "inicio": 20.06,
+      "fin": 21.766,
+      "texto": "No, como los puzles no.",
+      "textoOriginal": "No, como los puzzles no.",
+      "confianza": 0.986,
+      "id": "l09"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 21.766,
+      "fin": 24.05,
+      "texto": "A todo el mundo le gustan los puzles.",
+      "textoOriginal": "A todo el mundo le gustan los puzzles.",
+      "confianza": 0.986,
+      "id": "l10"
+    },
+    {
+      "personaje": "mago",
+      "inicio": 24.184,
+      "fin": 26.306,
+      "texto": "Me da igual lo que le guste a todo el mundo.",
+      "textoOriginal": "Me da igual lo que le guste a todo el mundo.",
+      "confianza": 1.0,
+      "id": "l11"
+    },
+    {
+      "personaje": "aprendiz",
+      "inicio": 26.306,
+      "fin": 28.402,
+      "texto": "Pues a mí los relojes me dan sueño.",
+      "textoOriginal": "Pues a mí los relojes me dan sueño.",
+      "confianza": 1.0,
+      "id": "l12"
+    }
+  ],
+  "extras": []
+}

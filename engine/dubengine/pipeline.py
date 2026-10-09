@@ -203,9 +203,13 @@ def procesar(op: Opciones) -> Path:
         if not tramos_voz:
             raise RuntimeError("No se ha detectado ninguna voz en el clip")
         informar("diarizar", "Identificando quién habla en cada momento…")
-        piezas = diarizacion.diarizar(voz16, analisis.SR, tramos_voz, op.n_hablantes,
-                                      lambda ts: analisis.embeddings(voz16, ts, op.hilos))
-        lineas = renumerar_hablantes(construir_lineas(piezas))
+
+        def emb(ts):
+            return analisis.embeddings(voz16, ts, op.hilos)
+
+        piezas = diarizacion.diarizar(voz16, analisis.SR, tramos_voz, op.n_hablantes, emb)
+        lineas = diarizacion.revisar_lineas(construir_lineas(piezas), piezas, emb)
+        lineas = renumerar_hablantes(lineas)
         lineas = acolchar(lineas, total=total)
         detectadas, ruido = transcribir_lineas(voz16, lineas, op)
 
