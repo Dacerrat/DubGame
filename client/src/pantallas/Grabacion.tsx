@@ -3,8 +3,8 @@ import type { EstadoSala, Linea, Pack } from '../../../shared/tipos';
 import { lineasDeJugador } from '../../../shared/reglas';
 import { acciones, api } from '../conexion';
 import {
-  type AudioPack, Microfono, type ModoMicro, type Reproduccion, canalesDe, cargarAudioPack, contexto, crearBuffer, despertar,
-  guardarModoMicro, latenciaSalida, modoMicro, reproducir,
+  type AudioPack, Microfono, type ModoMicro, type Pista, type Reproduccion, canalesDe, cargarAudioPack, contexto, crearBuffer,
+  despertar, esperar, guardarModoMicro, latenciaSalida, modoMicro, reproducir,
 } from '../audio/motor';
 import { codificarWav } from '../audio/wav';
 import { aMono, deteccionVoz, normalizarVoz } from '../audio/dsp';
@@ -14,10 +14,31 @@ import { Calibracion } from '../ui/Calibracion';
 import { GuiaOnda, type MuestraDirecto } from '../ui/GuiaOnda';
 import { usePack } from './Sala';
 
-/** Segundos de escena antes de cada línea. */
-const PREROLL = 3;
-/** Se sigue grabando un poco tras el final de la línea para no cortar a nadie. */
-const COLA = 1.2;
+/** Cuenta atrás (s) con la imagen congelada antes de cada línea. */
+const CUENTA = 3;
+/** Al grabar y al escuchar suena solo tu línea, con este pequeño margen (s). */
+const ANTES = 0.05;
+const DESPUES = 0.25;
+/** Tras el final de la línea se sigue grabando mientras hables (s). */
+const COLA_MIN = 0.35;
+const COLA_MAX = 1.5;
+
+/** Pitidos de la cuenta atrás (3, 2, 1) antes de `cero` (hora del AudioContext). */
+function pitidos(ctx: AudioContext, cero: number) {
+  for (const k of [3, 2, 1]) {
+    const t = cero - k;
+    if (t < ctx.currentTime) continue;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.12, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    o.connect(g).connect(ctx.destination);
+    o.start(t);
+    o.stop(t + 0.1);
+  }
+}
 
 interface Sesion {
   codigo: string;
@@ -72,9 +93,28 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
       : null),
     [toma, audio],
   );
+  const linea0 = lineas[indice];
+  // La guía muestra solo tu línea (y tu toma entera, si te alargas)
+  const ventanaGuia = useMemo(() => {
+    if (!linea0) return { desde: 0, hasta: 1 };
+    let desde = linea0.inicio - 0.15;
+    let hasta = linea0.fin + 0.4;
+    if (tomaColocada) {
+      desde = Math.min(desde, tomaColocada.en - 0.05);
+      hasta = Math.max(hasta, tomaColocada.en + tomaColocada.datos.length / tomaColocada.sr + 0.1);
+    }
+    return { desde: Math.max(0, desde), hasta: Math.min(pack.duracion, hasta) };
+  }, [linea0, tomaColocada, pack.duracion]);
+  const originalVentana = useMemo(() => {
+    if (!vozOriginal || !audio) return null;
+    const sr = audio.voces.sampleRate;
+    return vozOriginal.subarray(Math.floor(ventanaGuia.desde * sr), Math.floor(ventanaGuia.hasta * sr));
+  }, [vozOriginal, audio, ventanaGuia]);
   const [pos, setPos] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const repRef = useRef<Reproduccion | null>(null);
+  // Reloj del cabezal: sigue corriendo tras la reproducción mientras grabas la cola
+  const relojRef = useRef<{ t0: number; desde: number } | null>(null);
   const pasoRef = useRef<Paso>('listo');
   pasoRef.current = paso;
   const micRef = useRef<Microfono | null>(null);
@@ -94,12 +134,14 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     mic?.cerrar();
   }, [mic]);
 
-  // Posición del cabezal para cuenta atrás, karaoke y subtítulos
+  // Posición del cabezal para la cuenta atrás y la guía de onda
   useEffect(() => {
     let raf = 0;
     const bucle = () => {
-      if (repRef.current) {
-        const p = repRef.current.posicion();
+      const r = relojRef.current;
+      if (r) {
+        const ctx = contexto();
+        const p = r.desde + (ctx.currentTime - r.t0) - latenciaSalida(ctx);
         setPos(p);
         // Tu voz en directo para la guía de onda
         if (pasoRef.current === 'grabando' && micRef.current) directo.current.push({ t: p, v: micRef.current.nivel });
@@ -124,13 +166,19 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   };
 
   const tramo = (l: Linea) => ({
-    desde: Math.max(0, l.inicio - PREROLL),
-    hasta: Math.min(pack.duracion, l.fin + COLA + 0.1),
+    desde: Math.max(0, l.inicio - ANTES),
+    hasta: Math.min(pack.duracion, l.fin + DESPUES),
   });
 
   const parar = () => {
     repRef.current?.parar();
     repRef.current = null;
+    relojRef.current = null;
+  };
+
+  const seguir = (rep: Reproduccion, desde: number) => {
+    repRef.current = rep;
+    relojRef.current = { t0: rep.t0, desde };
   };
 
   const grabar = useCallback(async () => {
@@ -139,26 +187,37 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     setPaso('grabando');
     setToma(null);
     directo.current = [];
-    await despertar();
+    const ctx = await despertar();
     const { desde, hasta } = tramo(linea);
-    const rep = await reproducir({
-      desde,
-      hasta,
-      video: videoRef.current,
-      pistas: [
-        { buffer: audio.fondo, en: 0 },
-        // La voz original suena hasta tu línea; desde ahí, solo como guía (o nada)
-        { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, guia ? 0.3 : 0]] },
-      ],
-    });
-    repRef.current = rep;
+    setPos(desde - CUENTA);
+    // Solo suena tu línea: fondo y, si está activada, la voz original bajita como guía
+    const pistas: Pista[] = [{ buffer: audio.fondo, en: 0 }];
+    if (guia) pistas.push({ buffer: audio.voces, en: 0, ganancia: 0.3 });
+    // Cuenta atrás con la imagen congelada en el primer fotograma de la línea
+    const rep = await reproducir({ desde, hasta, video: videoRef.current, pistas, retraso: CUENTA });
+    seguir(rep, desde);
+    pitidos(ctx, rep.t0 + (linea.inicio - desde));
     await rep.terminada;
     if (repRef.current !== rep) return; // cancelada
-    repRef.current = null;
-    const ctx = contexto();
     const lat = latenciaSalida(ctx) + 0.01;
     const ini = rep.t0 + (linea.inicio - desde) - MARGEN_TOMA + lat;
-    const fin = rep.t0 + (linea.fin - desde) + COLA + lat;
+    // Si sigues hablando al acabar la línea, se sigue grabando hasta que termines
+    const finLinea = rep.t0 + (linea.fin - desde) + lat;
+    let fin = finLinea + COLA_MAX;
+    while (ctx.currentTime < fin + 0.05) {
+      const ahora = ctx.currentTime - 0.06; // lo que ya ha llegado del micro
+      if (ahora >= finLinea + COLA_MIN) {
+        const voz = deteccionVoz(mic.extraer(ini, ahora), ctx.sampleRate);
+        if (!voz || ahora - (ini + voz.fin) > 0.3) {
+          fin = ahora;
+          break;
+        }
+      }
+      await esperar(80);
+      if (repRef.current !== rep) return; // cancelada
+    }
+    repRef.current = null;
+    relojRef.current = null;
     const datos = mic.extraer(ini, fin);
     const silenciosa = deteccionVoz(datos, ctx.sampleRate) === null;
     setToma({
@@ -174,22 +233,24 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     parar();
     setPaso('reproduciendo');
     await despertar();
-    const { desde, hasta } = tramo(linea);
     // Igual que en el montaje final: sincronizada con la voz original y normalizada
     const colocada = colocarToma(toma, canalesDe(audio.voces), audio.voces.sampleRate);
+    const finToma = colocada.en + colocada.datos.length / toma.sr;
+    const { desde: d0, hasta: h0 } = tramo(linea);
+    const desde = Math.max(0, Math.min(d0, colocada.en - ANTES));
+    const hasta = Math.min(pack.duracion, Math.max(h0, finToma + 0.15));
     const rep = await reproducir({
       desde,
       hasta,
       video: videoRef.current,
       pistas: [
         { buffer: audio.fondo, en: 0 },
-        { buffer: audio.voces, en: 0, automatizacion: [[desde, 1], [linea.inicio - 0.05, 0]] },
         { buffer: crearBuffer([normalizarVoz(colocada.datos, toma.sr).datos], toma.sr), en: colocada.en },
       ],
     });
-    repRef.current = rep;
+    seguir(rep, desde);
     await rep.terminada;
-    if (repRef.current === rep) repRef.current = null;
+    if (repRef.current === rep) parar();
     setPaso('revisar');
   };
 
@@ -197,18 +258,18 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     if (!audio || !linea) return;
     parar();
     await despertar();
-    const desde = Math.max(0, linea.inicio - 0.6);
+    const { desde, hasta } = tramo(linea);
     const anterior = paso;
     setPaso('reproduciendo');
     const rep = await reproducir({
       desde,
-      hasta: Math.min(pack.duracion, linea.fin + 0.4),
+      hasta,
       video: videoRef.current,
       pistas: [{ buffer: audio.fondo, en: 0 }, { buffer: audio.voces, en: 0 }],
     });
-    repRef.current = rep;
+    seguir(rep, desde);
     await rep.terminada;
-    if (repRef.current === rep) repRef.current = null;
+    if (repRef.current === rep) parar();
     setPaso(anterior === 'revisar' ? 'revisar' : 'listo');
   };
 
@@ -255,7 +316,7 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
                 </div>
               ))}
               <p className="tenue" style={{ margin: 0 }}>
-                {lineas.length} líneas. Te saldrán una a una: verás unos segundos de escena antes de cada una y una cuenta atrás.
+                {lineas.length} líneas. Te saldrán una a una, con una cuenta atrás de 3 segundos: solo suena tu línea, sin nada antes ni después.
                 {sala.config.escucharOriginal ? ' Oirás la voz original bajita como guía.' : ' No oirás la voz original: ¡a improvisar!'}
               </p>
               <Selector
@@ -290,21 +351,14 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   }
 
   if (!linea) return <div className="cargando">…</div>;
-  const ventana = tramo(linea);
+  const ventana = ventanaGuia;
   const srVoz = audio?.voces.sampleRate ?? 48000;
-  const originalVentana = vozOriginal
-    ? vozOriginal.subarray(Math.floor(ventana.desde * srVoz), Math.floor(ventana.hasta * srVoz))
-    : null;
 
   const p = personaje(linea.personaje);
   const anterior = pack.lineas.filter((l) => l.fin <= linea.inicio + 0.01).at(-1);
   const enLinea = paso === 'grabando' && pos >= linea.inicio;
   const enCola = enLinea && pos > linea.fin;
-  const cuenta = paso === 'grabando' && pos < linea.inicio ? Math.ceil(linea.inicio - pos) : null;
-  // Subtítulos de lo que se oye antes de tu línea (después, las otras voces están silenciadas)
-  const subVisible = repRef.current
-    ? pack.lineas.find((l) => pos >= l.inicio && pos <= l.fin && l.fin <= linea.inicio + 0.05)
-    : undefined;
+  const cuenta = paso === 'grabando' && pos < linea.inicio ? Math.ceil(linea.inicio - pos - 0.02) : null;
 
   return (
     <div className="escenario">
@@ -315,14 +369,8 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
       </div>
       <div className="pantalla-video">
         <video ref={videoRef} src={`/packs/${pack.id}/video.mp4`} muted playsInline preload="auto" poster={`/packs/${pack.id}/portada.jpg`} />
-        {cuenta !== null && cuenta <= 3 && <div className="cuenta">{cuenta}</div>}
+        {cuenta !== null && cuenta >= 1 && cuenta <= 3 && <div className="cuenta">{cuenta}</div>}
         {enLinea && <div className="rec">GRABANDO</div>}
-        {subVisible && subVisible.id !== linea.id && (
-          <div className="subtitulo">
-            <span className="quien" style={{ color: personaje(subVisible.personaje)?.color }}>{personaje(subVisible.personaje)?.nombre}</span>
-            {subVisible.texto}
-          </div>
-        )}
       </div>
       <div className="pasos">
         {lineas.map((l, i) => <span key={l.id} className={i < indice ? 'hecho' : i === indice ? 'actual' : ''} />)}
@@ -345,14 +393,13 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
           desde={ventana.desde}
           hasta={ventana.hasta}
           linea={linea}
-          pos={repRef.current ? pos : null}
+          pos={relojRef.current ? pos : null}
           toma={paso === 'grabando' ? null : tomaColocada}
           directo={directo.current}
-          color={p?.color ?? '#ece6d6'}
         />
         <div className="cifra">
           {cuenta !== null
-            ? `Empieza en ${cuenta}…`
+            ? `Empieza en ${Math.max(1, Math.min(CUENTA, cuenta))}…`
             : enCola
               ? '¡Remata!'
               : enLinea

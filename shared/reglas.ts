@@ -113,3 +113,24 @@ export function validarPack(p: unknown): string | null {
   }
   return null;
 }
+
+/**
+ * Divide un texto en dos por el final de frase más cercano a la proporción `r`
+ * (0-1) del texto; si no hay ninguno, por la palabra más cercana.
+ */
+export function dividirTexto(texto: string, r: number): [string, string] {
+  const palabras = texto.trim().split(/\s+/).filter(Boolean);
+  if (palabras.length < 2) return [texto.trim(), ''];
+  const total = palabras.join(' ').length;
+  const candidatos: { k: number; frase: boolean; pos: number }[] = [];
+  let pos = 0;
+  for (let k = 1; k < palabras.length; k++) {
+    pos += palabras[k - 1].length + 1;
+    const frase = /[.?!…]$/.test(palabras[k - 1]) || /^[¿¡]/.test(palabras[k]);
+    candidatos.push({ k, frase, pos: pos / total });
+  }
+  const frases = candidatos.filter((c) => c.frase);
+  const lista = frases.length ? frases : candidatos;
+  const mejor = lista.reduce((a, b) => (Math.abs(b.pos - r) < Math.abs(a.pos - r) ? b : a));
+  return [palabras.slice(0, mejor.k).join(' '), palabras.slice(mejor.k).join(' ')];
+}

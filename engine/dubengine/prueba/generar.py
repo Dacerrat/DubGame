@@ -83,6 +83,39 @@ def tarjeta(texto: str, sub: str, color: str):
     return img
 
 
+def bordes_voz(x: np.ndarray, umbral_db: float = -35.0) -> tuple[float, float]:
+    """Silencio (s) al principio y al final de un clip sintetizado."""
+    paso = SR // 100
+    n = len(x) // paso
+    if n == 0:
+        return 0.0, 0.0
+    rms = np.sqrt((x[:n * paso].reshape(n, paso) ** 2).mean(axis=1))
+    activo = np.where(rms > rms.max() * 10 ** (umbral_db / 20))[0]
+    if len(activo) == 0:
+        return 0.0, 0.0
+    return activo[0] * paso / SR, max(0.0, len(x) / SR - (activo[-1] + 1) * paso / SR)
+
+
+def agrupar_verdad(verdad: list[dict], pausa_union: float = 1.0, max_linea: float = 10.0) -> list[dict]:
+    """Las líneas que debería dar el motor: frases seguidas del mismo personaje
+    (pausas cortas) juntas, y las de más de `max_linea` partidas en su pausa mayor."""
+    grupos: list[list[dict]] = []
+    for v in verdad:
+        if grupos and grupos[-1][-1]["personaje"] == v["personaje"] and v["inicio"] - grupos[-1][-1]["fin"] < pausa_union:
+            grupos[-1].append(v)
+        else:
+            grupos.append([v])
+
+    def partir(g: list[dict]) -> list[list[dict]]:
+        if g[-1]["fin"] - g[0]["inicio"] <= max_linea or len(g) == 1:
+            return [g]
+        k = max(range(1, len(g)), key=lambda i: g[i]["inicio"] - g[i - 1]["fin"])
+        return partir(g[:k]) + partir(g[k:])
+
+    return [{"personaje": t[0]["personaje"], "texto": " ".join(v["texto"] for v in t),
+             "inicio": t[0]["inicio"], "fin": t[-1]["fin"]} for g in grupos for t in partir(g)]
+
+
 def construir_escena(esc: dict, carpeta: Path, cache: dict, semilla: int) -> tuple[Path, dict]:
     from ..pipeline import COLORES
 
@@ -104,7 +137,10 @@ def construir_escena(esc: dict, carpeta: Path, cache: dict, semilla: int) -> tup
             t = max(t, verdad[-1]["fin"] - 0.1)
         clips.append((t, x))
         texto_limpio = " ".join(p.strip() for p in texto.split("|"))
-        verdad.append({"personaje": pid, "texto": texto_limpio, "inicio": round(t, 3), "fin": round(t + len(x) / SR, 3)})
+        # Tiempos de la voz de verdad (sin el silencio que añade el sintetizador)
+        antes, despues = bordes_voz(x)
+        verdad.append({"personaje": pid, "texto": texto_limpio,
+                       "inicio": round(t + antes, 3), "fin": round(t + len(x) / SR - despues, 3)})
         t += len(x) / SR + rng.uniform(*esc.get("pausas", (0.45, 1.0)))
     total = t + 1.5
     voces = np.zeros(int(total * SR) + 1, dtype=np.float32)
@@ -159,6 +195,7 @@ def wer(ref: str, hip: str) -> float:
 def evaluar(pack: dict, verdad: list[dict], desplazamiento: float, con_receta: bool) -> dict:
     """Compara el pack generado con la verdad conocida."""
     lineas = pack["lineas"]
+    verdad = agrupar_verdad(verdad)
     # Sin receta, los personajes son "p1, p2…": se busca la mejor correspondencia
     mapa: dict[str, str] = {}
     if not con_receta:
@@ -200,7 +237,7 @@ def evaluar(pack: dict, verdad: list[dict], desplazamiento: float, con_receta: b
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--salida", default="packs")
-    ap.add_argument("--modelo", default="base")
+    ap.add_argument("--modelo", default="turbo")
     ap.add_argument("--sin-receta", action="store_true", help="Evalúa el modo totalmente automático")
     ap.add_argument("--solo", nargs="*")
     ap.add_argument("--fuentes", help="Carpeta donde guardar los vídeos fuente generados")

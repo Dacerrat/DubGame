@@ -5,7 +5,7 @@ Juego multijugador de **doblaje en castellano de España**. Cada uno entra desde
 - **Modo "un personaje por jugador"**: si sois 3, solo salen escenas de 3 personajes y cada uno dobla uno.
 - **Modo "en solitario"**: cada jugador dobla la escena entera; después se ven todas las versiones y se vota la mejor.
 - **Escuchar la voz original** (activable): oyes al personaje bajito como guía mientras doblas tu parte.
-- Las líneas salen **una a una**, con unos segundos de escena antes y cuenta atrás. Puedes escuchar tu toma y repetirla.
+- Las líneas salen **una a una**: cuenta atrás de 3 segundos con la imagen congelada y suena **solo tu línea**, sin nada antes ni después. Si te alargas, se sigue grabando hasta que termines. Puedes escuchar tu toma y repetirla.
 - **Dub Packs**: cada escena es un pack (vídeo + fondo sin voces + voces originales + guion). El **motor** los crea solo a partir de un vídeo.
 
 ## Requisitos
@@ -22,7 +22,7 @@ npm run build
 npm start                    # http://localhost:3000
 ```
 
-Ya incluye 3 packs de prueba (“La entrevista”, “El atraco” y “El narrador”), así que se puede jugar al momento.
+Ya incluye 5 packs de prueba (“La entrevista”, “El atraco”, “El narrador”, “Las llaves” y “El mago”), así que se puede jugar al momento.
 
 ### Jugar desde otros dispositivos
 
@@ -41,7 +41,7 @@ El certificado es autofirmado: la primera vez cada dispositivo tiene que aceptar
 - **Las tomas se sincronizan solas**: el juego detecta dónde empieza tu voz y la coloca donde empezaba la voz original, aunque arranques un poco tarde. También recorta los silencios y no te corta si te alargas un poco.
 - **Auriculares Bluetooth**: tienen retraso y el vídeo y los subtítulos parecen ir adelantados. En *Opciones → Sincronía* (o antes de grabar, en "Ajustar sincronía") suenan unos clics: pulsa Espacio con cada uno y el juego compensa tu retraso.
 - En el montaje puedes subir o bajar la **música y efectos** del fondo.
-- Al doblar ves la **forma de onda** de la voz original con un cabezal que avanza, tu voz encima mientras grabas y la **entonación** (puntos verdes del original y rosas tuyos).
+- Al doblar ves la **forma de onda** de tu línea: la voz original (azul) y la tuya superpuesta (naranja con contorno, en directo mientras grabas), con un cabezal que avanza y la **entonación** de las dos para compararla. Los colores se distinguen con cualquier tipo de daltonismo.
 
 ## Crear packs (motor automático)
 
@@ -70,13 +70,13 @@ Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/s
 2. **Separa las voces de la música/efectos** (UVR por defecto; Spleeter es más rápido pero a veces distorsiona), para que al doblar se oiga el fondo sin las voces.
 3. Detecta los tramos con voz (VAD Silero).
 4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz (CAM++) en ventanas cortas, cortes en las micro-pausas entre palabras y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase).
-5. Divide en líneas y las **transcribe con contexto** (Whisper turbo): oye la conversación entera y reparte el texto entre las líneas, porque frase a frase se equivoca mucho más. Lo que no es voz (`[Música]`, risas…) no se convierte en línea.
+5. Divide en líneas (las frases seguidas de un mismo personaje van juntas, hasta 10 s) y las **transcribe con contexto** (Whisper turbo): oye la conversación entera y reparte el texto entre las líneas, porque frase a frase se equivoca mucho más. Lo que no es voz (`[Música]`, risas…) no se convierte en línea, ni las frases que Whisper se inventa en ruidos flojos (un “¡Gracias!” donde no hay nadie).
 6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
 
 La primera vez descarga los modelos (unos cientos de MB) en `~/.dubgame/modelos`.
 
-Después puedes repasar cualquier pack en el **editor**: forma de onda con las líneas por personaje (arrastra los bordes para ajustar tiempos), cambiar quién dice cada línea, dividir/unir, renombrar personajes y corregir el texto (con un botón para usar lo que se oye).
+Después puedes repasar cualquier pack en el **editor**: forma de onda con las líneas por personaje (arrastra los bordes para ajustar tiempos), cambiar quién dice cada línea, dividir/unir, renombrar personajes y corregir el texto (con un botón para usar lo que se oye). **Dividir** corta por la pausa más larga de la línea y el texto por el final de frase, así que una línea con dos personajes (“Ponme un ejemplo. ¿Un ejemplo?”) se arregla con un clic y cambiando el personaje de una mitad.
 
 ### Traducción automática al castellano (opcional)
 

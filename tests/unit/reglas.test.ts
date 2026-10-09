@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filtrarPacks, lineasDeJugador, packJugable, repartir, rotar, validarPack } from '../../shared/reglas';
+import { dividirTexto, filtrarPacks, lineasDeJugador, packJugable, repartir, rotar, validarPack } from '../../shared/reglas';
 import type { Pack } from '../../shared/tipos';
 
 const p = (n: number) => ({ personajes: Array.from({ length: n }, (_, i) => ({ id: `p${i}`, nombre: `P${i}`, color: '#fff' })) });
@@ -62,4 +62,15 @@ describe('validarPack', () => {
     expect(validarPack({ ...base, lineas: [{ ...base.lineas[0], personaje: 'z' }] })).not.toBeNull());
   it('rechaza tiempos al revés', () =>
     expect(validarPack({ ...base, lineas: [{ ...base.lineas[0], inicio: 3, fin: 2 }] })).not.toBeNull());
+});
+
+describe('dividir el texto de una línea', () => {
+  it('corta por el final de frase más cercano', () => {
+    expect(dividirTexto('Ponme un ejemplo. ¿Un ejemplo?', 0.5)).toEqual(['Ponme un ejemplo.', '¿Un ejemplo?']);
+    expect(dividirTexto('Sí. Vale, te lo explico con calma y despacio.', 0.5)).toEqual(['Sí.', 'Vale, te lo explico con calma y despacio.']);
+  });
+  it('sin finales de frase, por la palabra más cercana', () => {
+    expect(dividirTexto('uno dos tres cuatro', 0.5)).toEqual(['uno dos', 'tres cuatro']);
+    expect(dividirTexto('hola', 0.5)).toEqual(['hola', '']);
+  });
 });

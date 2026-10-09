@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Linea, Pack } from '../../../shared/tipos';
-import { validarPack } from '../../../shared/reglas';
+import { dividirTexto, validarPack } from '../../../shared/reglas';
 import { api } from '../conexion';
-import { type AudioPack, type Reproduccion, cargarAudioPack, despertar, reproducir } from '../audio/motor';
+import { type AudioPack, type Reproduccion, canalesDe, cargarAudioPack, despertar, reproducir } from '../audio/motor';
+import { puntoDeCorte } from '../audio/dsp';
 import { Encabezado, Marco, useTeclas, useToast } from '../ui/componentes';
 
 const COLORES = ['#e8d9b5', '#8fb8de', '#de8f8f', '#a6d98f', '#c9a6e0', '#e0bb85', '#85d0c9', '#d985b8'];
@@ -69,14 +70,19 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
     return `l${String(k).padStart(2, '0')}`;
   };
 
+  // Divide por la pausa más larga de la línea y el texto por el final de frase
+  // más cercano (p. ej. "Ponme un ejemplo. | ¿Un ejemplo?").
   const dividir = (id: string) => modificar((p) => {
     const i = p.lineas.findIndex((l) => l.id === id);
     const l = p.lineas[i];
-    const medio = r3((l.inicio + l.fin) / 2);
-    const palabras = l.texto.split(/\s+/);
-    const corte = Math.ceil(palabras.length / 2);
-    const nueva: Linea = { ...l, id: nuevoId(p), inicio: medio, texto: palabras.slice(corte).join(' '), textoOriginal: '' };
-    p.lineas.splice(i, 1, { ...l, fin: medio, texto: palabras.slice(0, corte).join(' ') }, nueva);
+    const corte = r3(audio
+      ? puntoDeCorte(canalesDe(audio.voces), audio.voces.sampleRate, l.inicio, l.fin)
+      : (l.inicio + l.fin) / 2);
+    const r = (corte - l.inicio) / Math.max(0.01, l.fin - l.inicio);
+    const [t1, t2] = dividirTexto(l.texto, r);
+    const [o1, o2] = dividirTexto(l.textoOriginal ?? '', r);
+    const nueva: Linea = { ...l, id: nuevoId(p), inicio: corte, texto: t2, textoOriginal: o2 };
+    p.lineas.splice(i, 1, { ...l, fin: corte, texto: t1, textoOriginal: o1 }, nueva);
     return p;
   });
 
@@ -252,7 +258,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
                       )}
                     </td>
                     <td style={{ width: 120, whiteSpace: 'nowrap' }}>
-                      <button className="boton peque fantasma" title="Dividir" onClick={() => dividir(l.id)}>⌿</button>
+                      <button className="boton peque fantasma" title="Dividir por la pausa más larga" onClick={() => dividir(l.id)}>⌿</button>
                       <button className="boton peque fantasma" title="Unir con la siguiente" onClick={() => unir(l.id)}>⤓</button>
                       <button className="boton peque fantasma" title="Borrar" onClick={() => borrar(l.id)}>✕</button>
                     </td>

@@ -204,3 +204,38 @@ export function deteccionVoz(x: Float32Array, sr: number): { inicio: number; fin
   for (let k = n - 3; k >= ini; k--) if (activo(k)) { fin = k + 2; break; }
   return { inicio: (ini * paso) / sr, fin: ((fin + 1) * paso) / sr };
 }
+
+/**
+ * Mejor punto (s) para dividir una línea entre `ini` y `fin`: el centro de la
+ * pausa más larga de su interior (sin acercarse a menos de 0,15 s de los bordes).
+ * Si no hay ninguna pausa, la mitad.
+ */
+export function puntoDeCorte(canales: Float32Array[], sr: number, ini: number, fin: number): number {
+  const medio = (ini + fin) / 2;
+  const a = Math.max(0, Math.floor((ini + 0.15) * sr));
+  const b = Math.min(canales[0]?.length ?? 0, Math.floor((fin - 0.15) * sr));
+  if (b - a < sr * 0.1) return medio;
+  const x = aMono(canales.map((c) => c.subarray(a, b)));
+  const paso = Math.max(1, Math.round(sr * 0.01));
+  const n = Math.floor(x.length / paso);
+  const rms = new Float32Array(n);
+  for (let k = 0; k < n; k++) {
+    let s = 0;
+    for (let i = k * paso; i < (k + 1) * paso; i++) s += x[i] * x[i];
+    rms[k] = Math.sqrt(s / paso);
+  }
+  const orden = Float32Array.from(rms).sort();
+  const umbral = Math.max(orden[Math.floor(n * 0.1)] * 3, orden[n - 1] * desdeDb(-30));
+  let mejor: [number, number] | null = null;
+  let inicioHueco = -1;
+  for (let k = 0; k <= n; k++) {
+    const callado = k < n && rms[k] < umbral;
+    if (callado && inicioHueco < 0) inicioHueco = k;
+    if (!callado && inicioHueco >= 0) {
+      if (!mejor || k - inicioHueco > mejor[1] - mejor[0]) mejor = [inicioHueco, k];
+      inicioHueco = -1;
+    }
+  }
+  if (!mejor || mejor[1] - mejor[0] < 3) return medio;
+  return a / sr + (((mejor[0] + mejor[1]) / 2) * paso) / sr;
+}

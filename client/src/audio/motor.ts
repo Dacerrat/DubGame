@@ -113,6 +113,8 @@ export interface Tramo {
   video?: HTMLVideoElement | null;
   /** Hora del AudioContext a la que debe empezar (por defecto, ya + 0.1 s). */
   cuando?: number;
+  /** O bien: segundos de espera desde que el vídeo está listo (p. ej. una cuenta atrás). */
+  retraso?: number;
 }
 
 export class Reproduccion {
@@ -233,7 +235,9 @@ async function prepararVideo(v: HTMLVideoElement, t: number): Promise<void> {
 export async function reproducir(tramo: Tramo): Promise<Reproduccion> {
   const ctx = contexto();
   if (tramo.video) await prepararVideo(tramo.video, tramo.desde);
-  const cuando = tramo.cuando !== undefined ? Math.max(tramo.cuando, ctx.currentTime + 0.05) : undefined;
+  const cuando = tramo.cuando !== undefined
+    ? Math.max(tramo.cuando, ctx.currentTime + 0.05)
+    : tramo.retraso !== undefined ? ctx.currentTime + Math.max(0.05, tramo.retraso) : undefined;
   return new Reproduccion(ctx, { ...tramo, cuando });
 }
 

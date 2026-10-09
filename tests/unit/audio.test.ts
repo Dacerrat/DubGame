@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { OBJETIVO_VOZ_DB, db, deteccionVoz, limitar, normalizarVoz, rmsConPuerta } from '../../client/src/audio/dsp';
+import { OBJETIVO_VOZ_DB, db, deteccionVoz, limitar, normalizarVoz, puntoDeCorte, rmsConPuerta } from '../../client/src/audio/dsp';
 import { MARGEN_TOMA, colocarToma, mezclar } from '../../client/src/audio/mezcla';
 import { calcularRetraso } from '../../client/src/ui/Calibracion';
 import { tono } from '../../client/src/audio/tono';
@@ -163,5 +163,25 @@ describe('entonación', () => {
     const medio = p.map((q) => q.hz).sort((a, b) => a - b)[Math.floor(p.length / 2)];
     expect(Math.abs(medio - 150)).toBeLessThan(8);
     expect(p.every((q) => q.t < 0.55)).toBe(true);
+  });
+});
+
+describe('dividir una línea', () => {
+  it('corta en el centro de la pausa más larga', () => {
+    const sr = 16000;
+    const x = new Float32Array(sr * 4);
+    // voz de 0,2 a 1,6 s, pausa corta (0,15 s), voz hasta 2,2 s, pausa larga (0,5 s), voz hasta 3,8 s
+    const voz = (a: number, b: number) => {
+      for (let i = Math.floor(a * sr); i < b * sr; i++) x[i] = 0.3 * Math.sin((2 * Math.PI * 180 * i) / sr);
+    };
+    voz(0.2, 1.6);
+    voz(1.75, 2.2);
+    voz(2.7, 3.8);
+    expect(puntoDeCorte([x], sr, 0, 4)).toBeCloseTo(2.45, 1);
+  });
+  it('sin pausas, por la mitad', () => {
+    const sr = 16000;
+    const x = Float32Array.from({ length: sr * 2 }, (_, i) => 0.3 * Math.sin((2 * Math.PI * 200 * i) / sr));
+    expect(puntoDeCorte([x], sr, 0, 2)).toBeCloseTo(1, 5);
   });
 });
