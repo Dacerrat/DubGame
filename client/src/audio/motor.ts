@@ -10,7 +10,12 @@ export function contexto(): AudioContext {
 
 export async function despertar(): Promise<AudioContext> {
   const ctx = contexto();
+  const nueva = !nodoVolumen;
+  salida(); // deja lista la salida general con el volumen elegido
   if (ctx.state !== 'running') await ctx.resume();
+  // El limitador del navegador arranca casi cerrado y tarda ~300 ms en abrirse:
+  // la primera vez se espera para que lo primero que suene no salga flojo.
+  if (nueva) await esperar(300);
   return ctx;
 }
 
@@ -49,9 +54,129 @@ export function guardarModoMicro(m: ModoMicro) {
   guardarAjuste('dubgame.micro', m);
 }
 
-/** Latencia de salida (s): la que informa el navegador + la calibrada. */
+/** Latencia de salida (s): la que informa el navegador + la del limitador + la calibrada. */
 export function latenciaSalida(ctx: AudioContext): number {
-  return (ctx.outputLatency || 0) + (ctx.baseLatency || 0) + latenciaExtra();
+  return (ctx.outputLatency || 0) + (ctx.baseLatency || 0) + LATENCIA_LIMITADOR + latenciaExtra();
+}
+
+// ---------------------------------------------------------------------------
+// Volumen de lo que oyes. Solo cambia lo que suena en este dispositivo: no
+// toca lo que graba el micrófono ni los montajes que se mezclan o se descargan.
+
+export const VOLUMEN_MAX = 2; // 200 %
+const CLAVE_VOLUMEN = 'dubgame.volumen';
+
+/** Deja el volumen entre 0 y 2 (0–200 %); lo que no es un número vale 1. */
+export function limitarVolumen(v: number): number {
+  return Number.isFinite(v) ? Math.max(0, Math.min(VOLUMEN_MAX, v)) : 1;
+}
+/** Porcentaje del control (0–200) → volumen (0–2), redondeado al 1 %. */
+export function porcentajeAVolumen(p: number): number {
+  return limitarVolumen(Math.round(p) / 100);
+}
+/** Volumen (0–2) → porcentaje entero del control (0–200). */
+export function volumenAPorcentaje(v: number): number {
+  return Math.round(limitarVolumen(v) * 100);
+}
+/**
+ * Ganancia que se aplica. Por debajo del 100 % la curva es cuadrática, porque
+ * el oído no es lineal (al 50 % suena más o menos la mitad de fuerte: −12 dB);
+ * por encima es lineal hasta ×2 (+6 dB), lo que el limitador aguanta sin recortes.
+ */
+export function gananciaDeVolumen(v: number): number {
+  const x = limitarVolumen(v);
+  return x <= 1 ? x * x : x;
+}
+
+/** Volumen guardado en este navegador (100 % si no hay o no se puede leer). */
+export function volumenGuardado(): number {
+  const texto = leerAjuste(CLAVE_VOLUMEN);
+  return limitarVolumen(texto === null || texto.trim() === '' ? NaN : Number(texto));
+}
+
+// Limitador suave tras el volumen: rápido y con mucha compresión justo por
+// debajo de 0 dBFS, para que al subir del 100 % no se recorte el sonido.
+const UMBRAL_LIMITADOR = -1.5; // dBFS
+const RATIO_LIMITADOR = 20;
+/**
+ * El compresor del navegador sube solo el nivel ("makeup gain": 0,6 veces lo
+ * que comprimiría una señal a 0 dBFS). Se deshace para que por debajo del
+ * umbral todo suene exactamente igual que sin limitador.
+ */
+const COMPENSACION_LIMITADOR = Math.pow(10, (0.6 * UMBRAL_LIMITADOR * (1 - 1 / RATIO_LIMITADOR)) / 20);
+/** El limitador mira 6 ms por delante (así lo implementan los navegadores): la salida se retrasa eso. */
+export const LATENCIA_LIMITADOR = 0.006;
+
+let volumenActual: number | null = null;
+const oyentesVolumen = new Set<(v: number) => void>();
+/** Nodo de volumen de la salida general (se crea al despertar el audio). */
+let nodoVolumen: GainNode | null = null;
+
+export function volumen(): number {
+  if (volumenActual === null) volumenActual = volumenGuardado();
+  return volumenActual;
+}
+
+/** Cambia el volumen al momento (también mientras suena algo) y lo recuerda. */
+export function cambiarVolumen(v: number) {
+  if (!Number.isFinite(v)) return;
+  const nuevo = limitarVolumen(Math.round(v * 100) / 100);
+  if (nuevo === volumen()) return;
+  volumenActual = nuevo;
+  guardarAjuste(CLAVE_VOLUMEN, String(nuevo));
+  if (nodoVolumen) {
+    // Rampa corta para que no chasquee
+    const ahora = nodoVolumen.context.currentTime;
+    nodoVolumen.gain.cancelScheduledValues(ahora);
+    nodoVolumen.gain.setTargetAtTime(gananciaDeVolumen(nuevo), ahora, 0.03);
+  }
+  for (const f of oyentesVolumen) f(nuevo);
+}
+
+/** Sube o baja el volumen en pasos de `delta` puntos de porcentaje (atajos de teclado). */
+export function pasoVolumen(delta: number) {
+  cambiarVolumen(porcentajeAVolumen(Math.round((volumenAPorcentaje(volumen()) + delta) / 5) * 5));
+}
+
+/** Avisa de cada cambio de volumen; devuelve la función para dejar de escuchar. */
+export function suscribirVolumen(f: (v: number) => void): () => void {
+  oyentesVolumen.add(f);
+  return () => oyentesVolumen.delete(f);
+}
+
+/**
+ * Entrada de la salida general (volumen → limitador → altavoces). Todo lo que
+ * escucha el jugador se conecta aquí en vez de a `ctx.destination`.
+ */
+export function salida(): AudioNode {
+  if (!nodoVolumen) {
+    const ctx = contexto();
+    const entrada = ctx.createGain();
+    entrada.gain.value = gananciaDeVolumen(volumen());
+    const limitador = ctx.createDynamicsCompressor();
+    limitador.threshold.value = UMBRAL_LIMITADOR;
+    limitador.knee.value = 0;
+    limitador.ratio.value = RATIO_LIMITADOR;
+    limitador.attack.value = 0;
+    limitador.release.value = 0.25;
+    const compensacion = ctx.createGain();
+    compensacion.gain.value = COMPENSACION_LIMITADOR;
+    entrada.connect(limitador).connect(compensacion).connect(ctx.destination);
+    nodoVolumen = entrada;
+  }
+  return nodoVolumen;
+}
+
+// Para las pruebas e2e (como window.__dubgameMontajes)
+if (typeof window !== 'undefined') {
+  (window as unknown as { __dubgameVolumen?: unknown }).__dubgameVolumen = {
+    get volumen() {
+      return volumen();
+    },
+    get ganancia() {
+      return nodoVolumen ? nodoVolumen.gain.value : null;
+    },
+  };
 }
 
 const cacheBuffers = new Map<string, Promise<AudioBuffer>>();
@@ -139,13 +264,14 @@ export class Reproduccion {
       for (const [t, v] of p.automatizacion ?? []) {
         g.gain.setValueAtTime(v, Math.max(this.t0, this.t0 + (t - desde)));
       }
-      src.connect(g).connect(ctx.destination);
+      src.connect(g).connect(salida());
       const offset = Math.max(0, desde - p.en);
       const cuando = this.t0 + Math.max(0, p.en - desde);
       src.start(cuando, offset, Math.max(0, Math.min(fin, hasta) - Math.max(p.en, desde)));
       this.nodos.push(src);
     }
     const duracion = hasta - desde;
+    // Fuente muda que solo marca el final (no pasa por el volumen)
     const fin = ctx.createConstantSource();
     fin.connect(ctx.destination);
     fin.offset.value = 0;
@@ -278,6 +404,7 @@ export class Microfono {
       const max = Math.ceil((ctx.sampleRate * 60) / 2048);
       if (m.bloques.length > max) m.bloques.splice(0, m.bloques.length - max);
     };
+    // Conexión muda para que el grabador funcione: el micro no se oye ni pasa por el volumen
     const silencio = ctx.createGain();
     silencio.gain.value = 0;
     m.fuente.connect(m.nodo).connect(silencio).connect(ctx.destination);

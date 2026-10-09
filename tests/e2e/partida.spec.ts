@@ -24,9 +24,35 @@ async function unirse(page: Page, codigo: string, nombre: string) {
   await expect(page.getByTestId('codigo-sala')).toHaveText(codigo);
 }
 
+/** Control de volumen de la cabina: cambia al momento lo que se oye y se recuerda. */
+async function comprobarVolumen(page: Page) {
+  const control = page.getByTestId('control-volumen');
+  await expect(control).toBeVisible();
+  const cifra = control.getByTestId('volumen-porcentaje');
+  await expect(cifra).toHaveText('100 %');
+  const deslizador = control.getByRole('slider', { name: 'Volumen' });
+  await deslizador.focus();
+  for (let i = 0; i < 10; i++) await deslizador.press('ArrowRight'); // pasos de 5 %
+  await expect(cifra).toHaveText('150 %');
+  await control.hover();
+  await page.mouse.wheel(0, 100); // rueda hacia abajo: −5 %
+  await expect(cifra).toHaveText('145 %');
+  // Atajos de teclado de la cabina
+  await page.keyboard.press('+');
+  await expect(cifra).toHaveText('155 %');
+  await page.keyboard.press('-');
+  await expect(cifra).toHaveText('145 %');
+  expect(await page.evaluate(() => localStorage.getItem('dubgame.volumen'))).toBe('1.45');
+  await page.waitForFunction(() => {
+    const v = (window as unknown as { __dubgameVolumen: { volumen: number; ganancia: number | null } }).__dubgameVolumen;
+    return v.volumen === 1.45 && v.ganancia !== null && Math.abs(v.ganancia - 1.45) < 0.01;
+  });
+}
+
 /** Graba todas las líneas que le toquen al jugador. */
-async function doblar(page: Page) {
+async function doblar(page: Page, alEmpezar?: (page: Page) => Promise<void>) {
   await page.getByTestId('activar-micro').click();
+  await alEmpezar?.(page);
   for (;;) {
     const contador = page.getByTestId('contador-lineas');
     await expect(contador).toBeVisible();
@@ -80,7 +106,7 @@ test('modo un personaje por jugador: partida completa hasta el montaje', async (
   const pl = await luis.getByTestId('mi-personaje').textContent();
   expect(new Set([pa, pl]).size).toBe(2);
 
-  await Promise.all([doblar(ana), doblar(luis)]);
+  await Promise.all([doblar(ana, comprobarVolumen), doblar(luis)]);
 
   await expect(ana.getByTestId('ver-doblaje')).toBeVisible({ timeout: 60_000 });
   const montajes = await analizarMontajes(ana);

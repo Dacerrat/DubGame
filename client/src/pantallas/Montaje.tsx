@@ -7,6 +7,7 @@ import {
 import { decodificarWav, codificarWavCanales } from '../audio/wav';
 import { MARGEN_TOMA, mezclar, type TomaMontaje } from '../audio/mezcla';
 import { Encabezado, Marco, useToast } from '../ui/componentes';
+import { ControlVolumen } from '../ui/ControlVolumen';
 import { usePack } from './Sala';
 
 const TODOS = '__todos__';
@@ -214,7 +215,7 @@ export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
         titulo={titulo}
         derecha={soyAnfitrion ? <button className="boton peque" onClick={() => hacer(acciones.nuevaRonda())} data-testid="nueva-ronda">Otra escena</button> : undefined}
       />
-      <div className="columnas" style={{ gridTemplateColumns: '1fr 320px' }}>
+      <div className="columnas" style={{ '--columnas': '1fr 320px' } as React.CSSProperties}>
         <div className="pila">
           <div className="pantalla-video">
             <video ref={videoRef} src={`/packs/${pack.id}/video.mp4`} muted playsInline preload="auto" poster={`/packs/${pack.id}/portada.jpg`} />
@@ -240,20 +241,23 @@ export function Montaje({ sala, yo }: { sala: EstadoSala; yo: string }) {
               <button className="boton peque" onClick={() => descargar(versiones.length === 1 ? versiones[0] : sonando ?? versiones[0], 'mp4')}>Descargar vídeo</button>
             </div>
           )}
-          <div className="fila centro" style={{ gap: 12 }}>
-            <label className="etiqueta" htmlFor="fondo">Música y efectos</label>
-            <input
-              id="fondo"
-              type="range"
-              min={-12}
-              max={12}
-              step={1}
-              value={fondoDb}
-              onChange={(e) => setFondoDb(Number(e.target.value))}
-              style={{ width: 200 }}
-              data-testid="volumen-fondo"
-            />
-            <span className="tenue" style={{ width: 60 }}>{fondoDb > 0 ? `+${fondoDb}` : fondoDb} dB</span>
+          <div className="fila centro" style={{ gap: '10px 32px' }}>
+            <ControlVolumen etiqueta="Volumen general" />
+            <div className="fila" style={{ gap: 12, flexWrap: 'nowrap' }}>
+              <label className="etiqueta" htmlFor="fondo">Música y efectos</label>
+              <input
+                id="fondo"
+                type="range"
+                min={-12}
+                max={12}
+                step={1}
+                value={fondoDb}
+                onChange={(e) => setFondoDb(Number(e.target.value))}
+                style={{ width: 160, minWidth: 60, '--f': (fondoDb + 12) / 24 } as React.CSSProperties}
+                data-testid="volumen-fondo"
+              />
+              <span className="cifra-deslizador" style={{ width: 50, flex: 'none' }}>{fondoDb > 0 ? `+${fondoDb}` : fondoDb} dB</span>
+            </div>
           </div>
           <p className="tenue centrado" style={{ fontSize: 15 }}>
             Montajes listos en {listos}/{conectados} dispositivos. Las voces se sincronizan y se igualan de volumen solas.

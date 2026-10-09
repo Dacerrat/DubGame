@@ -118,7 +118,7 @@ export function useToast(): [ReactNode, (m: string) => void] {
   return [msg ? <div className="toast" role="status">{msg}</div> : null, mostrar];
 }
 
-/** Atajos de teclado (se ignoran mientras se escribe en un campo). */
+/** Atajos de teclado (se ignoran mientras se escribe en un campo; un deslizador no cuenta). */
 export function useTeclas(mapa: Record<string, () => void>, activo = true) {
   const ref = useRef(mapa);
   ref.current = mapa;
@@ -126,8 +126,11 @@ export function useTeclas(mapa: Record<string, () => void>, activo = true) {
     if (!activo) return;
     const f = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
-      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) return;
+      const deslizador = el instanceof HTMLInputElement && el.type === 'range';
+      if (el && !deslizador && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) return;
       const k = e.key === ' ' ? 'Espacio' : e.key;
+      // Con el foco en un botón (p. ej. el altavoz del volumen), Espacio e Intro pulsan ese botón
+      if (el?.tagName === 'BUTTON' && (k === 'Espacio' || k === 'Enter')) return;
       const fn = ref.current[k] ?? ref.current[k.toLowerCase()];
       if (fn) {
         e.preventDefault();

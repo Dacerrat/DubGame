@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { guardarNombre, nombreGuardado } from '../conexion';
-import { Microfono, contexto, crearBuffer, latenciaSalida } from '../audio/motor';
+import { api, guardarNombre, nombreGuardado } from '../conexion';
+import { Microfono, type Reproduccion, cargarAudioPack, contexto, crearBuffer, despertar, latenciaSalida, reproducir, salida } from '../audio/motor';
 import { normalizarVoz } from '../audio/dsp';
 import { Encabezado, Marco } from '../ui/componentes';
 import { Calibracion } from '../ui/Calibracion';
+import { ControlVolumen } from '../ui/ControlVolumen';
 
 export function Opciones({ volver }: { volver: () => void }) {
   const [nombre, setNombre] = useState(nombreGuardado());
@@ -12,11 +13,34 @@ export function Opciones({ volver }: { volver: () => void }) {
   const [error, setError] = useState('');
   const [estado, setEstado] = useState<'libre' | 'grabando'>('libre');
   const raf = useRef(0);
+  const muestra = useRef<Reproduccion | null>(null);
 
   useEffect(() => () => {
     cancelAnimationFrame(raf.current);
     mic?.cerrar();
   }, [mic]);
+  useEffect(() => () => muestra.current?.parar(), []);
+
+  // Unos segundos de una escena (voces y música) para oír cómo queda el volumen
+  const probarVolumen = async () => {
+    muestra.current?.parar();
+    setError('');
+    try {
+      await despertar();
+      const packs = await api.packs();
+      const pack = packs.find((p) => p.id === 'prueba-la-entrevista') ?? packs[0];
+      if (!pack) throw new Error('No hay ningún pack instalado para probar el sonido');
+      const audio = await cargarAudioPack(pack.id);
+      const desde = Math.min(2, Math.max(0, audio.voces.duration - 4));
+      muestra.current = await reproducir({
+        desde,
+        hasta: desde + 4,
+        pistas: [{ buffer: audio.fondo, en: 0 }, { buffer: audio.voces, en: 0 }],
+      });
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
 
   const probar = async () => {
     setError('');
@@ -44,7 +68,7 @@ export function Opciones({ volver }: { volver: () => void }) {
     const n = normalizarVoz(datos, ctx.sampleRate);
     const src = ctx.createBufferSource();
     src.buffer = crearBuffer([n.datos], ctx.sampleRate);
-    src.connect(ctx.destination);
+    src.connect(salida());
     src.start();
   };
 
@@ -56,6 +80,15 @@ export function Opciones({ volver }: { volver: () => void }) {
           <div className="campo">
             <label htmlFor="nombre-op">Nombre por defecto</label>
             <input id="nombre-op" type="text" maxLength={24} value={nombre} onChange={(e) => { setNombre(e.target.value); guardarNombre(e.target.value); }} />
+          </div>
+        </Marco>
+        <Marco titulo="Sonido">
+          <p className="tenue" style={{ marginTop: 0 }}>
+            Volumen de los vídeos y del resto de sonidos del juego en este dispositivo. Si se oye flojo puedes subirlo hasta el 200 % (si la escena ya suena fuerte, se limita para que no sature). No cambia lo que grabas ni lo que descargas. Durante la grabación también puedes usar las teclas <kbd>+</kbd> y <kbd>−</kbd>.
+          </p>
+          <div className="fila" style={{ gap: 16 }}>
+            <ControlVolumen etiqueta="Volumen" />
+            <button className="boton peque" onClick={probarVolumen} data-testid="probar-volumen">▶ Probar</button>
           </div>
         </Marco>
         <Marco titulo="Micrófono">

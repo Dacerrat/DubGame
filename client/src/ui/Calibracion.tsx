@@ -2,7 +2,7 @@
 // Mide el retraso real de su salida de audio (p. ej. auriculares Bluetooth)
 // que el navegador no conoce, y lo guarda para sincronizar vídeo, subtítulos y tomas.
 import { useEffect, useRef, useState } from 'react';
-import { despertar, guardarLatenciaExtra, latenciaExtra } from '../audio/motor';
+import { LATENCIA_LIMITADOR, despertar, guardarLatenciaExtra, latenciaExtra, salida } from '../audio/motor';
 
 const CLICS = 10;
 const INTERVALO = 0.6;
@@ -79,10 +79,11 @@ export function Calibracion({ alTerminar }: { alTerminar?: () => void }) {
       g.gain.setValueAtTime(0, t);
       g.gain.linearRampToValueAtTime(0.6, t + 0.002);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-      osc.connect(g).connect(ctx.destination);
+      osc.connect(g).connect(salida());
       osc.start(t);
       osc.stop(t + 0.05);
-      clics.current.push(t);
+      // El clic sale del limitador un poco después; ese retraso ya se compensa aparte
+      clics.current.push(t + LATENCIA_LIMITADOR);
     }
     setFase('midiendo');
     setTimeout(() => {

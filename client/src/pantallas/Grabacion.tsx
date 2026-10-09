@@ -4,13 +4,14 @@ import { lineasDeJugador } from '../../../shared/reglas';
 import { acciones, api } from '../conexion';
 import {
   type AudioPack, Microfono, type ModoMicro, type Pista, type Reproduccion, canalesDe, cargarAudioPack, contexto, crearBuffer,
-  despertar, esperar, guardarModoMicro, latenciaSalida, modoMicro, reproducir,
+  despertar, esperar, guardarModoMicro, latenciaSalida, modoMicro, pasoVolumen, reproducir, salida,
 } from '../audio/motor';
 import { codificarWav } from '../audio/wav';
 import { aMono, deteccionVoz, normalizarVoz } from '../audio/dsp';
 import { MARGEN_TOMA, colocarToma } from '../audio/mezcla';
 import { Encabezado, Marco, Selector, useTeclas, useToast } from '../ui/componentes';
 import { Calibracion } from '../ui/Calibracion';
+import { ControlVolumen } from '../ui/ControlVolumen';
 import { GuiaOnda, type MuestraDirecto } from '../ui/GuiaOnda';
 import { usePack } from './Sala';
 
@@ -34,7 +35,7 @@ function pitidos(ctx: AudioContext, cero: number) {
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(0.12, t + 0.005);
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-    o.connect(g).connect(ctx.destination);
+    o.connect(g).connect(salida());
     o.start(t);
     o.stop(t + 0.1);
   }
@@ -298,6 +299,8 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     Enter: () => siguiente(),
     o: () => (guia && (paso === 'listo' || paso === 'revisar') ? escucharOriginal() : undefined),
     e: () => (paso === 'revisar' ? escuchar() : undefined),
+    '+': () => pasoVolumen(10),
+    '-': () => pasoVolumen(-10),
   }, !!mic);
 
   if (!mic) {
@@ -331,6 +334,7 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
                 ]}
                 onCambio={setModo}
               />
+              <ControlVolumen etiqueta="Volumen" testid="control-volumen-previo" />
               {calibrando ? (
                 <Calibracion alTerminar={() => setCalibrando(false)} />
               ) : (
@@ -362,10 +366,16 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
 
   return (
     <div className="escenario">
-      <div className="fila" style={{ justifyContent: 'space-between' }}>
+      {/* Cabecera fija: el volumen queda a mano aunque bajes hasta los botones */}
+      <div className="fila cabecera-cabina" style={{ justifyContent: 'space-between' }}>
         <span className="cinzel tenue" style={{ fontSize: 14 }}>{pack.titulo}</span>
         <span className="cinzel" style={{ fontSize: 14 }} data-testid="contador-lineas">Línea {indice + 1} / {lineas.length}</span>
-        <div className="vumetro" title="Nivel del micrófono"><NivelMic mic={mic} /></div>
+        <div className="fila" style={{ gap: 14, flexWrap: 'nowrap', minWidth: 0 }}>
+          <ControlVolumen />
+          <span className="separador-mic" aria-hidden="true" />
+          <span className="etiqueta mic" title="Nivel del micrófono">Mic</span>
+          <div className="vumetro" title="Nivel del micrófono"><NivelMic mic={mic} /></div>
+        </div>
       </div>
       <div className="pantalla-video">
         <video ref={videoRef} src={`/packs/${pack.id}/video.mp4`} muted playsInline preload="auto" poster={`/packs/${pack.id}/portada.jpg`} />
@@ -440,7 +450,7 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
       </div>
       <div className="atajos">
         <kbd>Espacio</kbd> grabar · <kbd>E</kbd> escuchar toma · <kbd>R</kbd> repetir · <kbd>Intro</kbd> siguiente
-        {guia && <> · <kbd>O</kbd> original</>}
+        {guia && <> · <kbd>O</kbd> original</>} · <kbd>+</kbd> <kbd>−</kbd> volumen
       </div>
       {toast}
     </div>

@@ -277,7 +277,8 @@ select option { background: #11131c; }
 
 /* ---------- Disposición ---------- */
 .contenido { width: 100%; max-width: 1100px; }
-.columnas { display: grid; grid-template-columns: 340px 1fr; gap: 26px; align-items: start; }
+/* Cada pantalla puede cambiar las columnas con --columnas; en el móvil, una sola */
+.columnas { display: grid; grid-template-columns: var(--columnas, 340px 1fr); gap: 26px; align-items: start; }
 @media (max-width: 860px) { .columnas { grid-template-columns: 1fr; } }
 .fila { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .fila.fin { justify-content: flex-end; }
@@ -444,7 +445,17 @@ select option { background: #11131c; }
 .contexto b { font-family: var(--titulo); font-weight: 400; font-size: 12px; letter-spacing: 0.16em; }
 .barra { height: 3px; background: rgba(236, 230, 214, 0.1); position: relative; overflow: hidden; }
 .barra > div { position: absolute; inset: 0 auto 0 0; background: var(--hueso); box-shadow: var(--brillo); }
-.vumetro { width: 120px; height: 6px; background: rgba(236, 230, 214, 0.1); }
+.vumetro { width: 120px; flex: 0 1 120px; min-width: 40px; height: 6px; background: rgba(236, 230, 214, 0.1); }
+.etiqueta.mic { margin: 0; flex: none; }
+.separador-mic { flex: none; width: 1px; height: 22px; background: var(--linea); }
+/* Cabecera de la cabina siempre visible al desplazarse */
+.cabecera-cabina {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 4px 0;
+  background: linear-gradient(var(--fondo, #07080d) 80%, transparent);
+}
 .vumetro > div { height: 100%; background: var(--verde); transition: width 60ms linear; }
 .pasos { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .pasos span { width: 18px; height: 4px; background: rgba(236, 230, 214, 0.15); }
@@ -505,10 +516,14 @@ kbd { font-family: var(--titulo); font-size: 11px; border: 1px solid var(--linea
 .reloj-linea .cifra { font-family: var(--titulo); font-size: 26px; letter-spacing: 0.06em; text-align: right; color: var(--hueso-2); }
 .reloj-linea.activo .relleno { background: var(--rojo); box-shadow: 0 0 14px rgba(215, 123, 123, 0.6); }
 .reloj-linea.activo .cifra { color: #ffd6d6; font-size: 34px; }
+/* En el móvil, la guía de onda a todo lo ancho y la cifra debajo */
+@media (max-width: 600px) {
+  .reloj-linea { grid-template-columns: 1fr; gap: 6px; }
+  .reloj-linea .cifra { text-align: center; font-size: 20px; }
+  .reloj-linea.activo .cifra { font-size: 26px; }
+}
 
 .calibracion { border: 1px solid var(--linea); padding: 12px 14px; background: rgba(0, 0, 0, 0.25); }
-
-input[type="range"] { accent-color: var(--hueso); }
 
 /* Guía de onda al doblar */
 .guia-onda {
@@ -521,3 +536,110 @@ input[type="range"] { accent-color: var(--hueso); }
   box-shadow: 0 0 16px rgba(143, 184, 222, 0.18);
 }
 .reloj-linea.activo .guia-onda { border-color: var(--rojo); box-shadow: 0 0 16px rgba(215, 123, 123, 0.3); }
+
+/* Deslizadores: línea fina, marca en el centro (el valor por defecto) y rombo.
+   La parte rellena va hasta --f (0–1). */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 26px;
+  margin: 0;
+  cursor: pointer;
+  background: linear-gradient(var(--linea-fuerte), var(--linea-fuerte)) center / 1px 10px no-repeat;
+}
+input[type='range']:focus-visible { outline: 1px solid var(--linea-fuerte); outline-offset: 2px; }
+input[type='range']::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(to right, var(--hueso) calc(6px + (100% - 12px) * var(--f, 0)), var(--linea-fuerte) 0);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  margin-top: -3.5px;
+  border: none;
+  background: var(--hueso);
+  transform: rotate(45deg);
+  box-shadow: var(--brillo);
+}
+input[type='range']::-moz-range-track { height: 2px; background: var(--linea-fuerte); }
+input[type='range']::-moz-range-progress { height: 2px; background: var(--hueso); }
+input[type='range']::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 0;
+  background: var(--hueso);
+  transform: rotate(45deg);
+  box-shadow: var(--brillo);
+}
+input[type='range']:hover::-webkit-slider-thumb,
+input[type='range']:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(236, 230, 214, 0.2), var(--brillo); }
+input[type='range']:hover::-moz-range-thumb,
+input[type='range']:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgba(236, 230, 214, 0.2), var(--brillo); }
+
+/* Volumen de lo que oyes */
+.control-volumen { display: inline-flex; align-items: center; gap: 4px; color: var(--hueso-2); max-width: 100%; }
+.control-volumen .etiqueta { margin-right: 6px; }
+.control-volumen .altavoz {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color var(--rapido), filter var(--rapido);
+}
+.control-volumen .altavoz:hover, .control-volumen .altavoz:focus-visible {
+  color: var(--hueso);
+  filter: drop-shadow(0 0 4px rgba(236, 230, 214, 0.5));
+  outline: none;
+}
+.control-volumen input[type='range'] { flex: 0 1 120px; width: 120px; min-width: 64px; }
+.control-volumen .cifra {
+  flex: none;
+  min-width: 4.4em;
+  padding: 4px 2px;
+  background: none;
+  border: none;
+  color: var(--hueso);
+  font-family: var(--titulo);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.control-volumen .cifra:hover, .control-volumen .cifra:focus-visible { text-shadow: var(--brillo); outline: none; }
+/* Cifra al lado de otros deslizadores, con el mismo estilo que la del volumen */
+.cifra-deslizador {
+  color: var(--hueso);
+  font-family: var(--titulo);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* En pantallas táctiles, más zona para acertar con el dedo (el rombo se ve igual) */
+@media (pointer: coarse) {
+  input[type='range'] { height: 40px; }
+  input[type='range']::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+    margin-top: -10px;
+    border: 6.5px solid transparent;
+    background-clip: content-box;
+    box-shadow: none;
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border: 6.5px solid transparent;
+    background-clip: content-box;
+    box-shadow: none;
+  }
+}

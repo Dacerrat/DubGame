@@ -36,6 +36,8 @@ El certificado es autofirmado: la primera vez cada dispositivo tiene que aceptar
 
 **Consejo:** usad auriculares; así el micrófono solo recoge vuestra voz (con altavoces, elige "Con altavoces" antes de grabar para activar la cancelación de eco).
 
+**Volumen:** si los vídeos se oyen muy flojos o muy fuertes, usa el control del altavoz (en la cabina de grabación, el montaje, el editor y *Opciones → Sonido*, donde hay un botón para probarlo). Va del 0 al 200 %: si la escena ya suena fuerte, la subida se limita para que no sature. Con el puntero encima, la rueda del ratón lo mueve de 5 en 5, y en la cabina también las teclas <kbd>+</kbd> y <kbd>−</kbd>. Cada dispositivo lo recuerda. Solo cambia lo que oyes, no lo que grabas ni lo que descargas.
+
 ### Sincronía
 
 - **Las tomas se sincronizan solas**: el juego detecta dónde empieza tu voz y la coloca donde empezaba la voz original, aunque arranques un poco tarde. También recorta los silencios y no te corta si te alargas un poco.

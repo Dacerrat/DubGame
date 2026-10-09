@@ -5,6 +5,7 @@ import { api } from '../conexion';
 import { type AudioPack, type Reproduccion, canalesDe, cargarAudioPack, despertar, reproducir } from '../audio/motor';
 import { puntoDeCorte } from '../audio/dsp';
 import { Encabezado, Marco, useTeclas, useToast } from '../ui/componentes';
+import { ControlVolumen } from '../ui/ControlVolumen';
 
 const COLORES = ['#e8d9b5', '#8fb8de', '#de8f8f', '#a6d98f', '#c9a6e0', '#e0bb85', '#85d0c9', '#d985b8'];
 const r3 = (x: number) => Math.round(x * 1000) / 1000;
@@ -159,7 +160,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
       />
       <div className="contenido pila">
         {pack.avisos?.map((a) => <p key={a} className="aviso" style={{ margin: 0 }}>⚠ {a}</p>)}
-        <div className="columnas" style={{ gridTemplateColumns: '1fr 360px' }}>
+        <div className="columnas" style={{ '--columnas': '1fr 360px' } as React.CSSProperties}>
           <div className="pantalla-video">
             <video ref={videoRef} src={`/packs/${pack.id}/video.mp4`} muted playsInline preload="auto" />
           </div>
@@ -215,6 +216,7 @@ export function Editor({ packId, volver }: { packId: string; volver: () => void 
             <button className="boton peque" onClick={() => tocar(cabezal, pack.duracion)}>▶ Desde el cabezal</button>
             <button className="boton peque" onClick={() => tocar(cabezal, pack.duracion, false)}>▶ Sin voces</button>
             <button className="boton peque" onClick={parar}>■ Parar</button>
+            <ControlVolumen />
             <button className="boton peque" onClick={anadir}>+ Línea en el cabezal</button>
             {traduccion && (
               <button className="boton peque" disabled={traduciendo} onClick={traducir} title="Traduce con Claude al castellano de España">
