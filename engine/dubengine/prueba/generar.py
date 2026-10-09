@@ -96,7 +96,7 @@ def construir_escena(esc: dict, carpeta: Path, cache: dict, semilla: int) -> tup
         x = sintetizar(texto, pers[pid]["voz"], cache)
         clips.append((t, x))
         verdad.append({"personaje": pid, "texto": texto, "inicio": round(t, 3), "fin": round(t + len(x) / SR, 3)})
-        t += len(x) / SR + rng.uniform(0.45, 1.0)
+        t += len(x) / SR + rng.uniform(*esc.get("pausas", (0.45, 1.0)))
     total = t + 1.5
     voces = np.zeros(int(total * SR) + 1, dtype=np.float32)
     for ini, x in clips:

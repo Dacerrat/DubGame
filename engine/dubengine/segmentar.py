@@ -4,47 +4,6 @@ from __future__ import annotations
 from .analisis import Tramo
 
 
-def _solape(a0: float, a1: float, b0: float, b1: float) -> float:
-    return max(0.0, min(a1, b1) - max(a0, b0))
-
-
-def _hablante_cercano(t: float, diar: list[Tramo]) -> int:
-    if not diar:
-        return 0
-    return min(diar, key=lambda d: 0 if d.inicio <= t <= d.fin else min(abs(t - d.inicio), abs(t - d.fin))).hablante
-
-
-def asignar_hablantes(voz: list[Tramo], diar: list[Tramo], trozo_min: float = 0.4) -> list[Tramo]:
-    """Parte cada tramo de voz en los cambios de hablante y le asigna hablante."""
-    piezas: list[Tramo] = []
-    for v in voz:
-        # Puntos de corte: bordes de diarización dentro del tramo
-        dentro = sorted({p for d in diar for p in (d.inicio, d.fin) if v.inicio < p < v.fin})
-        bordes = [v.inicio, *dentro, v.fin]
-        subtramos: list[Tramo] = []
-        for a, b in zip(bordes, bordes[1:]):
-            votos: dict[int, float] = {}
-            for d in diar:
-                s = _solape(a, b, d.inicio, d.fin)
-                if s > 0:
-                    votos[d.hablante] = votos.get(d.hablante, 0.0) + s
-            h = max(votos, key=votos.get) if votos else _hablante_cercano((a + b) / 2, diar)
-            if subtramos and subtramos[-1].hablante == h:
-                subtramos[-1].fin = b
-            else:
-                subtramos.append(Tramo(a, b, h))
-        # Las piezas demasiado cortas se absorben en la vecina
-        limpio: list[Tramo] = []
-        for s in subtramos:
-            if limpio and (s.dur < trozo_min or limpio[-1].dur < trozo_min):
-                largo = limpio[-1] if limpio[-1].dur >= s.dur else s
-                limpio[-1] = Tramo(limpio[-1].inicio, s.fin, largo.hablante)
-            else:
-                limpio.append(s)
-        piezas.extend(limpio)
-    return piezas
-
-
 def construir_lineas(piezas: list[Tramo], pausa_union: float = 0.7, max_linea: float = 8.0,
                      min_descartar: float = 0.2) -> list[Tramo]:
     """Une piezas consecutivas del mismo hablante y divide las líneas demasiado largas.
@@ -106,6 +65,7 @@ def agrupar(emb, duraciones: list[float], n: int | None = None, umbral: float = 
     Solo los tramos de al menos `dur_min` segundos deciden los grupos; los cortos
     se asignan después al grupo más parecido. Con `n` se fuerza el número de
     hablantes; sin él, se deja de unir cuando la similitud media baja de `umbral`.
+    Implementación vectorizada (Lance-Williams), apta para cientos de ventanas.
     """
     import numpy as np
 
@@ -116,31 +76,36 @@ def agrupar(emb, duraciones: list[float], n: int | None = None, umbral: float = 
     fiables = [i for i in range(total) if duraciones[i] >= dur_min]
     if len(fiables) < max(2, n or 2):
         fiables = list(range(total))
-    grupos = [[i] for i in fiables]
-    sim = emb @ emb.T
-
-    def parecido(a: list[int], b: list[int]) -> float:
-        return float(sim[np.ix_(a, b)].mean())
-
-    objetivo = max(1, min(n, len(grupos))) if n else 1
-    while len(grupos) > objetivo:
-        mejor = None
-        for a in range(len(grupos)):
-            for b in range(a + 1, len(grupos)):
-                s = parecido(grupos[a], grupos[b])
-                if mejor is None or s > mejor[0]:
-                    mejor = (s, a, b)
-        s, a, b = mejor
-        if n is None and s < umbral:
+    m = len(fiables)
+    sim = emb[fiables] @ emb[fiables].T
+    np.fill_diagonal(sim, -np.inf)
+    tam = np.ones(m)
+    miembros: list[list[int]] = [[i] for i in fiables]
+    activos = m
+    objetivo = max(1, min(n, m)) if n else 1
+    while activos > objetivo:
+        k = int(np.argmax(sim))
+        a, b = divmod(k, m)
+        s = sim[a, b]
+        if not np.isfinite(s) or (n is None and s < umbral):
             break
-        grupos[a] += grupos[b]
-        del grupos[b]
+        fila = (tam[a] * sim[a] + tam[b] * sim[b]) / (tam[a] + tam[b])
+        sim[a, :] = fila
+        sim[:, a] = fila
+        sim[a, a] = -np.inf
+        sim[b, :] = -np.inf
+        sim[:, b] = -np.inf
+        tam[a] += tam[b]
+        miembros[a] += miembros[b]
+        miembros[b] = []
+        activos -= 1
 
+    grupos = [g for g in miembros if g]
     etiquetas = [-1] * total
-    for g, miembros in enumerate(grupos):
-        for i in miembros:
+    for g, ms in enumerate(grupos):
+        for i in ms:
             etiquetas[i] = g
-    centroides = [emb[m].mean(axis=0) for m in grupos]
+    centroides = [emb[ms].mean(axis=0) for ms in grupos]
     for i in range(total):
         if etiquetas[i] < 0:
             etiquetas[i] = int(np.argmax([emb[i] @ c for c in centroides]))

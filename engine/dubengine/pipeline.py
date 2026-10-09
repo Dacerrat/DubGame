@@ -12,10 +12,11 @@ from pathlib import Path
 
 import numpy as np
 
-from . import analisis, audio, separar as sep
+from . import analisis, audio, diarizacion, separar as sep
+from .transcripcion import bloques, es_no_voz, limpiar, repartir
 from .alinear import Detectada, LineaGuion, alinear, lineas_desde_audio, similitud
 from .progreso import informar
-from .segmentar import acolchar, agrupar, asignar_hablantes, construir_lineas, renumerar_hablantes
+from .segmentar import acolchar, construir_lineas, renumerar_hablantes
 
 COLORES = ["#e8d9b5", "#8fb8de", "#de8f8f", "#a6d98f", "#c9a6e0", "#e0bb85", "#85d0c9", "#d985b8"]
 UMBRAL_LISTO = 0.45
@@ -34,7 +35,7 @@ class Opciones:
     autor: str = "anónimo"
     idioma: str = "es"
     n_hablantes: int | None = None
-    modelo: str = "small"
+    modelo: str = "turbo"
     separacion: str = "uvr"
     salida: str = "packs"
     id: str | None = None
@@ -75,6 +76,61 @@ def descargar(objetivo: str, carpeta: Path) -> Path:
     if not archivos:
         raise RuntimeError("yt-dlp no generó ningún archivo")
     return archivos[0]
+
+
+def transcribir_lineas(voz16: np.ndarray, lineas, op: Opciones) -> tuple[list[Detectada], list[Detectada]]:
+    """Transcribe las líneas con contexto. Devuelve (líneas con voz, tramos sin voz: música, risas…)."""
+    sr = analisis.SR
+
+    def trozo(a: float, b: float) -> np.ndarray:
+        return voz16[int(max(0.0, a) * sr):int(b * sr)]
+
+    rapido = op.modelo if op.modelo in ("tiny", "base") else "base"
+    informar("transcribir", f"Transcribiendo {len(lineas)} líneas…")
+    guia_tr = analisis.Transcriptor(rapido, op.idioma, op.hilos)
+    guias = []
+    for k, l in enumerate(lineas):
+        informar("transcribir", "Primera escucha de cada línea…", k / max(1, len(lineas)))
+        guias.append(guia_tr.transcribir(trozo(l.inicio, l.fin)))
+    tr = guia_tr if rapido == op.modelo else analisis.Transcriptor(op.modelo, op.idioma, op.hilos)
+
+    textos = list(guias)
+    sin_voz: set[int] = set()
+    solas: set[int] = set()
+    for i, l in enumerate(lineas):
+        if es_no_voz(guias[i]):
+            # Se confirma con el modelo bueno antes de descartar
+            t = tr.transcribir(trozo(l.inicio, l.fin))
+            if es_no_voz(t):
+                sin_voz.add(i)
+            else:
+                textos[i] = t
+                solas.add(i)
+
+    validas = [i for i in range(len(lineas)) if i not in sin_voz and i not in solas]
+    grupos = bloques([(lineas[i].inicio, lineas[i].fin) for i in validas])
+    for g, grupo in enumerate(grupos):
+        informar("transcribir", f"Transcribiendo con contexto (Whisper {op.modelo})…", g / max(1, len(grupos)))
+        idx = [validas[k] for k in grupo]
+        if len(idx) == 1:
+            textos[idx[0]] = tr.transcribir(trozo(lineas[idx[0]].inicio, lineas[idx[0]].fin))
+            continue
+        texto = tr.transcribir(trozo(lineas[idx[0]].inicio - 0.05, lineas[idx[-1]].fin + 0.05))
+        partes = repartir(texto, [guias[i] for i in idx], [lineas[i].dur for i in idx])
+        if partes is None:
+            for i in idx:
+                textos[i] = tr.transcribir(trozo(lineas[i].inicio, lineas[i].fin))
+        else:
+            for i, t in zip(idx, partes):
+                textos[i] = t
+
+    con_voz: list[Detectada] = []
+    ruido: list[Detectada] = []
+    for i, l in enumerate(lineas):
+        t = limpiar(textos[i])
+        d = Detectada(l.inicio, l.fin, l.hablante, t)
+        (ruido if i in sin_voz or es_no_voz(t) else con_voz).append(d)
+    return con_voz, ruido
 
 
 def procesar(op: Opciones) -> Path:
@@ -120,33 +176,19 @@ def procesar(op: Opciones) -> Path:
         total = len(voz16) / analisis.SR
 
         informar("vad", "Detectando tramos de voz…")
-        tramos_voz = analisis.vad(voz16)
+        tramos_voz = analisis.vad(voz16, silencio_min=0.1)
         if not tramos_voz:
             raise RuntimeError("No se ha detectado ninguna voz en el clip")
-        if op.n_hablantes == 1:
-            piezas = [analisis.Tramo(t.inicio, t.fin, 0) for t in tramos_voz]
-        else:
-            # La diarización de sherpa solo se usa para encontrar cambios de
-            # hablante dentro de un tramo; el agrupamiento lo hacemos nosotros.
-            diar = analisis.diarizar(voz16, None, hilos=op.hilos)
-            piezas = asignar_hablantes(tramos_voz, diar)
-            informar("diarizar", f"Agrupando {len(piezas)} tramos por voz…")
-            emb = analisis.embeddings(voz16, piezas, op.hilos)
-            etiquetas = agrupar(emb, [p.dur for p in piezas], op.n_hablantes)
-            for p, e in zip(piezas, etiquetas):
-                p.hablante = e
+        informar("diarizar", "Identificando quién habla en cada momento…")
+        piezas = diarizacion.diarizar(voz16, analisis.SR, tramos_voz, op.n_hablantes,
+                                      lambda ts: analisis.embeddings(voz16, ts, op.hilos))
         lineas = renumerar_hablantes(construir_lineas(piezas))
         lineas = acolchar(lineas, total=total)
-
-        informar("transcribir", f"Transcribiendo {len(lineas)} líneas (Whisper {op.modelo})…")
-        tr = analisis.Transcriptor(op.modelo, op.idioma, op.hilos)
-        detectadas: list[Detectada] = []
-        for k, l in enumerate(lineas):
-            informar("transcribir", "Transcribiendo…", k / max(1, len(lineas)))
-            trozo = voz16[int(l.inicio * analisis.SR):int(l.fin * analisis.SR)]
-            detectadas.append(Detectada(l.inicio, l.fin, l.hablante, tr.transcribir(trozo)))
+        detectadas, ruido = transcribir_lineas(voz16, lineas, op)
 
         avisos: list[str] = []
+        if not detectadas:
+            raise RuntimeError("No se ha entendido ninguna frase en el clip")
         if receta:
             informar("alinear", "Ajustando el guion al audio…")
             guion = [LineaGuion(g["p"], g["t"]) for g in receta["guion"]]
@@ -170,7 +212,7 @@ def procesar(op: Opciones) -> Path:
                 "personaje": a.personaje, "inicio": a.inicio, "fin": a.fin, "texto": a.texto,
                 "textoOriginal": a.texto_original, "confianza": round(a.confianza, 3),
             } for a in alineadas]
-            extras = [{"inicio": s.inicio, "fin": s.fin, "texto": s.texto} for s in sobrantes]
+            extras = [{"inicio": s.inicio, "fin": s.fin, "texto": s.texto} for s in sobrantes + ruido]
         else:
             hablantes = sorted({d.hablante for d in detectadas})
             personajes = [{"id": f"p{h + 1}", "nombre": f"Personaje {h + 1}"} for h in hablantes]
@@ -179,7 +221,7 @@ def procesar(op: Opciones) -> Path:
                 "texto": d.texto if op.idioma == "es" else "", "textoOriginal": d.texto,
                 "confianza": 1.0 if d.texto else 0.0,
             } for d in detectadas]
-            extras = []
+            extras = [{"inicio": r.inicio, "fin": r.fin, "texto": r.texto} for r in ruido]
 
         # Recorte automático alrededor del diálogo cuando no se indicó tramo
         desplazamiento = 0.0

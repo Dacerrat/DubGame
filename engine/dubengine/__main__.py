@@ -23,8 +23,8 @@ from .recetas import a_segundos
 
 def _comun(p: argparse.ArgumentParser) -> None:
     p.add_argument("--salida", default="packs", help="Carpeta de packs (por defecto ./packs)")
-    p.add_argument("--modelo", default="small", choices=["tiny", "base", "small", "medium", "turbo"],
-                   help="Tamaño de Whisper")
+    p.add_argument("--modelo", default="turbo", choices=["tiny", "base", "small", "medium", "turbo"],
+                   help="Modelo de Whisper (turbo: el más preciso; base: el más rápido)")
     p.add_argument("--separacion", default="uvr", choices=["uvr", "spleeter", "ninguno"],
                    help="uvr: mejor calidad (por defecto); spleeter: más rápido")
     p.add_argument("--hilos", type=int, default=max(1, min(8, os.cpu_count() or 4)))
@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.orden == "modelos":
             from . import modelos
 
-            for m in ("vad", "segmentacion", "embedding", "whisper-small", "spleeter"):
+            for m in ("vad", "embedding", "whisper-base", "whisper-turbo", "uvr"):
                 print(modelos.asegurar(m))
             return 0
         if a.orden == "preparar-recetas":

@@ -224,12 +224,9 @@ def lineas_desde_audio(guion: list[LineaGuion], det: list[Detectada],
             texto_d = " ".join(x.texto for x in ds).strip()
             sim = similitud(texto_g, texto_d)
             texto = texto_g if sim >= umbral_texto or not texto_d else texto_d
-            if a == 1:
-                personaje = gs[0].personaje
-            else:
-                # Varias líneas del guion en un solo tramo de audio: es una sola línea
-                # para doblar; se queda con la voz que más habla en ese tramo.
-                personaje = mapa.get(max(ds, key=lambda x: x.dur).hablante, gs[0].personaje)
+            # Decide la voz: el guion solo sirve para saber qué voz es cada personaje
+            # (votación sobre todo el clip), no para cambiar quién dice cada frase.
+            personaje = mapa.get(max(ds, key=lambda x: x.dur).hablante, gs[0].personaje)
             salida.append(Alineada(personaje, texto, ds[0].inicio, ds[-1].fin, max(s, sim), texto_d,
                                    [x.hablante for x in ds]))
         # tipo "g": línea del guion que no está en el audio -> no hay nada que doblar

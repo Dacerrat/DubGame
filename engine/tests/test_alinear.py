@@ -96,3 +96,26 @@ def test_desde_audio_no_reparte_tiempos_a_ojo():
     det = [Detectada(1.0, 3.2, 0, "hola que tal estas"), Detectada(3.6, 5.0, 1, "muy bien gracias")]
     out, _ = lineas_desde_audio(guion, det)
     assert [(o.personaje, o.inicio, o.fin) for o in out] == [("a", 1.0, 3.2), ("b", 3.6, 5.0)]
+
+
+def test_desde_audio_manda_la_voz_y_no_el_texto_del_guion():
+    from dubengine.alinear import lineas_desde_audio
+
+    guion = [
+        LineaGuion("shrek", "Los ogros somos como las cebollas."),
+        LineaGuion("asno", "¿Apestan?"),
+        LineaGuion("shrek", "Las cebollas tienen capas."),
+        LineaGuion("asno", "A todo el mundo le gusta la tarta."),
+        LineaGuion("shrek", "¡Me dan igual las tartas!"),
+    ]
+    det = [
+        Detectada(1.0, 3.0, 0, "los ogros son como las cebollas"),
+        Detectada(3.4, 4.2, 1, "apestan"),
+        Detectada(4.6, 7.0, 0, "las cebollas tienen capas"),
+        # Por texto se parece a una frase de Shrek, pero la voz es la de Asno (hablante 1)
+        Detectada(7.5, 9.0, 1, "me dan igual las tartas"),
+    ]
+    out, _ = lineas_desde_audio(guion, det)
+    por_inicio = {o.inicio: o.personaje for o in out}
+    assert por_inicio[7.5] == "asno"
+    assert por_inicio[1.0] == "shrek" and por_inicio[3.4] == "asno"

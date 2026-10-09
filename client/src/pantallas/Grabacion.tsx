@@ -7,10 +7,11 @@ import {
   guardarModoMicro, latenciaSalida, modoMicro, reproducir,
 } from '../audio/motor';
 import { codificarWav } from '../audio/wav';
-import { deteccionVoz, normalizarVoz } from '../audio/dsp';
+import { aMono, deteccionVoz, normalizarVoz } from '../audio/dsp';
 import { MARGEN_TOMA, colocarToma } from '../audio/mezcla';
 import { Encabezado, Marco, Selector, useTeclas, useToast } from '../ui/componentes';
 import { Calibracion } from '../ui/Calibracion';
+import { GuiaOnda, type MuestraDirecto } from '../ui/GuiaOnda';
 import { usePack } from './Sala';
 
 /** Segundos de escena antes de cada línea. */
@@ -57,15 +58,28 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   const [modo, setModo] = useState<ModoMicro>(modoMicro());
   const [calibrando, setCalibrando] = useState(false);
   const subidas = sala.tomas[yo] ?? [];
+  const vozOriginal = useMemo(() => (audio ? aMono(canalesDe(audio.voces)) : null), [audio]);
   const [indice, setIndice] = useState(() => {
     const i = lineas.findIndex((l) => !subidas.includes(l.id));
     return i < 0 ? 0 : i;
   });
   const [paso, setPaso] = useState<Paso>('listo');
   const [toma, setToma] = useState<Toma | null>(null);
+  // La toma tal y como sonará en el montaje (sincronizada y sin silencios)
+  const tomaColocada = useMemo(
+    () => (toma && audio && !toma.silenciosa
+      ? { ...colocarToma(toma, canalesDe(audio.voces), audio.voces.sampleRate), sr: toma.sr }
+      : null),
+    [toma, audio],
+  );
   const [pos, setPos] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const repRef = useRef<Reproduccion | null>(null);
+  const pasoRef = useRef<Paso>('listo');
+  pasoRef.current = paso;
+  const micRef = useRef<Microfono | null>(null);
+  micRef.current = mic;
+  const directo = useRef<MuestraDirecto[]>([]);
   const [toast, avisar] = useToast();
   const linea = lineas[indice];
   const personaje = (id: string) => pack.personajes.find((p) => p.id === id);
@@ -84,7 +98,12 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   useEffect(() => {
     let raf = 0;
     const bucle = () => {
-      if (repRef.current) setPos(repRef.current.posicion());
+      if (repRef.current) {
+        const p = repRef.current.posicion();
+        setPos(p);
+        // Tu voz en directo para la guía de onda
+        if (pasoRef.current === 'grabando' && micRef.current) directo.current.push({ t: p, v: micRef.current.nivel });
+      }
       raf = requestAnimationFrame(bucle);
     };
     raf = requestAnimationFrame(bucle);
@@ -119,6 +138,7 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
     parar();
     setPaso('grabando');
     setToma(null);
+    directo.current = [];
     await despertar();
     const { desde, hasta } = tramo(linea);
     const rep = await reproducir({
@@ -270,12 +290,17 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
   }
 
   if (!linea) return <div className="cargando">…</div>;
+  const ventana = tramo(linea);
+  const srVoz = audio?.voces.sampleRate ?? 48000;
+  const originalVentana = vozOriginal
+    ? vozOriginal.subarray(Math.floor(ventana.desde * srVoz), Math.floor(ventana.hasta * srVoz))
+    : null;
+
   const p = personaje(linea.personaje);
   const anterior = pack.lineas.filter((l) => l.fin <= linea.inicio + 0.01).at(-1);
   const enLinea = paso === 'grabando' && pos >= linea.inicio;
   const enCola = enLinea && pos > linea.fin;
   const cuenta = paso === 'grabando' && pos < linea.inicio ? Math.ceil(linea.inicio - pos) : null;
-  const progresoLinea = paso === 'grabando' ? Math.max(0, Math.min(1, (pos - linea.inicio) / (linea.fin - linea.inicio))) : paso === 'revisar' ? 1 : 0;
   // Subtítulos de lo que se oye antes de tu línea (después, las otras voces están silenciadas)
   const subVisible = repRef.current
     ? pack.lineas.find((l) => pos >= l.inicio && pos <= l.fin && l.fin <= linea.inicio + 0.05)
@@ -314,7 +339,17 @@ function Cabina({ sala, sesion, pack, lineas }: { sala: EstadoSala; sesion: Sesi
         </div>
       </div>
       <div className={`reloj-linea ${enLinea ? 'activo' : ''}`} data-testid="reloj-linea">
-        <div className="pista"><div className="relleno" style={{ width: `${progresoLinea * 100}%` }} /></div>
+        <GuiaOnda
+          original={originalVentana}
+          sr={srVoz}
+          desde={ventana.desde}
+          hasta={ventana.hasta}
+          linea={linea}
+          pos={repRef.current ? pos : null}
+          toma={paso === 'grabando' ? null : tomaColocada}
+          directo={directo.current}
+          color={p?.color ?? '#ece6d6'}
+        />
         <div className="cifra">
           {cuenta !== null
             ? `Empieza en ${cuenta}…`

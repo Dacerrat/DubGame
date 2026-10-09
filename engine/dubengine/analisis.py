@@ -51,31 +51,6 @@ def vad(voz: np.ndarray, silencio_min: float = 0.25, habla_min: float = 0.12) ->
     return tramos
 
 
-def diarizar(voz: np.ndarray, n_hablantes: int | None, umbral: float = 0.4, hilos: int = 4) -> list[Tramo]:
-    import sherpa_onnx
-
-    informar("diarizar", "Identificando quién habla en cada momento…")
-    config = sherpa_onnx.OfflineSpeakerDiarizationConfig(
-        segmentation=sherpa_onnx.OfflineSpeakerSegmentationModelConfig(
-            pyannote=sherpa_onnx.OfflineSpeakerSegmentationPyannoteModelConfig(
-                model=str(modelos.asegurar("segmentacion") / "model.onnx")),
-            num_threads=hilos),
-        embedding=sherpa_onnx.SpeakerEmbeddingExtractorConfig(
-            model=str(modelos.asegurar("embedding")), num_threads=hilos),
-        clustering=sherpa_onnx.FastClusteringConfig(
-            num_clusters=n_hablantes if n_hablantes else -1, threshold=umbral),
-        min_duration_on=0.2,
-        min_duration_off=0.3,
-    )
-    if not config.validate():
-        raise RuntimeError("Configuración de diarización no válida")
-    sd = sherpa_onnx.OfflineSpeakerDiarization(config)
-    if n_hablantes == 1:
-        return [Tramo(0.0, len(voz) / SR, 0)]
-    res = sd.process(voz).sort_by_start_time()
-    return [Tramo(s.start, s.end, s.speaker) for s in res]
-
-
 def embeddings(voz: np.ndarray, tramos: list[Tramo], hilos: int = 4) -> np.ndarray:
     """Un embedding de voz (normalizado) por tramo."""
     import sherpa_onnx

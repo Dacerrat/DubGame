@@ -41,6 +41,7 @@ El certificado es autofirmado: la primera vez cada dispositivo tiene que aceptar
 - **Las tomas se sincronizan solas**: el juego detecta dónde empieza tu voz y la coloca donde empezaba la voz original, aunque arranques un poco tarde. También recorta los silencios y no te corta si te alargas un poco.
 - **Auriculares Bluetooth**: tienen retraso y el vídeo y los subtítulos parecen ir adelantados. En *Opciones → Sincronía* (o antes de grabar, en "Ajustar sincronía") suenan unos clics: pulsa Espacio con cada uno y el juego compensa tu retraso.
 - En el montaje puedes subir o bajar la **música y efectos** del fondo.
+- Al doblar ves la **forma de onda** de la voz original con un cabezal que avanza, tu voz encima mientras grabas y la **entonación** (puntos verdes del original y rosas tuyos).
 
 ## Crear packs (motor automático)
 
@@ -68,8 +69,8 @@ Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/s
 1. Descarga el clip (yt-dlp) y lo recorta.
 2. **Separa las voces de la música/efectos** (UVR por defecto; Spleeter es más rápido pero a veces distorsiona), para que al doblar se oiga el fondo sin las voces.
 3. Detecta los tramos con voz (VAD Silero).
-4. **Identifica quién habla** en cada tramo (diarización + agrupamiento por huella de voz CAM++).
-5. Divide en líneas y las **transcribe** con Whisper.
+4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz (CAM++) en ventanas cortas, cortes en las micro-pausas entre palabras y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase).
+5. Divide en líneas y las **transcribe con contexto** (Whisper turbo): oye la conversación entera y reparte el texto entre las líneas, porque frase a frase se equivoca mucho más. Lo que no es voz (`[Música]`, risas…) no se convierte en línea.
 6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
 
@@ -98,6 +99,9 @@ Desde **Dub Packs → Detalles → Exportar .dubpack** se descarga el pack en un
 | La entrevista | 2 | 100 % | 100 % | ~0,1 s |
 | El atraco | 3 | 100 % | 100 % | ~0,1 s |
 | El narrador | 1 | 100 % | 100 % | ~0,1 s |
+| Las llaves (diálogo rápido, réplicas de una palabra) | 2 | ~95 % | ~95 % | ~0,2 s |
+
+Errores de transcripción con contexto (Whisper turbo): ~2 % de palabras.
 
 Con un guion que **no** coincide con el audio (frases parafraseadas, inventadas o que faltan), los tiempos y los personajes siguen saliendo bien y el texto es el que se oye.
 

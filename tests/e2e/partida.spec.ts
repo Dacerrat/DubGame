@@ -33,6 +33,7 @@ async function doblar(page: Page) {
     const texto = (await contador.textContent()) ?? '';
     const [, actual, total] = texto.match(/(\d+) \/ (\d+)/)!.map(Number);
     await expect(page.getByTestId('grabar')).toBeEnabled({ timeout: 30_000 });
+    await expect(page.getByTestId('guia-onda')).toBeVisible();
     await page.getByTestId('grabar').click();
     await expect(page.getByTestId('siguiente')).toBeVisible({ timeout: 30_000 });
     await page.getByTestId('siguiente').click();

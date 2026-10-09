@@ -30,7 +30,7 @@ export function CrearPack({ volver, receta: recetaInicial, ir }: { volver: () =>
   const [tipo, setTipo] = useState('pelicula');
   const [idioma, setIdioma] = useState('es');
   const [hablantes, setHablantes] = useState('auto');
-  const [modelo, setModelo] = useState<'base' | 'small' | 'medium'>('small');
+  const [modelo, setModelo] = useState<'base' | 'small' | 'turbo'>('turbo');
   const [separacion, setSeparacion] = useState<'spleeter' | 'uvr'>('uvr');
   const [inicio, setInicio] = useState('');
   const [fin, setFin] = useState('');
@@ -212,9 +212,9 @@ export function CrearPack({ volver, receta: recetaInicial, ir }: { volver: () =>
             nombre="Transcripción"
             valor={modelo}
             opciones={[
-              { valor: 'base', texto: 'Rápida' },
+              { valor: 'turbo', texto: 'Precisa' },
               { valor: 'small', texto: 'Equilibrada' },
-              { valor: 'medium', texto: 'Precisa (lenta)' },
+              { valor: 'base', texto: 'Rápida' },
             ]}
             onCambio={setModelo}
           />

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { OBJETIVO_VOZ_DB, db, deteccionVoz, limitar, normalizarVoz, rmsConPuerta } from '../../client/src/audio/dsp';
 import { MARGEN_TOMA, colocarToma, mezclar } from '../../client/src/audio/mezcla';
 import { calcularRetraso } from '../../client/src/ui/Calibracion';
+import { tono } from '../../client/src/audio/tono';
 import { codificarWav, decodificarWav } from '../../client/src/audio/wav';
 
 const SR = 16000;
@@ -146,5 +147,21 @@ describe('calibración de sincronía', () => {
   });
   it('sin suficientes pulsaciones no inventa nada', () => {
     expect(calcularRetraso([1, 1.6, 2.2], [1.1, 1.7])).toBeNull();
+  });
+});
+
+describe('entonación', () => {
+  it('detecta el tono de una voz sintética y nada en el silencio', () => {
+    const sr = 16000;
+    const x = new Float32Array(sr);
+    for (let i = 0; i < sr / 2; i++) {
+      const t = i / sr;
+      x[i] = 0.5 * Math.sin(2 * Math.PI * 150 * t) + 0.25 * Math.sin(2 * Math.PI * 300 * t) + 0.1 * Math.sin(2 * Math.PI * 450 * t);
+    }
+    const p = tono(x, sr);
+    expect(p.length).toBeGreaterThan(20);
+    const medio = p.map((q) => q.hz).sort((a, b) => a - b)[Math.floor(p.length / 2)];
+    expect(Math.abs(medio - 150)).toBeLessThan(8);
+    expect(p.every((q) => q.t < 0.55)).toBe(true);
   });
 });

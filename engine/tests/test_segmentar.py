@@ -1,21 +1,7 @@
 import numpy as np
 
 from dubengine.analisis import Tramo
-from dubengine.segmentar import acolchar, agrupar, asignar_hablantes, construir_lineas, renumerar_hablantes
-
-
-def test_parte_tramo_en_cambio_de_hablante():
-    voz = [Tramo(0.0, 4.0)]
-    diar = [Tramo(0.0, 2.0, 7), Tramo(2.0, 4.0, 3)]
-    piezas = asignar_hablantes(voz, diar)
-    assert [(p.inicio, p.fin, p.hablante) for p in piezas] == [(0.0, 2.0, 7), (2.0, 4.0, 3)]
-
-
-def test_absorbe_trozos_minusculos():
-    voz = [Tramo(0.0, 3.0)]
-    diar = [Tramo(0.0, 2.8, 0), Tramo(2.8, 3.0, 1)]
-    piezas = asignar_hablantes(voz, diar)
-    assert len(piezas) == 1 and piezas[0].hablante == 0
+from dubengine.segmentar import acolchar, agrupar, construir_lineas, renumerar_hablantes
 
 
 def test_une_mismo_hablante_y_corta_largas():

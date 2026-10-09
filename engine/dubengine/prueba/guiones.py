@@ -71,4 +71,38 @@ ESCENAS = [
             ("narrador", "Era solo una nube con forma de dragón. Y así terminó su mayor aventura."),
         ],
     },
+    {
+        # Diálogo rápido, casi sin pausas y con réplicas de una palabra:
+        # el caso difícil de las escenas reales (p. ej. Shrek y Asno).
+        "id": "prueba-las-llaves",
+        "titulo": "Las llaves",
+        "obra": "Escena de prueba DubGame",
+        "pausas": (0.06, 0.28),
+        "personajes": [
+            {"id": "marta", "nombre": "Marta", "voz": ("davefx", 0, 1.0)},
+            {"id": "jose", "nombre": "José", "voz": ("sharvard", 0, 1.05)},
+        ],
+        "guion": [
+            ("marta", "Oye, ¿tú has visto mis llaves?"),
+            ("jose", "¿Qué llaves?"),
+            ("marta", "Las del coche."),
+            ("jose", "No."),
+            ("marta", "¿Seguro?"),
+            ("jose", "Segurísimo. Bueno, a lo mejor."),
+            ("marta", "¿Cómo que a lo mejor?"),
+            ("jose", "Es que esta mañana cogí unas llaves, pero creía que eran las mías."),
+            ("marta", "¿Y dónde están?"),
+            ("jose", "En el bolsillo."),
+            ("marta", "¿En qué bolsillo?"),
+            ("jose", "En el del pantalón que llevaba ayer."),
+            ("marta", "¿Y dónde está ese pantalón?"),
+            ("jose", "En la lavadora."),
+            ("marta", "¡No!"),
+            ("jose", "Sí."),
+            ("marta", "¿Está puesta?"),
+            ("jose", "Desde hace una hora."),
+            ("marta", "Pues ya puedes ir corriendo a pararla."),
+            ("jose", "Vale, vale. Pero las llaves van a quedar limpísimas."),
+        ],
+    },
 ]
