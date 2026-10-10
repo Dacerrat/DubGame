@@ -51,23 +51,48 @@ def vad(voz: np.ndarray, silencio_min: float = 0.25, habla_min: float = 0.12) ->
     return tramos
 
 
-def embeddings(voz: np.ndarray, tramos: list[Tramo], hilos: int = 4) -> np.ndarray:
-    """Un embedding de voz (normalizado) por tramo."""
+# Modelos de huellas de voz (nombre en modelos.CATALOGO, duración mínima en s: los
+# trozos más cortos se repiten hasta llegar). CAM++ clasifica mejor los trozos
+# cortos repetidos hasta 1 s; TitaNet, con 0,3 s.
+HUELLAS: tuple[tuple[str, float], ...] = (("embedding", 1.0), ("embedding-titanet", 0.3))
+_extractores: dict = {}
+
+
+def _extractor(nombre: str, hilos: int):
+    """Cada modelo se carga una sola vez (diarizar pide huellas varias veces por clip)."""
     import sherpa_onnx
 
-    ext = sherpa_onnx.SpeakerEmbeddingExtractor(
-        sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=str(modelos.asegurar("embedding")), num_threads=hilos))
-    salida = []
-    for t in tramos:
-        trozo = voz[int(t.inicio * SR):int(t.fin * SR)]
-        if len(trozo) < int(0.3 * SR):  # demasiado corto: se rellena repitiéndolo
-            trozo = np.tile(trozo, int(np.ceil(0.3 * SR / max(1, len(trozo)))))
-        s = ext.create_stream()
-        s.accept_waveform(SR, trozo)
-        s.input_finished()
-        e = np.asarray(ext.compute(s), dtype=np.float32)
-        salida.append(e / (np.linalg.norm(e) + 1e-9))
-    return np.array(salida)
+    clave = (nombre, hilos)
+    if clave not in _extractores:
+        _extractores[clave] = sherpa_onnx.SpeakerEmbeddingExtractor(
+            sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=str(modelos.asegurar(nombre)), num_threads=hilos))
+    return _extractores[clave]
+
+
+def embeddings(voz: np.ndarray, tramos: list[Tramo], hilos: int = 4,
+               huellas: tuple[tuple[str, float], ...] = HUELLAS) -> np.ndarray:
+    """Una huella de voz (normalizada) por tramo.
+
+    Con varios modelos se concatenan sus huellas normalizadas, cada una escalada por
+    1/sqrt(k): el producto escalar de dos huellas es la media de los cosenos de los
+    k modelos, y la diarización no necesita saber cuántos hay.
+    """
+    bloques = []
+    for nombre, minimo in huellas:
+        ext = _extractor(nombre, hilos)
+        bloque = np.zeros((len(tramos), ext.dim), dtype=np.float32)
+        for i, t in enumerate(tramos):
+            trozo = voz[int(t.inicio * SR):int(t.fin * SR)]
+            if len(trozo) < int(minimo * SR):  # demasiado corto: se rellena repitiéndolo
+                trozo = np.tile(trozo, int(np.ceil(minimo * SR / max(1, len(trozo)))))
+            s = ext.create_stream()
+            s.accept_waveform(SR, trozo)
+            s.input_finished()
+            e = np.asarray(ext.compute(s), dtype=np.float32)
+            bloque[i] = e / (np.linalg.norm(e) + 1e-9)
+        bloques.append(bloque / np.sqrt(len(huellas)))
+    e = np.concatenate(bloques, axis=1)
+    return e / (np.linalg.norm(e, axis=1, keepdims=True) + 1e-9)
 
 
 class Transcriptor:

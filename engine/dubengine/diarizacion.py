@@ -142,7 +142,7 @@ def agrupar_robusto(emb: np.ndarray, duraciones: list[float], n: int | None, umb
     return [orden[g] for g in asignado]
 
 
-def estimar_hablantes(tramos: list[Tramo], embeddings: Embeddings, umbral: float = 0.5) -> int:
+def estimar_hablantes(tramos: list[Tramo], embeddings: Embeddings, umbral: float = 0.35) -> int:
     """Cuántas voces hay (cuando no lo dice la receta), con los tramos largos."""
     largos = [t for t in tramos if t.dur >= 0.8] or tramos
     if len(largos) < 2:
@@ -151,8 +151,32 @@ def estimar_hablantes(tramos: list[Tramo], embeddings: Embeddings, umbral: float
     return max(1, len(set(etiquetas)))
 
 
+def cortes_por_ventanas(t: Tramo, base: list[Tramo], cortes: list[float], env: np.ndarray, min_lado: float,
+                        busca: float = 0.15, paso: float = 0.01) -> list[float]:
+    """Instantes dentro del tramo `t` en los que el reparto por ventanas cambia de hablante.
+
+    Un cambio de turno sin micro-pausa ("¿Por ejemplo?" pegado a la frase del otro)
+    no lo corta cortes_en_valles. Cada cambio se lleva al mínimo de energía a menos
+    de `busca` s y se queda solo si deja al menos `min_lado` s hasta los bordes del
+    tramo y hasta cualquier otro corte.
+    """
+    propios = [q for q in base if q.inicio >= t.inicio - 1e-6 and q.fin <= t.fin + 1e-6]
+    out: list[float] = []
+    for q0, q1 in zip(propios, propios[1:]):
+        if q0.hablante == q1.hablante:
+            continue
+        c = q1.inicio
+        i0 = max(0, int((c - busca - t.inicio) / paso))
+        i1 = min(len(env), int((c + busca - t.inicio) / paso) + 1)
+        if i1 > i0:
+            c = t.inicio + (i0 + int(np.argmin(env[i0:i1]))) * paso
+        if min(abs(c - v) for v in (t.inicio, *cortes, *out, t.fin)) >= min_lado:
+            out.append(c)
+    return out
+
+
 def diarizar(voz: np.ndarray, sr: int, tramos: list[Tramo], n: int | None, embeddings: Embeddings,
-             margen: float = 0.12) -> list[Tramo]:
+             margen: float = 0.06, dur_min: float = 0.3, min_lado_cortes: float = 0.25) -> list[Tramo]:
     """Devuelve trozos de voz con su hablante (0..n-1), en orden."""
     if not tramos:
         return []
@@ -178,10 +202,14 @@ def diarizar(voz: np.ndarray, sr: int, tramos: list[Tramo], n: int | None, embed
                 votos[q.hablante] = votos.get(q.hablante, 0.0) + o
         return max(votos, key=votos.get) if votos else 0
 
-    # 2) Trozos entre micro-pausas
+    # 2) Trozos entre micro-pausas y donde cambia el reparto por ventanas
     piezas: list[Tramo] = []
     for t in tramos:
-        bordes = [t.inicio, *cortes_en_valles(envolvente(voz, sr, t), t.inicio), t.fin]
+        env = envolvente(voz, sr, t)
+        cortes = cortes_en_valles(env, t.inicio)
+        if min_lado_cortes > 0:
+            cortes = sorted(cortes + cortes_por_ventanas(t, base, cortes, env, min_lado_cortes))
+        bordes = [t.inicio, *cortes, t.fin]
         for a, b in zip(bordes, bordes[1:]):
             if piezas and b - a < 0.12 and abs(piezas[-1].fin - a) < 1e-6:
                 piezas[-1].fin = b  # demasiado corto para ser una palabra
@@ -201,7 +229,7 @@ def diarizar(voz: np.ndarray, sr: int, tramos: list[Tramo], n: int | None, embed
             centroides[h] = c / (np.linalg.norm(c) + 1e-9)
         for i, p in enumerate(piezas):
             sims = sorted(((float(ep[i] @ c), h) for h, c in centroides.items()), reverse=True)
-            if len(sims) > 1 and p.dur >= 0.25 and sims[0][0] - sims[1][0] >= margen:
+            if len(sims) > 1 and p.dur >= dur_min and sims[0][0] - sims[1][0] >= margen:
                 p.hablante = sims[0][1]
             else:
                 p.hablante = por_ventanas(p)
@@ -209,7 +237,7 @@ def diarizar(voz: np.ndarray, sr: int, tramos: list[Tramo], n: int | None, embed
 
 
 def revisar_lineas(lineas: list[Tramo], piezas: list[Tramo], embeddings: Embeddings, min_parte: float = 0.6,
-                   margen: float = 0.1, min_referencia: float = 1.5) -> list[Tramo]:
+                   margen: float = 0.05, min_referencia: float = 1.5) -> list[Tramo]:
     """Parte las líneas en las que se han colado dos personajes.
 
     Los trozos cortos se clasifican mal a veces y la línea acaba juntando, por

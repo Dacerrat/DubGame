@@ -71,7 +71,7 @@ Qué hace el motor (todo en local, con [sherpa-onnx](https://github.com/k2-fsa/s
 1. Descarga el clip (yt-dlp) y lo recorta.
 2. **Separa las voces de la música/efectos** (UVR por defecto; Spleeter es más rápido pero a veces distorsiona), para que al doblar se oiga el fondo sin las voces.
 3. Detecta los tramos con voz (VAD Silero).
-4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz (CAM++) en ventanas cortas, cortes en las micro-pausas entre palabras y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase). Al final **revisa cada línea**: si a un lado de una pausa suena un personaje y al otro, otro, la parte ahí.
+4. **Identifica quién habla** aunque se contesten sin pausa: huellas de voz de dos modelos combinados (CAM++ y TitaNet) en ventanas cortas, cortes en las micro-pausas entre palabras y también donde las ventanas oyen otra voz aunque no haya pausa, y cada trozo asignado por su voz (así un "¿Por ejemplo?" de otro personaje no se queda pegado a tu frase). Al final **revisa cada línea**: si a un lado de una pausa suena un personaje y al otro, otro, la parte ahí.
 5. Divide en líneas (las frases seguidas de un mismo personaje van juntas, hasta 10 s) y las **transcribe con contexto** (Whisper turbo): oye la conversación entera y reparte el texto entre las líneas, porque frase a frase se equivoca mucho más. Lo que no es voz (`[Música]`, risas…) no se convierte en línea, ni las frases que Whisper se inventa en ruidos flojos (un “¡Gracias!” donde no hay nadie).
 6. Si hay receta, **ajusta el guion al audio**. Si el clip está en castellano mandan siempre el audio real: los tiempos son los de cada frase detectada y el texto es el que se oye (el de la receta solo se usa si coincide de verdad); la receta pone los nombres de los personajes. Si el clip está en otro idioma, se usa el guion en castellano de la receta repartido por turnos (o la traducción de Claude, si está configurada). Si el vídeo descargado no se parece a la receta, el pack queda en *REVISAR* con un aviso.
 7. Guarda el pack en `packs/<id>/`. Si alguna línea es dudosa, queda en estado *REVISAR*.
@@ -107,6 +107,19 @@ Desde **Dub Packs → Detalles → Exportar .dubpack** se descarga el pack en un
 El desfase del final es en parte a propósito: cada línea lleva un pequeño margen para no cortar la última sílaba. Errores de transcripción (Whisper turbo, lo que se oye): 0-8 % de palabras, casi todo grafías («puzzles», «tic-tac») o una palabra en el borde entre dos frases; con receta, el texto sale exacto en las 5.
 
 Lo que aún falla sin receta es siempre lo mismo: un «¡No!» de 0,3 s pegado a la frase del otro personaje, demasiado corto para reconocer la voz. Con receta sale bien y, si no, en el editor se arregla con **Dividir**. Cuando las partes mezcladas son más largas, la revisión del paso 4 las separa: en una prueba con 100 líneas a las que se les juntó a propósito la réplica del otro personaje, separó bien 94; las 6 restantes eran réplicas de una sola palabra.
+
+#### Con voces reales
+
+Las voces sintéticas no bastan para medir esto, así que hay un banco de pruebas con **voces humanas reales**: conversaciones reales anotadas (la muestra de pyannote y 10 fragmentos de reuniones del corpus AMI) y diálogos rápidos montados con grabaciones reales de varias personas, con música y muchas réplicas cortas, todo pasado por la separación de voces igual que un clip de verdad. Con el número de personajes conocido (como con receta):
+
+| | Líneas con dos personajes | Réplicas cortas (< 0,8 s) mal asignadas | Tiempo de voz asignado a otro personaje |
+|---|---|---|---|
+| Diálogos con voces reales, antes | 6,1 % | 10 % | 3,7 % |
+| Diálogos con voces reales, ahora | **0,9 %** | **5 %** | **1,8 %** |
+| Conversación real de pyannote, antes → ahora | 33 % → **0 %** | 50 % → **0 %** | 6,7 % → **1,5 %** |
+| Reuniones AMI (10 fragmentos), antes → ahora | 4,6 % → **2,0 %** | 42 % → 37 % | 16 % → 14 % |
+
+Las reuniones de AMI salen peor porque son grabaciones de sala con mucha reverberación, y la separación de voces se come parte de lo que dicen. También se probó la diarización completa de pyannote (segmentation-3.0): en voces reales mezcla bastante más, porque junta voces parecidas en el mismo hablante.
 
 Con un guion que **no** coincide con el audio (frases parafraseadas, inventadas o que faltan), los tiempos y los personajes siguen saliendo bien y el texto es el que se oye.
 

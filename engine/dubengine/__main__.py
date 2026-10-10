@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.orden == "modelos":
             from . import modelos
 
-            for m in ("vad", "embedding", "whisper-base", "whisper-turbo", "uvr"):
+            for m in ("vad", "embedding", "embedding-titanet", "whisper-base", "whisper-turbo", "uvr"):
                 print(modelos.asegurar(m))
             return 0
         if a.orden == "preparar-recetas":

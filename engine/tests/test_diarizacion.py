@@ -102,3 +102,17 @@ def test_revisar_no_toca_las_lineas_de_un_solo_personaje():
     piezas = [Tramo(0, 1.5, 0), Tramo(1.5, 3, 0), Tramo(3.5, 7, 0), Tramo(8, 11, 1)]
     lineas = [Tramo(0, 7, 0), Tramo(8, 11, 1)]
     assert revisar_lineas(lineas, piezas, emb) == lineas
+
+
+def test_diarizar_corta_un_cambio_de_turno_sin_micro_pausa():
+    """B contesta pegado a A, sin ninguna bajada de energía: lo corta el reparto por ventanas."""
+    centros = np.eye(2, 8)
+    turnos = [(0, 2.0, 0), (2.0, 3.2, 1)]
+    emb = _emb_por_turnos(turnos, centros)
+    voz = (np.sin(np.arange(int(3.2 * SR)) * 0.05) * 0.5).astype(np.float32)  # sin micro-pausas
+    piezas = diarizar(voz, SR, [Tramo(0, 3.2)], 2, emb)
+    etiqueta_en = lambda t: next(p.hablante for p in piezas if p.inicio <= t < p.fin)
+    assert etiqueta_en(1.0) != etiqueta_en(2.8)
+    assert any(abs(p.fin - 2.0) <= 0.2 for p in piezas[:-1])
+    # Sin los cortes por ventanas todo el tramo es un solo trozo (de un solo personaje)
+    assert len(diarizar(voz, SR, [Tramo(0, 3.2)], 2, emb, min_lado_cortes=0)) == 1

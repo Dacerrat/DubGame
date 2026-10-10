@@ -21,6 +21,7 @@ CATALOGO: dict[str, tuple[str, bool]] = {
     "vad": ("asr-models/silero_vad.onnx", False),
     "segmentacion": ("speaker-segmentation-models/sherpa-onnx-pyannote-segmentation-3-0.tar.bz2", True),
     "embedding": ("speaker-recongition-models/3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx", False),
+    "embedding-titanet": ("speaker-recongition-models/nemo_en_titanet_small.onnx", False),
     "whisper-tiny": ("asr-models/sherpa-onnx-whisper-tiny.tar.bz2", True),
     "whisper-base": ("asr-models/sherpa-onnx-whisper-base.tar.bz2", True),
     "whisper-small": ("asr-models/sherpa-onnx-whisper-small.tar.bz2", True),
